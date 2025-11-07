@@ -6,7 +6,7 @@ class SessionViewModel: ObservableObject {
     var handle: AuthStateDidChangeListenerHandle?
 
     func listen() {
-        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
+        handle = Auth.auth().addStateDidChangeListener { (auth, user) in //closure sur thread principal
             if let user = user {
                 self.session = User(uid: user.uid, email: user.email)
             } else {
@@ -20,7 +20,9 @@ class SessionViewModel: ObservableObject {
             if let error = error {
                 print("Error creating user: \(error.localizedDescription) \(error)")
             } else {
-                self.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
+                DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
+                    self.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
+                }
             }
         }
     }
@@ -30,7 +32,9 @@ class SessionViewModel: ObservableObject {
             if let error = error {
                 print("Error signing in: \(error.localizedDescription)")
             } else {
-                self.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
+                DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
+                    self.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
+                }
             }
         }
     }
@@ -49,9 +53,4 @@ class SessionViewModel: ObservableObject {
             Auth.auth().removeStateDidChangeListener(handle)
         }
     }
-}
-
-struct User {
-    var uid: String
-    var email: String?
 }

@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct MediStockApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    var sessionVM = SessionViewModel()
+    @StateObject var sessionVM = SessionViewModel() //ajout de State pour éviter une memoryleak au lancement de l'app
     
     var body: some Scene {
         WindowGroup {
@@ -19,3 +19,4 @@ struct MediStockApp: App {
         }
     }
 }
+

@@ -33,7 +33,6 @@ class MedicineStockViewModel: ObservableObject {
                     let allMedicines = querySnapshot?.documents.compactMap { document in
                         try? document.data(as: Medicine.self)
                     } ?? []
-                    //self.aisles = Array(Set(allMedicines.map { $0.aisle })).sorted()
                     let aislesSet = Set(allMedicines.map{ $0.aisle })
                     let aislesSorted = Array(aislesSet).sorted()
                     DispatchQueue.main.async {
