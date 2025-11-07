@@ -1,7 +1,7 @@
 import Foundation
 import Firebase
 
-class SessionStore: ObservableObject {
+class SessionViewModel: ObservableObject {
     @Published var session: User?
     var handle: AuthStateDidChangeListenerHandle?
 

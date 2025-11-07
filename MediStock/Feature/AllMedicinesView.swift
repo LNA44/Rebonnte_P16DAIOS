@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AllMedicinesView: View {
-    @ObservedObject var viewModel = MedicineStockViewModel()
+    @ObservedObject var medicineStockVM: MedicineStockViewModel
     @State private var filterText: String = ""
     @State private var sortOption: SortOption = .none
 
@@ -29,7 +29,7 @@ struct AllMedicinesView: View {
                 // Liste des Médicaments
                 List {
                     ForEach(filteredAndSortedMedicines, id: \.id) { medicine in
-                        NavigationLink(destination: MedicineDetailView(medicine: medicine, viewModel: viewModel)) {
+                        NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM)) {
                             VStack(alignment: .leading) {
                                 Text(medicine.name)
                                     .font(.headline)
@@ -41,19 +41,19 @@ struct AllMedicinesView: View {
                 }
                 .navigationBarTitle("All Medicines")
                 .navigationBarItems(trailing: Button(action: {
-                    viewModel.addRandomMedicine(user: "test_user") // Remplacez par l'utilisateur actuel
+                    medicineStockVM.addRandomMedicine(user: "test_user") // Remplacez par l'utilisateur actuel
                 }) {
                     Image(systemName: "plus")
                 })
             }
         }
         .onAppear {
-            viewModel.fetchMedicines()
+            medicineStockVM.fetchMedicines()
         }
     }
     
     var filteredAndSortedMedicines: [Medicine] {
-        var medicines = viewModel.medicines
+        var medicines = medicineStockVM.medicines
 
         // Filtrage
         if !filterText.isEmpty {
@@ -84,6 +84,6 @@ enum SortOption: String, CaseIterable, Identifiable {
 
 struct AllMedicinesView_Previews: PreviewProvider {
     static var previews: some View {
-        AllMedicinesView()
+        AllMedicinesView(medicineStockVM: MedicineStockViewModel())
     }
 }

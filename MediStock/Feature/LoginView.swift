@@ -3,7 +3,7 @@ import SwiftUI
 struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
-    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var session: SessionViewModel
 
     var body: some View {
         VStack {
@@ -30,6 +30,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView().environmentObject(SessionStore())
+        LoginView().environmentObject(SessionViewModel())
     }
 }

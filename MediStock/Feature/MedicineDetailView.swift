@@ -2,8 +2,8 @@ import SwiftUI
 
 struct MedicineDetailView: View {
     @State var medicine: Medicine
-    @ObservedObject var viewModel = MedicineStockViewModel()
-    @EnvironmentObject var session: SessionStore
+    @ObservedObject var medicineStockVM: MedicineStockViewModel
+    @EnvironmentObject var session: SessionViewModel
 
     var body: some View {
         ScrollView {
@@ -29,10 +29,10 @@ struct MedicineDetailView: View {
         }
         .navigationBarTitle("Medicine Details", displayMode: .inline)
         .onAppear {
-            viewModel.fetchHistory(for: medicine)
+            medicineStockVM.fetchHistory(for: medicine)
         }
-        .onChange(of: medicine) { _ in
-            viewModel.updateMedicine(medicine, user: session.session?.uid ?? "")
+        .onChange(of: medicine) {_, _ in
+            medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
         }
     }
 }
@@ -43,7 +43,7 @@ extension MedicineDetailView {
             Text("Name")
                 .font(.headline)
             TextField("Name", text: $medicine.name, onCommit: {
-                viewModel.updateMedicine(medicine, user: session.session?.uid ?? "")
+                medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
             })
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding(.bottom, 10)
@@ -57,20 +57,20 @@ extension MedicineDetailView {
                 .font(.headline)
             HStack {
                 Button(action: {
-                    viewModel.decreaseStock(medicine, user: session.session?.uid ?? "")
+                    medicineStockVM.decreaseStock(medicine, user: session.session?.uid ?? "")
                 }) {
                     Image(systemName: "minus.circle")
                         .font(.title)
                         .foregroundColor(.red)
                 }
                 TextField("Stock", value: $medicine.stock, formatter: NumberFormatter(), onCommit: {
-                    viewModel.updateMedicine(medicine, user: session.session?.uid ?? "")
+                    medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
                 })
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(.numberPad)
                 .frame(width: 100)
                 Button(action: {
-                    viewModel.increaseStock(medicine, user: session.session?.uid ?? "")
+                    medicineStockVM.increaseStock(medicine, user: session.session?.uid ?? "")
                 }) {
                     Image(systemName: "plus.circle")
                         .font(.title)
@@ -87,7 +87,7 @@ extension MedicineDetailView {
             Text("Aisle")
                 .font(.headline)
             TextField("Aisle", text: $medicine.aisle, onCommit: {
-                viewModel.updateMedicine(medicine, user: session.session?.uid ?? "")
+                medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
             })
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding(.bottom, 10)
@@ -100,7 +100,7 @@ extension MedicineDetailView {
             Text("History")
                 .font(.headline)
                 .padding(.top, 20)
-            ForEach(viewModel.history.filter { $0.medicineId == medicine.id }, id: \.id) { entry in
+            ForEach(medicineStockVM.history.filter { $0.medicineId == medicine.id }, id: \.id) { entry in
                 VStack(alignment: .leading, spacing: 5) {
                     Text(entry.action)
                         .font(.headline)
@@ -125,6 +125,6 @@ struct MedicineDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleMedicine = Medicine(name: "Sample", stock: 10, aisle: "Aisle 1")
         let sampleViewModel = MedicineStockViewModel()
-        MedicineDetailView(medicine: sampleMedicine, viewModel: sampleViewModel).environmentObject(SessionStore())
+        MedicineDetailView(medicine: sampleMedicine, medicineStockVM: sampleViewModel).environmentObject(SessionViewModel())
     }
 }
