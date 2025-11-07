@@ -12,9 +12,14 @@ class MedicineStockViewModel: ObservableObject {
             if let error = error {
                 print("Error getting documents: \(error)")
             } else {
-                self.medicines = querySnapshot?.documents.compactMap { document in
-                    try? document.data(as: Medicine.self)
-                } ?? []
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let fetchedMedicines = querySnapshot?.documents.compactMap { document in
+                        try? document.data(as: Medicine.self)
+                    } ?? []
+                    DispatchQueue.main.async {
+                        self.medicines = fetchedMedicines
+                    }
+                }
             }
         }
     }
@@ -24,10 +29,17 @@ class MedicineStockViewModel: ObservableObject {
             if let error = error {
                 print("Error getting documents: \(error)")
             } else {
-                let allMedicines = querySnapshot?.documents.compactMap { document in
-                    try? document.data(as: Medicine.self)
-                } ?? []
-                self.aisles = Array(Set(allMedicines.map { $0.aisle })).sorted()
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let allMedicines = querySnapshot?.documents.compactMap { document in
+                        try? document.data(as: Medicine.self)
+                    } ?? []
+                    //self.aisles = Array(Set(allMedicines.map { $0.aisle })).sorted()
+                    let aislesSet = Set(allMedicines.map{ $0.aisle })
+                    let aislesSorted = Array(aislesSet).sorted()
+                    DispatchQueue.main.async {
+                        self.aisles = aislesSorted
+                    }
+                }
             }
         }
     }
@@ -35,8 +47,12 @@ class MedicineStockViewModel: ObservableObject {
     func addRandomMedicine(user: String) {
         let medicine = Medicine(name: "Medicine \(Int.random(in: 1...100))", stock: Int.random(in: 1...100), aisle: "Aisle \(Int.random(in: 1...10))")
         do {
-            try db.collection("medicines").document(medicine.id ?? UUID().uuidString).setData(from: medicine)
-            addHistory(action: "Added \(medicine.name)", user: user, medicineId: medicine.id ?? "", details: "Added new medicine")
+            try db.collection("medicines").document(medicine.id ?? UUID().uuidString).setData(from: medicine) { error in
+                if let error = error {
+                    print("Error adding document: \(error)")
+                }
+                self.addHistory(action: "Added \(medicine.name)", user: user, medicineId: medicine.id ?? "", details: "Added new medicine")
+            }
         } catch let error {
             print("Error adding document: \(error)")
         }
@@ -71,8 +87,10 @@ class MedicineStockViewModel: ObservableObject {
             if let error = error {
                 print("Error updating stock: \(error)")
             } else {
-                if let index = self.medicines.firstIndex(where: { $0.id == id }) {
-                    self.medicines[index].stock = newStock
+                DispatchQueue.main.async {
+                    if let index = self.medicines.firstIndex(where: { $0.id == id }) {
+                        self.medicines[index].stock = newStock
+                    }
                 }
                 self.addHistory(action: "\(amount > 0 ? "Increased" : "Decreased") stock of \(medicine.name) by \(amount)", user: user, medicineId: id, details: "Stock changed from \(medicine.stock - amount) to \(newStock)")
             }
@@ -82,8 +100,13 @@ class MedicineStockViewModel: ObservableObject {
     func updateMedicine(_ medicine: Medicine, user: String) {
         guard let id = medicine.id else { return }
         do {
-            try db.collection("medicines").document(id).setData(from: medicine)
-            addHistory(action: "Updated \(medicine.name)", user: user, medicineId: id, details: "Updated medicine details")
+            try db.collection("medicines").document(id).setData(from: medicine) { error in
+                if let error = error {
+                    print("Error updating document: \(error)")
+                } else {
+                    self.addHistory(action: "Updated \(medicine.name)", user: user, medicineId: id, details: "Updated medicine details")
+                }
+            }
         } catch let error {
             print("Error updating document: \(error)")
         }
@@ -92,7 +115,13 @@ class MedicineStockViewModel: ObservableObject {
     private func addHistory(action: String, user: String, medicineId: String, details: String) {
         let history = HistoryEntry(medicineId: medicineId, user: user, action: action, details: details)
         do {
-            try db.collection("history").document(history.id ?? UUID().uuidString).setData(from: history)
+            try db.collection("history").document(history.id ?? UUID().uuidString).setData(from: history) { error in
+                if let error = error {
+                    print("Error adding history: \(error)")
+                } else {
+                    //Quoi faire quand l'historique a été ajouté?
+                }
+            }
         } catch let error {
             print("Error adding history: \(error)")
         }
@@ -104,9 +133,14 @@ class MedicineStockViewModel: ObservableObject {
             if let error = error {
                 print("Error getting history: \(error)")
             } else {
-                self.history = querySnapshot?.documents.compactMap { document in
-                    try? document.data(as: HistoryEntry.self)
-                } ?? []
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let fetchedHistory = querySnapshot?.documents.compactMap { document in
+                        try? document.data(as: HistoryEntry.self)
+                    } ?? []
+                    DispatchQueue.main.async {
+                        self.history = fetchedHistory
+                    }
+                }
             }
         }
     }
