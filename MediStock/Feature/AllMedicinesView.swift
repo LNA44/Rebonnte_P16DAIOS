@@ -39,6 +39,9 @@ struct AllMedicinesView: View {
                             }
                         }
                     }
+                    .onDelete { indexSet in
+                        medicineStockVM.deleteMedicines(at: indexSet)
+                        }
                 }
                 .navigationBarTitle("All Medicines")
                 .navigationBarItems(trailing: NavigationLink(destination:
