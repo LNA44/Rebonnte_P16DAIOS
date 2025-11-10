@@ -7,7 +7,7 @@ struct MedicineListView: View {
     var body: some View {
         List {
             ForEach(medicineStockVM.medicines.filter { $0.aisle == aisle }, id: \.id) { medicine in
-                NavigationLink(destination: MedicineDetailView(medicineStockVM: medicineStockVM, medicine: medicine)) {
+                NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM)) {
                     VStack(alignment: .leading) {
                         Text(medicine.name)
                             .font(.headline)

@@ -32,7 +32,7 @@ struct AllMedicinesView: View {
                 // Liste des Médicaments
                 List {
                     ForEach(medicineStockVM.medicines, id: \.id) { medicine in
-                        NavigationLink(destination: MedicineDetailView(medicineStockVM: medicineStockVM, medicine: medicine)) {
+                        NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM)) {
                             VStack(alignment: .leading) {
                                 Text(medicine.name)
                                     .font(.headline)
@@ -51,8 +51,7 @@ struct AllMedicinesView: View {
                 .navigationBarTitle("All Medicines")
                 .navigationBarItems(trailing: NavigationLink(destination:
                     MedicineDetailView(
-                        medicineStockVM: medicineStockVM,
-                        medicine: Medicine(name: "", stock: 0, aisle: ""),
+                        medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM,
                         isNew: true
                     )
                                                             ) {

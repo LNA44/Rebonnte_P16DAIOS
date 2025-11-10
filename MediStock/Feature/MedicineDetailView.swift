@@ -6,9 +6,18 @@ struct MedicineDetailView: View {
     @State var medicine: Medicine
     @State var isNew: Bool = false //pr gérer l'ajout d'un médicament
     @State private var hasSaved = false
+    @State private var hasSavedAisle = false
     @State private var isEditingStock = false
     @FocusState private var isAisleFocused: Bool
     @FocusState private var isNameFocused: Bool
+    @State private var localMedicine: Medicine // pour éviter que quand on maj aisle la liste de AisleListView se maj et qu'on sorte de la vue details
+    
+    init(medicine: Medicine, medicineStockVM: MedicineStockViewModel, isNew: Bool = false) {
+        self.medicine = medicine
+        self._localMedicine = State(initialValue: medicine) // copie locale
+        self.medicineStockVM = medicineStockVM
+        self._isNew = State(initialValue: isNew)
+    }
    
     var body: some View {
         ScrollView {
@@ -42,6 +51,9 @@ struct MedicineDetailView: View {
         }
         .onChange(of: medicine.aisle) {_, _ in
             saveIfNeeded()
+        }
+        .onDisappear {
+            saveAisleIfNeeded()
         }
     }
 }
@@ -134,16 +146,16 @@ extension MedicineDetailView {
         VStack(alignment: .leading) {
             Text("Aisle")
                 .font(.headline)
-            TextField("Aisle", text: $medicine.aisle)
+            TextField("Aisle", text: $localMedicine.aisle)
                 .focused($isAisleFocused)
-            .textFieldStyle(RoundedBorderTextFieldStyle())
-            .padding(.bottom, 10)
-            .disabled(medicine.name.isEmpty)
-            .onChange(of: isAisleFocused) { _, focused in
-                if !focused {
-                    medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
-                }
-            }
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.bottom, 10)
+                .disabled(medicine.name.isEmpty)
+               /* .onChange(of: isAisleFocused) { _, focused in
+                    if !focused {
+                        medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
+                    }
+                }*/
         }
         .padding(.horizontal)
     }
@@ -187,12 +199,17 @@ extension MedicineDetailView {
         }
         hasSaved = true
     }
+    
+    private func saveAisleIfNeeded() {
+        guard !localMedicine.aisle.isEmpty else { return }
+        medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")
+    }
 }
 
 struct MedicineDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleMedicine = Medicine(name: "Sample", stock: 10, aisle: "Aisle 1")
         let sampleViewModel = MedicineStockViewModel()
-        MedicineDetailView(medicineStockVM: sampleViewModel, medicine: sampleMedicine).environmentObject(SessionViewModel())
+        MedicineDetailView(medicine: sampleMedicine, medicineStockVM: sampleViewModel).environmentObject(SessionViewModel())
     }
 }

@@ -16,8 +16,7 @@ struct AisleListView: View {
             .navigationBarItems(trailing:
                     NavigationLink(destination:
                         MedicineDetailView(
-                            medicineStockVM: medicineStockVM,
-                            medicine: Medicine(name: "", stock: 0, aisle: ""),
+                            medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM,
                             isNew: true
                         )
                     ) {
