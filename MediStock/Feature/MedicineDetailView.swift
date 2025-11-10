@@ -1,10 +1,15 @@
 import SwiftUI
 
 struct MedicineDetailView: View {
-    @State var medicine: Medicine
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @EnvironmentObject var session: SessionViewModel
-
+    @State var medicine: Medicine
+    @State var isNew: Bool = false //pr gérer l'ajout d'un médicament
+    @State private var hasSaved = false
+    @State private var isEditingStock = false
+    @FocusState private var isAisleFocused: Bool
+    @FocusState private var isNameFocused: Bool
+   
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -29,10 +34,14 @@ struct MedicineDetailView: View {
         }
         .navigationBarTitle("Medicine Details", displayMode: .inline)
         .onAppear {
-            medicineStockVM.fetchHistory(for: medicine)
+            if isNew {
+                medicine = Medicine(name: "", stock: 0, aisle: "")
+            } else {
+                medicineStockVM.fetchHistory(for: medicine)
+            }
         }
-        .onChange(of: medicine) {_, _ in
-            medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
+        .onChange(of: medicine.aisle) {_, _ in
+            saveIfNeeded()
         }
     }
 }
@@ -42,11 +51,15 @@ extension MedicineDetailView {
         VStack(alignment: .leading) {
             Text("Name")
                 .font(.headline)
-            TextField("Name", text: $medicine.name, onCommit: {
-                medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
-            })
-            .textFieldStyle(RoundedBorderTextFieldStyle())
-            .padding(.bottom, 10)
+            TextField("Name", text: $medicine.name)
+                .focused($isNameFocused)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.bottom, 10)
+                .onChange(of: isNameFocused) { _, focused in
+                    if !focused {
+                        saveIfNeeded()
+                    }
+                }
         }
         .padding(.horizontal)
     }
@@ -57,20 +70,55 @@ extension MedicineDetailView {
                 .font(.headline)
             HStack {
                 Button(action: {
-                    medicineStockVM.decreaseStock(medicine, user: session.session?.uid ?? "")
+                    Task {
+                        guard !isNew else { return }
+                        isEditingStock = true
+                        medicine.stock += 1
+                        Task {
+                            let newStock = await medicineStockVM.decreaseStock(medicine, user: session.session?.uid ?? "")
+                            DispatchQueue.main.async {
+                                self.medicine.stock = newStock
+                            }
+                            isEditingStock = false
+                        }
+                    }
                 }) {
                     Image(systemName: "minus.circle")
                         .font(.title)
                         .foregroundColor(.red)
                 }
-                TextField("Stock", value: $medicine.stock, formatter: NumberFormatter(), onCommit: {
-                    medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
-                })
+                
+                TextField("Stock", value: Binding(
+                    get: {
+                        medicineStockVM.medicines.first(where: { $0.id == medicine.id })?.stock ?? medicine.stock
+                    },
+                    set: { newValue in
+                        guard !isNew else { return }
+                        Task {
+                            let updatedStock = await medicineStockVM.updateStock(medicine, by: newValue, user: session.session?.uid ?? "")
+                            DispatchQueue.main.async {
+                                self.medicine.stock = updatedStock
+                            }
+                        }
+                    }
+                ), formatter: NumberFormatter())
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(.numberPad)
                 .frame(width: 100)
+                .disabled(isNew)
+                
                 Button(action: {
-                    medicineStockVM.increaseStock(medicine, user: session.session?.uid ?? "")
+                    Task {
+                        guard !isNew else { return }
+                        Task {
+                            isEditingStock = true
+                            let newStock = await medicineStockVM.increaseStock(medicine, user: session.session?.uid ?? "")
+                            DispatchQueue.main.async {
+                                self.medicine.stock = newStock
+                            }
+                            isEditingStock = false
+                        }
+                    }
                 }) {
                     Image(systemName: "plus.circle")
                         .font(.title)
@@ -86,11 +134,16 @@ extension MedicineDetailView {
         VStack(alignment: .leading) {
             Text("Aisle")
                 .font(.headline)
-            TextField("Aisle", text: $medicine.aisle, onCommit: {
-                medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
-            })
+            TextField("Aisle", text: $medicine.aisle)
+                .focused($isAisleFocused)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding(.bottom, 10)
+            .disabled(medicine.name.isEmpty)
+            .onChange(of: isAisleFocused) { _, focused in
+                if !focused {
+                    medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
+                }
+            }
         }
         .padding(.horizontal)
     }
@@ -119,12 +172,27 @@ extension MedicineDetailView {
         }
         .padding(.horizontal)
     }
+    
+    private func saveIfNeeded() {
+        let isValid = !medicine.name.isEmpty
+        guard isValid && !hasSaved else { return }
+        
+        if isNew {
+            medicineStockVM.addMedicine(medicine, user: session.session?.uid ?? "") { savedMedicine in
+                self.medicine = savedMedicine
+                self.isNew = false
+            }
+        } else {
+            medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
+        }
+        hasSaved = true
+    }
 }
 
 struct MedicineDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleMedicine = Medicine(name: "Sample", stock: 10, aisle: "Aisle 1")
         let sampleViewModel = MedicineStockViewModel()
-        MedicineDetailView(medicine: sampleMedicine, medicineStockVM: sampleViewModel).environmentObject(SessionViewModel())
+        MedicineDetailView(medicineStockVM: sampleViewModel, medicine: sampleMedicine).environmentObject(SessionViewModel())
     }
 }

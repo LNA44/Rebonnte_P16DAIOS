@@ -1,6 +1,7 @@
 import Foundation
 import Firebase
 
+@MainActor
 class MedicineStockViewModel: ObservableObject {
     @Published var medicines: [Medicine] = []
     @Published var aisles: [String] = []
@@ -8,6 +9,7 @@ class MedicineStockViewModel: ObservableObject {
     private var db = Firestore.firestore()
 
     func fetchMedicines() {
+        print("fetch medicine appelé")
         db.collection("medicines").addSnapshotListener { (querySnapshot, error) in
             if let error = error {
                 print("Error getting documents: \(error)")
@@ -23,8 +25,22 @@ class MedicineStockViewModel: ObservableObject {
             }
         }
     }
+    
+    func fetchMedicine(_ id: String) async -> Medicine? {
+        let docRef = db.collection("medicines").document(id)
+        
+        do {
+            let snapshot = try await docRef.getDocument()
+            let medicine = try snapshot.data(as: Medicine.self)
+            return medicine
+        } catch {
+            print("Error fetching medicine: \(error)")
+            return nil
+        }
+    }
 
     func fetchAisles() {
+        print("fetchAisles appelé")
         db.collection("medicines").addSnapshotListener { (querySnapshot, error) in
             if let error = error {
                 print("Error getting documents: \(error)")
@@ -43,7 +59,7 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func addRandomMedicine(user: String) {
+    /*func addRandomMedicine(user: String) {
         let medicine = Medicine(name: "Medicine \(Int.random(in: 1...100))", stock: Int.random(in: 1...100), aisle: "Aisle \(Int.random(in: 1...10))")
         do {
             try db.collection("medicines").document(medicine.id ?? UUID().uuidString).setData(from: medicine) { error in
@@ -53,6 +69,28 @@ class MedicineStockViewModel: ObservableObject {
                 self.addHistory(action: "Added \(medicine.name)", user: user, medicineId: medicine.id ?? "", details: "Added new medicine")
             }
         } catch let error {
+            print("Error adding document: \(error)")
+        }
+    }*/
+    
+    func addMedicine(_ medicine: Medicine, user: String, completion: @escaping (Medicine) -> Void) {
+        print("add medicine appelé")
+        //on vérifie qu el'id existe
+        let docId = medicine.id ?? UUID().uuidString
+        var medicineToSave = medicine
+        medicineToSave.id = docId
+        
+        do {
+            try db.collection("medicines").document(docId).setData(from: medicineToSave) { error in
+                if let error = error {
+                    print("Error adding document: \(error)")
+                } else {
+                    DispatchQueue.main.async {
+                        completion(medicineToSave)
+                    }
+                }
+            }
+        } catch {
             print("Error adding document: \(error)")
         }
     }
@@ -69,30 +107,47 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func increaseStock(_ medicine: Medicine, user: String) {
-        updateStock(medicine, by: 1, user: user)
+    func increaseStock(_ medicine: Medicine, user: String) async -> Int {
+        print("increaseStock appelé")
+        let newStock = await updateStock(medicine, by: 1, user: user)
+        return newStock
     }
 
-    func decreaseStock(_ medicine: Medicine, user: String) {
-        updateStock(medicine, by: -1, user: user)
+    func decreaseStock(_ medicine: Medicine, user: String) async -> Int {
+        print("decreaseStock appelé")
+        let newStock = await updateStock(medicine, by: -1, user: user)
+        return newStock
     }
 
-    private func updateStock(_ medicine: Medicine, by amount: Int, user: String) {
-        guard let id = medicine.id else { return }
-        let newStock = medicine.stock + amount
-        db.collection("medicines").document(id).updateData([
-            "stock": newStock
-        ]) { error in
-            if let error = error {
-                print("Error updating stock: \(error)")
-            } else {
-                DispatchQueue.main.async {
-                    if let index = self.medicines.firstIndex(where: { $0.id == id }) {
-                        self.medicines[index].stock = newStock
-                    }
+    func updateStock(_ medicine: Medicine, by amount: Int, user: String) async -> Int {
+        print("updateStock appelé")
+        guard let id = medicine.id else { return 0 }
+
+        let currentStock = self.medicines.first(where: { $0.id == id })?.stock ?? medicine.stock
+        let newStock = currentStock + amount
+
+        do {
+            try await db.collection("medicines").document(id).updateData(["stock": newStock])
+            
+            // Mise à jour locale
+            DispatchQueue.main.async {
+                if let index = self.medicines.firstIndex(where: { $0.id == id }) {
+                    self.medicines[index].stock = newStock
                 }
-                self.addHistory(action: "\(amount > 0 ? "Increased" : "Decreased") stock of \(medicine.name) by \(amount)", user: user, medicineId: id, details: "Stock changed from \(medicine.stock - amount) to \(newStock)")
             }
+            
+            // Ajout à l'historique
+            self.addHistory(
+                action: "\(amount > 0 ? "Increased" : "Decreased") stock of \(medicine.name) by \(amount)",
+                user: user,
+                medicineId: id,
+                details: "Stock changed from \(currentStock) to \(newStock)"
+            )
+            
+            return newStock
+        } catch {
+            print("Error updating stock: \(error)")
+            return currentStock
         }
     }
 

@@ -13,9 +13,14 @@ struct AisleListView: View {
                 }
             }
             .navigationBarTitle("Aisles")
-            .navigationBarItems(trailing: Button(action: {
-                medicineStockVM.addRandomMedicine(user: "test_user") // Remplacez par l'utilisateur actuel
-            }) {
+            .navigationBarItems(trailing:
+                    NavigationLink(destination:
+                        MedicineDetailView(
+                            medicineStockVM: medicineStockVM,
+                            medicine: Medicine(name: "", stock: 0, aisle: ""),
+                            isNew: true
+                        )
+                    ) {
                 Image(systemName: "plus")
             })
         }

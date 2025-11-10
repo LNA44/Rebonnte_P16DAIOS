@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AllMedicinesView: View {
+    @EnvironmentObject var session: SessionViewModel
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @State private var filterText: String = ""
     @State private var sortOption: SortOption = .none
@@ -29,7 +30,7 @@ struct AllMedicinesView: View {
                 // Liste des Médicaments
                 List {
                     ForEach(filteredAndSortedMedicines, id: \.id) { medicine in
-                        NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM)) {
+                        NavigationLink(destination: MedicineDetailView(medicineStockVM: medicineStockVM, medicine: medicine)) {
                             VStack(alignment: .leading) {
                                 Text(medicine.name)
                                     .font(.headline)
@@ -40,9 +41,13 @@ struct AllMedicinesView: View {
                     }
                 }
                 .navigationBarTitle("All Medicines")
-                .navigationBarItems(trailing: Button(action: {
-                    medicineStockVM.addRandomMedicine(user: "test_user") // Remplacez par l'utilisateur actuel
-                }) {
+                .navigationBarItems(trailing: NavigationLink(destination:
+                    MedicineDetailView(
+                        medicineStockVM: medicineStockVM,
+                        medicine: Medicine(name: "", stock: 0, aisle: ""),
+                        isNew: true
+                    )
+                ) {
                     Image(systemName: "plus")
                 })
             }
