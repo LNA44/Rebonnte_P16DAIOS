@@ -40,8 +40,11 @@ struct AllMedicinesView: View {
                         }
                     }
                     .onDelete { indexSet in
-                        medicineStockVM.deleteMedicines(at: indexSet)
+                        let medicinesId = medicineStockVM.deleteMedicines(at: indexSet)
+                        Task {
+                            await medicineStockVM.deleteHistory(medicinesId: medicinesId)
                         }
+                    }
                 }
                 .navigationBarTitle("All Medicines")
                 .navigationBarItems(trailing: NavigationLink(destination:

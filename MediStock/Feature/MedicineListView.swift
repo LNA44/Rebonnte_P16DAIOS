@@ -16,6 +16,12 @@ struct MedicineListView: View {
                     }
                 }
             }
+            .onDelete { indexSet in
+                let medicinesId = medicineStockVM.deleteMedicines(at: indexSet)
+                Task {
+                    await medicineStockVM.deleteHistory(medicinesId: medicinesId)
+                }
+            }
         }
         .navigationBarTitle(aisle)
         .onAppear {

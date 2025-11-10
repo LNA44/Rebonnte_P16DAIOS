@@ -95,9 +95,12 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func deleteMedicines(at offsets: IndexSet) {
+    func deleteMedicines(at offsets: IndexSet) -> [String] {
+        var deletedIds: [String] = []
+        
         offsets.map { medicines[$0] }.forEach { medicine in
             if let id = medicine.id {
+                deletedIds.append(id)
                 db.collection("medicines").document(id).delete { error in
                     if let error = error {
                         print("Error removing document: \(error)")
@@ -105,6 +108,7 @@ class MedicineStockViewModel: ObservableObject {
                 }
             }
         }
+        return deletedIds
     }
 
     func increaseStock(_ medicine: Medicine, user: String) async -> Int {
@@ -178,6 +182,35 @@ class MedicineStockViewModel: ObservableObject {
             }
         } catch let error {
             print("Error adding history: \(error)")
+        }
+    }
+    
+    func deleteHistory(medicinesId: [String]) async {
+        guard !medicinesId.isEmpty else { return }
+        
+        do {
+            // Firestore limite à 10 valeurs max pour wherefield donc on decoupe le tableau en sous tableaux de 10 éléments
+            let chunks = medicinesId.chunked(into: 10)
+            
+            for chunk in chunks {
+                let querySnapshot = try await db.collection("history")
+                    .whereField("medicineId", in: chunk)
+                    .getDocuments()
+                
+                for document in querySnapshot.documents {
+                    try await db.collection("history").document(document.documentID).delete()
+                }
+                
+                // Mise à jour du tableau local
+                await MainActor.run {
+                    self.history.removeAll { chunk.contains($0.medicineId) }
+                }
+            }
+            
+            print("✅ Historique supprimé pour les médicaments : \(medicinesId)")
+            
+        } catch {
+            print("❌ Erreur lors de la suppression de l’historique : \(error.localizedDescription)")
         }
     }
 
