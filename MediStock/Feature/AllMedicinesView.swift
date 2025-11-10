@@ -3,24 +3,26 @@ import SwiftUI
 struct AllMedicinesView: View {
     @EnvironmentObject var session: SessionViewModel
     @ObservedObject var medicineStockVM: MedicineStockViewModel
-    @State private var filterText: String = ""
-    @State private var sortOption: SortOption = .none
-
+    @State private var sortOption: Enumerations.SortOption = .none
+    
     var body: some View {
         NavigationView {
             VStack {
                 // Filtrage et Tri
                 HStack {
-                    TextField("Filter by name", text: $filterText)
+                    TextField("Filter by name", text: $medicineStockVM.filterText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.leading, 10)
+                        .onChange(of: medicineStockVM.filterText) { _, newValue in
+                            medicineStockVM.fetchMedicines()
+                        }
                     
                     Spacer()
-
+                    
                     Picker("Sort by", selection: $sortOption) {
-                        Text("None").tag(SortOption.none)
-                        Text("Name").tag(SortOption.name)
-                        Text("Stock").tag(SortOption.stock)
+                        Text("None").tag(Enumerations.SortOption.none)
+                        Text("Name").tag(Enumerations.SortOption.name)
+                        Text("Stock").tag(Enumerations.SortOption.stock)
                     }
                     .pickerStyle(MenuPickerStyle())
                     .padding(.trailing, 10)
@@ -29,7 +31,7 @@ struct AllMedicinesView: View {
                 
                 // Liste des Médicaments
                 List {
-                    ForEach(filteredAndSortedMedicines, id: \.id) { medicine in
+                    ForEach(medicineStockVM.medicines, id: \.id) { medicine in
                         NavigationLink(destination: MedicineDetailView(medicineStockVM: medicineStockVM, medicine: medicine)) {
                             VStack(alignment: .leading) {
                                 Text(medicine.name)
@@ -53,7 +55,7 @@ struct AllMedicinesView: View {
                         medicine: Medicine(name: "", stock: 0, aisle: ""),
                         isNew: true
                     )
-                ) {
+                                                            ) {
                     Image(systemName: "plus")
                 })
             }
@@ -62,35 +64,6 @@ struct AllMedicinesView: View {
             medicineStockVM.fetchMedicines()
         }
     }
-    
-    var filteredAndSortedMedicines: [Medicine] {
-        var medicines = medicineStockVM.medicines
-
-        // Filtrage
-        if !filterText.isEmpty {
-            medicines = medicines.filter { $0.name.lowercased().contains(filterText.lowercased()) }
-        }
-
-        // Tri
-        switch sortOption {
-        case .name:
-            medicines.sort { $0.name.lowercased() < $1.name.lowercased() }
-        case .stock:
-            medicines.sort { $0.stock < $1.stock }
-        case .none:
-            break
-        }
-
-        return medicines
-    }
-}
-
-enum SortOption: String, CaseIterable, Identifiable {
-    case none
-    case name
-    case stock
-
-    var id: String { self.rawValue }
 }
 
 struct AllMedicinesView_Previews: PreviewProvider {

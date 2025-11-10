@@ -6,11 +6,31 @@ class MedicineStockViewModel: ObservableObject {
     @Published var medicines: [Medicine] = []
     @Published var aisles: [String] = []
     @Published var history: [HistoryEntry] = []
+    @Published var filterText: String = ""
     private var db = Firestore.firestore()
-
+    @Published private var sortOption: Enumerations.SortOption = .none
+    
     func fetchMedicines() {
         print("fetch medicine appelé")
-        db.collection("medicines").addSnapshotListener { (querySnapshot, error) in
+        
+        var query: Query = db.collection("medicines")
+        // Appliquer le tri côté serveur
+        switch sortOption {
+        case .name:
+            query = query.order(by: "name", descending: false)
+        case .stock:
+            query = query.order(by: "stock", descending: false)
+        case .none:
+            break
+        }
+        
+        if !filterText.isEmpty {
+            query = query
+                .whereField("name", isGreaterThanOrEqualTo: filterText)
+                .whereField("name", isLessThanOrEqualTo: filterText + "\u{f8ff}")
+        }
+        
+        query.addSnapshotListener { (querySnapshot, error) in
             if let error = error {
                 print("Error getting documents: \(error)")
             } else {
