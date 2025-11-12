@@ -113,7 +113,6 @@ extension MedicineDetailView {
                             isEditingStock = true
                             let newStock = await medicineStockVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
                             DispatchQueue.main.async {
-                                //self.medicine.stock = newStock
                                 print("localmedicine.stock \(newStock)")
                                 self.localMedicine.stock = newStock
                             }

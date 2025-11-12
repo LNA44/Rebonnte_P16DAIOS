@@ -203,6 +203,7 @@ class MedicineStockViewModel: ObservableObject {
         let newId = UUID().uuidString
         let history = HistoryEntry(id: newId, medicineId: medicineId, user: user, action: action, details: details)
         do {
+            print("💾 [addHistory] Envoi vers Firestore...")
             try db.collection("history").document(newId).setData(from: history) { error in
                 if let error = error {
                     print("Error adding history: \(error)")
@@ -245,25 +246,66 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func fetchHistory(for medicine: Medicine) {
+    /*func fetchHistory(for medicine: Medicine) {
         print("fetchHistory appelé")
         historyListener?.remove() //suppr l'ancien listener avant d'en créer un nouveau
         guard let medicineId = medicine.id else { return }
-        historyListener = db.collection("history").whereField("medicineId", isEqualTo: medicineId).addSnapshotListener(includeMetadataChanges: false) { [weak self] (querySnapshot, error) in //includemetadatachanges -> ignore les modifs des métadonnées sinon listener maj quand cache maj
+        historyListener = db.collection("history")
+            .whereField("medicineId", isEqualTo: medicineId)
+            .order(by: "timestamp", descending: true)
+            .addSnapshotListener(includeMetadataChanges: false) { [weak self] (querySnapshot, error) in //includemetadatachanges -> ignore les modifs des métadonnées sinon listener maj quand cache maj
             //listener permet d'écouter les modifs de history
             guard let self = self else { return }
             if let error = error {
                 print("Error getting history: \(error)")
             } else {
                 DispatchQueue.global(qos: .userInitiated).async {
-                    let fetchedHistory = querySnapshot?.documents.compactMap { document in
-                        try? document.data(as: HistoryEntry.self)
-                    } ?? []
+                    // ✅ Filtrer les documents confirmés uniquement
+                    let fetchedHistory = querySnapshot?.documents
+                        .filter { !$0.metadata.hasPendingWrites }  // ← Ignorer les écritures locales
+                        .compactMap { document in
+                            try? document.data(as: HistoryEntry.self)
+                        } ?? []
+                    
+                    print("📦 Entrées confirmées: \(fetchedHistory.count)")
+                    
                     DispatchQueue.main.async {
                         self.history = fetchedHistory
                     }
                 }
             }
         }
+    }*/
+    func fetchHistory(for medicine: Medicine) {
+        historyListener?.remove()
+        guard let medicineId = medicine.id else { return }
+        
+        historyListener = db.collection("history")
+            .whereField("medicineId", isEqualTo: medicineId)
+            .order(by: "timestamp", descending: true) //index créé dans firestore pour synchroniser cache et serveur ensuite
+            .addSnapshotListener { [weak self] (querySnapshot, error) in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("❌ Error: \(error)")
+                    return
+                }
+                
+                guard let querySnapshot = querySnapshot else { return }
+                
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let allDocs = querySnapshot.documents.compactMap {
+                        try? $0.data(as: HistoryEntry.self)
+                    }
+                    
+                    let confirmedDocs = querySnapshot.documents
+                        .filter { !$0.metadata.hasPendingWrites }
+                        .compactMap { try? $0.data(as: HistoryEntry.self) }
+                    
+                    DispatchQueue.main.async {
+                        self.history = confirmedDocs
+                    }
+                }
+            }
     }
 }
