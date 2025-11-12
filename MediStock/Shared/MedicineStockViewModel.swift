@@ -8,6 +8,7 @@ class MedicineStockViewModel: ObservableObject {
     @Published var history: [HistoryEntry] = []
     @Published var filterText: String = ""
     private var db = Firestore.firestore()
+    private var historyListener: ListenerRegistration?
     @Published private var sortOption: Enumerations.SortOption = .none
     
     func fetchMedicines() {
@@ -95,7 +96,7 @@ class MedicineStockViewModel: ObservableObject {
     
     func addMedicine(_ medicine: Medicine, user: String, completion: @escaping (Medicine) -> Void) {
         print("add medicine appelé")
-        //on vérifie qu el'id existe
+        //on vérifie que l'id existe
         let docId = medicine.id ?? UUID().uuidString
         var medicineToSave = medicine
         medicineToSave.id = docId
@@ -105,6 +106,12 @@ class MedicineStockViewModel: ObservableObject {
                 if let error = error {
                     print("Error adding document: \(error)")
                 } else {
+                    self.addHistory(
+                        action: "Medicine created",
+                        user: user,
+                        medicineId: docId,
+                        details: ""
+                    )
                     DispatchQueue.main.async {
                         completion(medicineToSave)
                     }
@@ -175,13 +182,14 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func updateMedicine(_ medicine: Medicine, user: String) {
+    func updateMedicine(_ medicine: Medicine, user: String, shouldAddHistory: Bool = true) {
+        print("update medicine appelé")
         guard let id = medicine.id else { return }
         do {
             try db.collection("medicines").document(id).setData(from: medicine) { error in
                 if let error = error {
                     print("Error updating document: \(error)")
-                } else {
+                } else if shouldAddHistory {
                     self.addHistory(action: "Updated \(medicine.name)", user: user, medicineId: id, details: "Updated medicine details")
                 }
             }
@@ -190,14 +198,17 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    private func addHistory(action: String, user: String, medicineId: String, details: String) {
-        let history = HistoryEntry(medicineId: medicineId, user: user, action: action, details: details)
+    func addHistory(action: String, user: String, medicineId: String, details: String) {
+        print("history before adding new one: \(self.history)")
+        let newId = UUID().uuidString
+        let history = HistoryEntry(id: newId, medicineId: medicineId, user: user, action: action, details: details)
         do {
-            try db.collection("history").document(history.id ?? UUID().uuidString).setData(from: history) { error in
+            try db.collection("history").document(newId).setData(from: history) { error in
                 if let error = error {
                     print("Error adding history: \(error)")
                 } else {
-                    //Quoi faire quand l'historique a été ajouté?
+                    self.history = self.history + [history]
+                    print("history after adding a new one \(self.history)")
                 }
             }
         } catch let error {
@@ -235,8 +246,12 @@ class MedicineStockViewModel: ObservableObject {
     }
 
     func fetchHistory(for medicine: Medicine) {
+        print("fetchHistory appelé")
+        historyListener?.remove() //suppr l'ancien listener avant d'en créer un nouveau
         guard let medicineId = medicine.id else { return }
-        db.collection("history").whereField("medicineId", isEqualTo: medicineId).addSnapshotListener { (querySnapshot, error) in
+        historyListener = db.collection("history").whereField("medicineId", isEqualTo: medicineId).addSnapshotListener(includeMetadataChanges: false) { [weak self] (querySnapshot, error) in //includemetadatachanges -> ignore les modifs des métadonnées sinon listener maj quand cache maj
+            //listener permet d'écouter les modifs de history
+            guard let self = self else { return }
             if let error = error {
                 print("Error getting history: \(error)")
             } else {

@@ -4,7 +4,7 @@ struct AisleListView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 ForEach(medicineStockVM.aisles, id: \.self) { aisle in
                     NavigationLink(destination: MedicineListView(medicineStockVM: medicineStockVM, aisle: aisle)) {

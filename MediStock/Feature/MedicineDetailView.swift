@@ -23,7 +23,7 @@ struct MedicineDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Title
-                Text(medicine.name)
+                Text(localMedicine.name)
                     .font(.largeTitle)
                     .padding(.top, 20)
 
@@ -49,7 +49,7 @@ struct MedicineDetailView: View {
                 medicineStockVM.fetchHistory(for: medicine)
             }
         }
-        .onChange(of: medicine.aisle) {_, _ in
+        .onChange(of: localMedicine.aisle) {_, _ in
             saveIfNeeded()
         }
         .onDisappear {
@@ -63,7 +63,7 @@ extension MedicineDetailView {
         VStack(alignment: .leading) {
             Text("Name")
                 .font(.headline)
-            TextField("Name", text: $medicine.name)
+            TextField("Name", text: $localMedicine.name)
                 .focused($isNameFocused)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.bottom, 10)
@@ -85,11 +85,12 @@ extension MedicineDetailView {
                     Task {
                         guard !isNew else { return }
                         isEditingStock = true
-                        medicine.stock += 1
                         Task {
-                            let newStock = await medicineStockVM.decreaseStock(medicine, user: session.session?.uid ?? "")
+                            let newStock = await medicineStockVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
                             DispatchQueue.main.async {
-                                self.medicine.stock = newStock
+                                //self.medicine.stock = newStock
+                                print("localmedicine.stock \(newStock)")
+                                self.localMedicine.stock = newStock
                             }
                             isEditingStock = false
                         }
@@ -100,20 +101,7 @@ extension MedicineDetailView {
                         .foregroundColor(.red)
                 }
                 
-                TextField("Stock", value: Binding(
-                    get: {
-                        medicineStockVM.medicines.first(where: { $0.id == medicine.id })?.stock ?? medicine.stock
-                    },
-                    set: { newValue in
-                        guard !isNew else { return }
-                        Task {
-                            let updatedStock = await medicineStockVM.updateStock(medicine, by: newValue, user: session.session?.uid ?? "")
-                            DispatchQueue.main.async {
-                                self.medicine.stock = updatedStock
-                            }
-                        }
-                    }
-                ), formatter: NumberFormatter())
+                TextField("Stock", value: $localMedicine.stock, formatter: NumberFormatter())
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(.numberPad)
                 .frame(width: 100)
@@ -122,14 +110,14 @@ extension MedicineDetailView {
                 Button(action: {
                     Task {
                         guard !isNew else { return }
-                        Task {
                             isEditingStock = true
-                            let newStock = await medicineStockVM.increaseStock(medicine, user: session.session?.uid ?? "")
+                            let newStock = await medicineStockVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
                             DispatchQueue.main.async {
-                                self.medicine.stock = newStock
+                                //self.medicine.stock = newStock
+                                print("localmedicine.stock \(newStock)")
+                                self.localMedicine.stock = newStock
                             }
                             isEditingStock = false
-                        }
                     }
                 }) {
                     Image(systemName: "plus.circle")
@@ -150,12 +138,13 @@ extension MedicineDetailView {
                 .focused($isAisleFocused)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.bottom, 10)
-                .disabled(medicine.name.isEmpty)
-               /* .onChange(of: isAisleFocused) { _, focused in
-                    if !focused {
-                        medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
+                .disabled(localMedicine.name.isEmpty)
+                .onChange(of: localMedicine.aisle) {_, newAisle in
+                    let userId = session.session?.uid ?? "Unknown user"
+                    if !isNew {
+                        medicineStockVM.addHistory(action: "Updated \(medicine.name)", user: userId, medicineId: localMedicine.id ?? "", details: "Updated medicine details")
                     }
-                }*/
+                }
         }
         .padding(.horizontal)
     }
@@ -165,7 +154,10 @@ extension MedicineDetailView {
             Text("History")
                 .font(.headline)
                 .padding(.top, 20)
-            ForEach(medicineStockVM.history.filter { $0.medicineId == medicine.id }, id: \.id) { entry in
+            ForEach(medicineStockVM.history
+                .filter { $0.medicineId == localMedicine.id }
+                .sorted { $0.timestamp < $1.timestamp },
+                    id: \.id) { entry in
                 VStack(alignment: .leading, spacing: 5) {
                     Text(entry.action)
                         .font(.headline)
@@ -186,30 +178,37 @@ extension MedicineDetailView {
     }
     
     private func saveIfNeeded() {
-        let isValid = !medicine.name.isEmpty
+        let isValid = !localMedicine.name.isEmpty
         guard isValid && !hasSaved else { return }
         
         if isNew {
-            medicineStockVM.addMedicine(medicine, user: session.session?.uid ?? "") { savedMedicine in
-                self.medicine = savedMedicine
+            medicineStockVM.addMedicine(localMedicine, user: session.session?.uid ?? "") { savedMedicine in
+               // self.medicine = savedMedicine
+                self.localMedicine = savedMedicine
                 self.isNew = false
             }
         } else {
-            medicineStockVM.updateMedicine(medicine, user: session.session?.uid ?? "")
+            medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")
         }
         hasSaved = true
     }
     
     private func saveAisleIfNeeded() {
-        guard !localMedicine.aisle.isEmpty else { return }
-        medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")
+        if localMedicine.aisle != medicine.aisle {
+            print("🧾 Sauvegarde : localMedicine.aisle =", localMedicine.aisle)
+            print("🧾 Avant envoi : medicine.id =", localMedicine.id ?? "nil")
+            medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "", shouldAddHistory: false)
+            medicine = localMedicine
+            isNew = false
+        }
     }
 }
 
-struct MedicineDetailView_Previews: PreviewProvider {
+/*struct MedicineDetailView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleMedicine = Medicine(name: "Sample", stock: 10, aisle: "Aisle 1")
         let sampleViewModel = MedicineStockViewModel()
         MedicineDetailView(medicine: sampleMedicine, medicineStockVM: sampleViewModel).environmentObject(SessionViewModel())
     }
 }
+*/
