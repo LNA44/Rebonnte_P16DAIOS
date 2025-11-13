@@ -141,7 +141,9 @@ extension MedicineDetailView {
                 .onChange(of: localMedicine.aisle) {_, newAisle in
                     let userId = session.session?.uid ?? "Unknown user"
                     if !isNew {
-                        medicineStockVM.addHistory(action: "Updated \(medicine.name)", user: userId, medicineId: localMedicine.id ?? "", details: "Updated medicine details")
+                        Task {
+                            await medicineStockVM.addHistory(action: "Updated \(medicine.name)", user: userId, medicineId: localMedicine.id ?? "", details: "Updated medicine details")
+                        }
                     }
                 }
         }
@@ -181,10 +183,13 @@ extension MedicineDetailView {
         guard isValid && !hasSaved else { return }
         
         if isNew {
-            medicineStockVM.addMedicine(localMedicine, user: session.session?.uid ?? "") { savedMedicine in
-               // self.medicine = savedMedicine
-                self.localMedicine = savedMedicine
-                self.isNew = false
+            Task {
+                let savedMedicine = await medicineStockVM.addMedicine(localMedicine, user: session.session?.uid ?? "")
+                    // self.medicine = savedMedicine
+                await MainActor.run {
+                    self.localMedicine = savedMedicine
+                    self.isNew = false
+                }
             }
         } else {
             medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")

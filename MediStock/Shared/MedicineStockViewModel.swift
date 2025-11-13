@@ -9,9 +9,19 @@ class MedicineStockViewModel: ObservableObject {
     @Published var filterText: String = ""
     private var db = Firestore.firestore()
     private var historyListener: ListenerRegistration?
+    private var medicinesListener: ListenerRegistration?
+    private var aislesListener: ListenerRegistration?
     @Published private var sortOption: Enumerations.SortOption = .none
+    let firestoreService: FirestoreServicing
+        
+        //MARK: -Initialization
+        init(
+            firestoreService: FirestoreServicing = FirestoreService.shared,
+        ) {
+            self.firestoreService = firestoreService
+        }
     
-    func fetchMedicines() {
+    /*func fetchMedicines() {
         print("fetch medicine appelé")
         
         var query: Query = db.collection("medicines")
@@ -45,9 +55,20 @@ class MedicineStockViewModel: ObservableObject {
                 }
             }
         }
-    }
+    }*/
+    //OK
+    func fetchMedicines() {
+            print("fetchMedicines VM appelé")
+            
+            // Supprimer l'ancien listener si existant
+            medicinesListener?.remove()
+            
+            medicinesListener = firestoreService.fetchMedicines(sortOption: sortOption, filterText: filterText) { [weak self] fetchedMedicines in
+                self?.medicines = fetchedMedicines
+            }
+        }
     
-    func fetchMedicine(_ id: String) async -> Medicine? {
+    /*func fetchMedicine(_ id: String) async -> Medicine? {
         let docRef = db.collection("medicines").document(id)
         
         do {
@@ -58,9 +79,13 @@ class MedicineStockViewModel: ObservableObject {
             print("Error fetching medicine: \(error)")
             return nil
         }
+    }*/
+    //OK
+    func fetchMedicine(by id: String) async -> Medicine? {
+        return await firestoreService.fetchMedicine(id)
     }
 
-    func fetchAisles() {
+    /*func fetchAisles() {
         print("fetchAisles appelé")
         db.collection("medicines").addSnapshotListener { (querySnapshot, error) in
             if let error = error {
@@ -78,23 +103,18 @@ class MedicineStockViewModel: ObservableObject {
                 }
             }
         }
+    }*/
+    //OK
+    func fetchAisles() {
+        // Retirer l'ancien listener si existant
+        aislesListener?.remove()
+        
+        aislesListener = firestoreService.fetchAisles { [weak self] aisles in
+            self?.aisles = aisles
+        }
     }
 
-    /*func addRandomMedicine(user: String) {
-        let medicine = Medicine(name: "Medicine \(Int.random(in: 1...100))", stock: Int.random(in: 1...100), aisle: "Aisle \(Int.random(in: 1...10))")
-        do {
-            try db.collection("medicines").document(medicine.id ?? UUID().uuidString).setData(from: medicine) { error in
-                if let error = error {
-                    print("Error adding document: \(error)")
-                }
-                self.addHistory(action: "Added \(medicine.name)", user: user, medicineId: medicine.id ?? "", details: "Added new medicine")
-            }
-        } catch let error {
-            print("Error adding document: \(error)")
-        }
-    }*/
-    
-    func addMedicine(_ medicine: Medicine, user: String, completion: @escaping (Medicine) -> Void) {
+    /*func addMedicine(_ medicine: Medicine, user: String, completion: @escaping (Medicine) -> Void) {
         print("add medicine appelé")
         //on vérifie que l'id existe
         let docId = medicine.id ?? UUID().uuidString
@@ -120,8 +140,45 @@ class MedicineStockViewModel: ObservableObject {
         } catch {
             print("Error adding document: \(error)")
         }
-    }
+    }*/
+    
+    func addMedicine(_ medicine: Medicine, user: String) async -> Medicine {
+        print("add medicine appelé dans la ViewModel")
 
+        do {
+            // Appel du service
+            let savedMedicine = try await firestoreService.addMedicine(medicine, user: user)
+
+            // Appel asynchrone de addHistory
+                let historyEntry = await addHistory(
+                    action: "Medicine created",
+                    user: user,
+                    medicineId: savedMedicine.id ?? "",
+                    details: ""
+                )
+
+                if historyEntry != nil {
+                    print("✅ History créé pour medicine \(savedMedicine.id ?? "")")
+                }
+
+                // Mise à jour locale de l'historique
+                /*await MainActor.run {
+                    self.history.append(historyEntry ?? HistoryEntry(
+                        id: UUID().uuidString,
+                        medicineId: savedMedicine.id ?? "",
+                        user: user,
+                        action: "Medicine created",
+                        details: ""
+                    ))
+                    print("✅ History mis à jour localement: \(self.history.count) entrées")
+                }*/
+            return savedMedicine
+        } catch {
+            print("❌ Error adding medicine dans la ViewModel: \(error)")
+            return Medicine(name: "", stock: 0, aisle: "")
+        }
+    }
+    
     func deleteMedicines(at offsets: IndexSet) -> [String] {
         var deletedIds: [String] = []
         
@@ -158,29 +215,31 @@ class MedicineStockViewModel: ObservableObject {
         let newStock = currentStock + amount
 
         do {
+            // 1. Mise à jour dans Firestore
             try await db.collection("medicines").document(id).updateData(["stock": newStock])
-            
-            // Mise à jour locale
-            DispatchQueue.main.async {
+
+            // 2. Mise à jour locale (sur le main thread)
+            await MainActor.run {
                 if let index = self.medicines.firstIndex(where: { $0.id == id }) {
                     self.medicines[index].stock = newStock
                 }
             }
-            
-            // Ajout à l'historique
-            self.addHistory(
+
+            // 3. Ajout à l'historique (exécuté en parallèle)
+            _ = try await addHistory(
                 action: "\(amount > 0 ? "Increased" : "Decreased") stock of \(medicine.name) by \(amount)",
                 user: user,
                 medicineId: id,
                 details: "Stock changed from \(currentStock) to \(newStock)"
             )
-            
+
             return newStock
         } catch {
             print("Error updating stock: \(error)")
             return currentStock
         }
     }
+
 
     func updateMedicine(_ medicine: Medicine, user: String, shouldAddHistory: Bool = true) {
         print("update medicine appelé")
@@ -190,7 +249,9 @@ class MedicineStockViewModel: ObservableObject {
                 if let error = error {
                     print("Error updating document: \(error)")
                 } else if shouldAddHistory {
-                    self.addHistory(action: "Updated \(medicine.name)", user: user, medicineId: id, details: "Updated medicine details")
+                    Task {
+                        try await self.addHistory(action: "Updated \(medicine.name)", user: user, medicineId: id, details: "Updated medicine details")
+                    }
                 }
             }
         } catch let error {
@@ -198,7 +259,7 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func addHistory(action: String, user: String, medicineId: String, details: String) {
+    /*func addHistory(action: String, user: String, medicineId: String, details: String) {
         print("history before adding new one: \(self.history)")
         let newId = UUID().uuidString
         let history = HistoryEntry(id: newId, medicineId: medicineId, user: user, action: action, details: details)
@@ -214,6 +275,44 @@ class MedicineStockViewModel: ObservableObject {
             }
         } catch let error {
             print("Error adding history: \(error)")
+        }
+    }*/
+    
+    func addHistory(action: String,user: String,medicineId: String,details: String) async -> HistoryEntry? {
+        print("addHistory appelé dans la ViewModel")
+
+        do {
+            // Appel du service
+            let historyEntry = try await firestoreService.addHistory(
+                action: action,
+                user: user,
+                medicineId: medicineId,
+                details: details
+            )
+
+            if historyEntry != nil {
+                print("✅ History créé pour medicine \(medicineId)")
+
+                // Mise à jour locale de l'historique
+                await MainActor.run {
+                    self.history.append(historyEntry!)
+                    print("✅ History mis à jour localement: \(self.history.count) entrées")
+                }
+            }
+
+            return historyEntry
+        } catch {
+            print("❌ Error adding history dans la ViewModel: \(error)")
+
+            // Création d'une entrée d'historique locale en cas d'échec
+            let localHistoryEntry = HistoryEntry(
+                id: UUID().uuidString,
+                medicineId: medicineId,
+                user: user,
+                action: action,
+                details: details
+            )
+            return localHistoryEntry
         }
     }
     
@@ -307,5 +406,14 @@ class MedicineStockViewModel: ObservableObject {
                     }
                 }
             }
+    }
+    
+    deinit {
+        // ✅ Retire tous les listeners
+        medicinesListener?.remove()
+        historyListener?.remove()
+        aislesListener?.remove()
+        
+        print("🧹 Tous les listeners nettoyés")
     }
 }

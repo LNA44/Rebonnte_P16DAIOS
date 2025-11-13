@@ -38,6 +38,8 @@
 		53E0D8EE2C06718100DE1134 /* AllMedicinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E0D8ED2C06718100DE1134 /* AllMedicinesView.swift */; };
 		F38317F12EC22D850060FF29 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38317F02EC22D850060FF29 /* Extensions.swift */; };
 		F38317F32EC2390D0060FF29 /* Enumerations.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38317F22EC2390D0060FF29 /* Enumerations.swift */; };
+		F3986C602EC5E18000FC57F7 /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3986C5E2EC5E18000FC57F7 /* FirestoreService.swift */; };
+		F3986C622EC5E1B300FC57F7 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3986C612EC5E1B300FC57F7 /* Protocols.swift */; };
 		F398C9942EBE359B00DF3BEE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F398C9932EBE359B00DF3BEE /* GoogleService-Info.plist */; };
 		F398C9952EBE359B00DF3BEE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F398C9932EBE359B00DF3BEE /* GoogleService-Info.plist */; };
 		F398C9962EBE359B00DF3BEE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F398C9932EBE359B00DF3BEE /* GoogleService-Info.plist */; };
@@ -85,6 +87,8 @@
 		53E0D8ED2C06718100DE1134 /* AllMedicinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllMedicinesView.swift; sourceTree = "<group>"; };
 		F38317F02EC22D850060FF29 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		F38317F22EC2390D0060FF29 /* Enumerations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enumerations.swift; sourceTree = "<group>"; };
+		F3986C5E2EC5E18000FC57F7 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
+		F3986C612EC5E1B300FC57F7 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		F398C9932EBE359B00DF3BEE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F398C9C92EBE59F400DF3BEE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -154,6 +158,8 @@
 				53E0D89C2C06084900DE1134 /* Preview Content */,
 				F398C9982EBE3BD800DF3BEE /* Feature */,
 				F398C9992EBE3C8E00DF3BEE /* Shared */,
+				F3986C5F2EC5E18000FC57F7 /* Services */,
+				F3986C612EC5E1B300FC57F7 /* Protocols.swift */,
 			);
 			path = MediStock;
 			sourceTree = "<group>";
@@ -181,6 +187,14 @@
 				53E0D8B32C06084900DE1134 /* MediStockUITestsLaunchTests.swift */,
 			);
 			path = MediStockUITests;
+			sourceTree = "<group>";
+		};
+		F3986C5F2EC5E18000FC57F7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F3986C5E2EC5E18000FC57F7 /* FirestoreService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		F398C9972EBE3BC700DF3BEE /* Model */ = {
@@ -396,6 +410,7 @@
 				53E0D8E22C065FFE00DE1134 /* AppDelegate.swift in Sources */,
 				53E0D8D82C06097900DE1134 /* LoginView.swift in Sources */,
 				53E0D8EA2C066F7A00DE1134 /* HistoryEntry.swift in Sources */,
+				F3986C622EC5E1B300FC57F7 /* Protocols.swift in Sources */,
 				53E0D8E02C0609B900DE1134 /* SessionViewModel.swift in Sources */,
 				53E0D8DE2C0609A800DE1134 /* MedicineStockViewModel.swift in Sources */,
 				53E0D8992C06084700DE1134 /* ContentView.swift in Sources */,
@@ -403,6 +418,7 @@
 				F38317F32EC2390D0060FF29 /* Enumerations.swift in Sources */,
 				53E0D8DC2C06099C00DE1134 /* Medicine.swift in Sources */,
 				53E0D8DA2C06098F00DE1134 /* MedicineListView.swift in Sources */,
+				F3986C602EC5E18000FC57F7 /* FirestoreService.swift in Sources */,
 				53E0D8E62C066F4100DE1134 /* AisleListView.swift in Sources */,
 				F38317F12EC22D850060FF29 /* Extensions.swift in Sources */,
 				53E0D8972C06084700DE1134 /* MediStockApp.swift in Sources */,
