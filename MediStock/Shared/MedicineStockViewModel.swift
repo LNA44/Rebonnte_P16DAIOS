@@ -58,15 +58,15 @@ class MedicineStockViewModel: ObservableObject {
     }*/
     //OK
     func fetchMedicines() {
-            print("fetchMedicines VM appelé")
-            
-            // Supprimer l'ancien listener si existant
-            medicinesListener?.remove()
-            
-            medicinesListener = firestoreService.fetchMedicines(sortOption: sortOption, filterText: filterText) { [weak self] fetchedMedicines in
-                self?.medicines = fetchedMedicines
-            }
+        print("fetchMedicines VM appelé")
+        
+        // Supprimer l'ancien listener si existant
+        medicinesListener?.remove()
+        
+        medicinesListener = firestoreService.fetchMedicines(sortOption: sortOption, filterText: filterText) { [weak self] fetchedMedicines in
+            self?.medicines = fetchedMedicines
         }
+    }
     
     /*func fetchMedicine(_ id: String) async -> Medicine? {
         let docRef = db.collection("medicines").document(id)
@@ -141,7 +141,7 @@ class MedicineStockViewModel: ObservableObject {
             print("Error adding document: \(error)")
         }
     }*/
-    
+    //OK
     func addMedicine(_ medicine: Medicine, user: String) async -> Medicine {
         print("add medicine appelé dans la ViewModel")
 
@@ -179,7 +179,7 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
     
-    func deleteMedicines(at offsets: IndexSet) -> [String] {
+    /*func deleteMedicines(at offsets: IndexSet) -> [String] {
         var deletedIds: [String] = []
         
         offsets.map { medicines[$0] }.forEach { medicine in
@@ -192,6 +192,18 @@ class MedicineStockViewModel: ObservableObject {
                 }
             }
         }
+        return deletedIds
+    }*/
+//OK
+    func deleteMedicines(at offsets: IndexSet) async -> [String] {
+        let idsToDelete = offsets.compactMap { medicines[$0].id }
+
+        // Supprimer localement avant l'appel Firestore
+        medicines.remove(atOffsets: offsets)
+
+        // Supprimer côté Firestore
+        let deletedIds = await firestoreService.deleteMedicines(withIds: idsToDelete)
+
         return deletedIds
     }
 
@@ -207,7 +219,7 @@ class MedicineStockViewModel: ObservableObject {
         return newStock
     }
 
-    func updateStock(_ medicine: Medicine, by amount: Int, user: String) async -> Int {
+    /*func updateStock(_ medicine: Medicine, by amount: Int, user: String) async -> Int {
         print("updateStock appelé")
         guard let id = medicine.id else { return 0 }
 
@@ -226,7 +238,7 @@ class MedicineStockViewModel: ObservableObject {
             }
 
             // 3. Ajout à l'historique (exécuté en parallèle)
-            _ = try await addHistory(
+            _ = await addHistory(
                 action: "\(amount > 0 ? "Increased" : "Decreased") stock of \(medicine.name) by \(amount)",
                 user: user,
                 medicineId: id,
@@ -238,10 +250,41 @@ class MedicineStockViewModel: ObservableObject {
             print("Error updating stock: \(error)")
             return currentStock
         }
-    }
+    }*/
+    
+    func updateStock(_ medicine: Medicine, by amount: Int, user: String) async -> Int {
+            print("updateStock appelé")
+            guard let id = medicine.id else { return 0 }
+
+            let currentStock = medicines.first(where: { $0.id == id })?.stock ?? medicine.stock
+            let newStock = currentStock + amount
+
+            do {
+                // 1️⃣ Mise à jour dans Firestore via le service
+                try await firestoreService.updateStock(for: id, newStock: newStock)
+
+                // 2️⃣ Mise à jour locale
+                if let index = medicines.firstIndex(where: { $0.id == id }) {
+                    medicines[index].stock = newStock
+                }
+
+                // 3️⃣ Ajout à l'historique
+                _ = await addHistory(
+                    action: "\(amount > 0 ? "Increased" : "Decreased") stock of \(medicine.name) by \(amount)",
+                    user: user,
+                    medicineId: id,
+                    details: "Stock changed from \(currentStock) to \(newStock)"
+                )
+
+                return newStock
+            } catch {
+                print("❌ Error updating stock: \(error)")
+                return currentStock
+            }
+        }
 
 
-    func updateMedicine(_ medicine: Medicine, user: String, shouldAddHistory: Bool = true) {
+    /*func updateMedicine(_ medicine: Medicine, user: String, shouldAddHistory: Bool = true) {
         print("update medicine appelé")
         guard let id = medicine.id else { return }
         do {
@@ -250,14 +293,42 @@ class MedicineStockViewModel: ObservableObject {
                     print("Error updating document: \(error)")
                 } else if shouldAddHistory {
                     Task {
-                        try await self.addHistory(action: "Updated \(medicine.name)", user: user, medicineId: id, details: "Updated medicine details")
+                        await self.addHistory(action: "Updated \(medicine.name)", user: user, medicineId: id, details: "Updated medicine details")
                     }
                 }
             }
         } catch let error {
             print("Error updating document: \(error)")
         }
-    }
+    }*/
+    
+    func updateMedicine(_ medicine: Medicine, user: String, shouldAddHistory: Bool = true) async {
+            print("update medicine appelé")
+            guard let id = medicine.id else { return }
+
+            do {
+                // 1️⃣ Mise à jour Firestore
+                try await firestoreService.updateMedicine(medicine)
+
+                // 2️⃣ Mise à jour locale
+                if let index = medicines.firstIndex(where: { $0.id == id }) {
+                    medicines[index] = medicine
+                }
+
+                // 3️⃣ Ajout à l'historique si demandé
+                if shouldAddHistory {
+                    _ = await addHistory(
+                        action: "Updated \(medicine.name)",
+                        user: user,
+                        medicineId: id,
+                        details: "Updated medicine details"
+                    )
+                }
+
+            } catch {
+                print("❌ Error updating medicine: \(error)")
+            }
+        }
 
     /*func addHistory(action: String, user: String, medicineId: String, details: String) {
         print("history before adding new one: \(self.history)")
@@ -315,7 +386,7 @@ class MedicineStockViewModel: ObservableObject {
             return localHistoryEntry
         }
     }
-    
+//    ---------A FAIRE--------------
     func deleteHistory(medicinesId: [String]) async {
         guard !medicinesId.isEmpty else { return }
         
@@ -393,9 +464,9 @@ class MedicineStockViewModel: ObservableObject {
                 guard let querySnapshot = querySnapshot else { return }
                 
                 DispatchQueue.global(qos: .userInitiated).async {
-                    let allDocs = querySnapshot.documents.compactMap {
+                    /*let allDocs = querySnapshot.documents.compactMap {
                         try? $0.data(as: HistoryEntry.self)
-                    }
+                    }*/
                     
                     let confirmedDocs = querySnapshot.documents
                         .filter { !$0.metadata.hasPendingWrites }

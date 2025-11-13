@@ -5,7 +5,7 @@ struct MedicineDetailView: View {
     @EnvironmentObject var session: SessionViewModel
     @State var medicine: Medicine
     @State var isNew: Bool = false //pr gérer l'ajout d'un médicament
-    @State private var hasSaved = false
+    //@State private var hasSaved = false
     @State private var hasSavedAisle = false
     @State private var isEditingStock = false
     @FocusState private var isAisleFocused: Bool
@@ -45,12 +45,10 @@ struct MedicineDetailView: View {
         .onAppear {
             if isNew {
                 medicine = Medicine(name: "", stock: 0, aisle: "")
+                localMedicine = medicine
             } else {
                 medicineStockVM.fetchHistory(for: medicine)
             }
-        }
-        .onChange(of: localMedicine.aisle) {_, _ in
-            saveIfNeeded()
         }
         .onDisappear {
             saveAisleIfNeeded()
@@ -180,30 +178,32 @@ extension MedicineDetailView {
     
     private func saveIfNeeded() {
         let isValid = !localMedicine.name.isEmpty
-        guard isValid && !hasSaved else { return }
+        guard isValid else { return }
         
         if isNew {
+            self.isNew = false
             Task {
                 let savedMedicine = await medicineStockVM.addMedicine(localMedicine, user: session.session?.uid ?? "")
-                    // self.medicine = savedMedicine
                 await MainActor.run {
                     self.localMedicine = savedMedicine
-                    self.isNew = false
                 }
             }
         } else {
-            medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")
+            Task {
+                await medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")
+            }
         }
-        hasSaved = true
     }
     
     private func saveAisleIfNeeded() {
         if localMedicine.aisle != medicine.aisle {
             print("🧾 Sauvegarde : localMedicine.aisle =", localMedicine.aisle)
             print("🧾 Avant envoi : medicine.id =", localMedicine.id ?? "nil")
-            medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "", shouldAddHistory: false)
-            medicine = localMedicine
-            isNew = false
+            Task {
+                await medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "", shouldAddHistory: false)
+                medicine = localMedicine
+                isNew = false
+            }
         }
     }
 }

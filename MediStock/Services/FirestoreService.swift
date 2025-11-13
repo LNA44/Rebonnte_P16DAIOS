@@ -109,24 +109,37 @@ class FirestoreService: FirestoreServicing {
 
             print("✅ Medicine ajouté")
 
-            // Appel asynchrone de addHistory
-            let historyEntry = try await addHistory(
-                action: "Medicine created",
-                user: user,
-                medicineId: docId,
-                details: ""
-            )
-
-            if historyEntry != nil {
-                print("✅ History créé pour medicine \(docId)")
-            }
-
             return medicineToSave
         } catch {
             print("❌ Error adding medicine: \(error)")
             throw error
         }
     }
+    
+    func deleteMedicines(withIds ids: [String]) async -> [String] {
+        var deletedIds: [String] = []
+
+        for id in ids {
+            do {
+                try await db.collection("medicines").document(id).delete()
+                print("✅ Successfully deleted medicine with id \(id)")
+                deletedIds.append(id)
+            } catch {
+                print("❌ Error removing document \(id): \(error.localizedDescription)")
+            }
+        }
+
+        return deletedIds
+    }
+    
+    func updateStock(for medicineId: String, newStock: Int) async throws {
+            try await db.collection("medicines").document(medicineId).updateData(["stock": newStock])
+        }
+    
+    func updateMedicine(_ medicine: Medicine) async throws {
+            guard let id = medicine.id else { return }
+            try db.collection("medicines").document(id).setData(from: medicine)
+        }
     
     func addHistory(action: String,user: String,medicineId: String,details: String) async throws -> HistoryEntry? {
         let newId = UUID().uuidString
