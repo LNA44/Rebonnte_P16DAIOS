@@ -14,3 +14,7 @@ extension Array {
         }
     }
 }
+
+extension Notification.Name {
+    static let userDidSignOut = Notification.Name("userDidSignOut")
+}

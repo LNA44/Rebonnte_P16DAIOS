@@ -36,4 +36,19 @@ class AuthService: AuthServicing {
             }
         }
     }
+    
+    func signIn(email: String, password: String, completion: @escaping (AppUser?, Error?)-> Void) {
+        auth.signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                completion(nil, error)
+            } else {
+                let appUser = AppUser(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
+                completion(appUser, nil)
+            }
+        }
+    }
+    
+    func signOut() throws {
+       try auth.signOut()
+    }
 }
