@@ -141,7 +141,7 @@ class FirestoreService: FirestoreServicing {
             try db.collection("medicines").document(id).setData(from: medicine)
         }
     
-    func addHistory(action: String,user: String,medicineId: String,details: String) async throws -> HistoryEntry? {
+    func addHistory(action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry? {
         let newId = UUID().uuidString
         let historyEntry = HistoryEntry(
             id: newId,

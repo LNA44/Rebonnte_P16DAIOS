@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AisleListView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
+    @EnvironmentObject var session: SessionViewModel
 
     var body: some View {
         NavigationStack {
@@ -22,6 +23,17 @@ struct AisleListView: View {
                     ) {
                 Image(systemName: "plus")
             })
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        session.signOut()
+                    }) {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .imageScale(.large)       // taille de l’icône
+                            .foregroundColor(.blue)
+                    }
+                }
+            }
         }
         .onAppear {
             medicineStockVM.fetchAisles()

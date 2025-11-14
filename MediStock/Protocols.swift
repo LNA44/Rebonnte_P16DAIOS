@@ -19,3 +19,7 @@ protocol FirestoreServicing {
     func addHistory(action: String,user: String,medicineId: String,details: String) async throws -> HistoryEntry?
     func deleteHistory(for medicineIds: [String]) async throws
 }
+
+protocol AuthServicing {
+    
+}
