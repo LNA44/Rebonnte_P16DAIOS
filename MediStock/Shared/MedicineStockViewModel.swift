@@ -387,7 +387,7 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 //    ---------A FAIRE--------------
-    func deleteHistory(medicinesId: [String]) async {
+    /*func deleteHistory(medicinesId: [String]) async {
         guard !medicinesId.isEmpty else { return }
         
         do {
@@ -413,6 +413,27 @@ class MedicineStockViewModel: ObservableObject {
             
         } catch {
             print("❌ Erreur lors de la suppression de l’historique : \(error.localizedDescription)")
+        }
+    }*/
+    func deleteHistory(for medicineIds: [String]) async {
+        guard !medicineIds.isEmpty else { return }
+        
+        do {
+            // Appel au service
+            try await firestoreService.deleteHistory(for: medicineIds)
+            
+            // Mise à jour du state local
+            await MainActor.run {
+                self.history.removeAll { medicineIds.contains($0.medicineId) }
+                print("✅ Historique local mis à jour : \(medicineIds.count) médicament(s)")
+            }
+            
+        } catch {
+            await MainActor.run {
+                //self.errorMessage = "Erreur lors de la suppression de l'historique : \(error.localizedDescription)"
+                //self.showError = true
+            }
+            print("❌ Erreur deleteHistory : \(error.localizedDescription)")
         }
     }
 
@@ -464,12 +485,7 @@ class MedicineStockViewModel: ObservableObject {
                 guard let querySnapshot = querySnapshot else { return }
                 
                 DispatchQueue.global(qos: .userInitiated).async {
-                    /*let allDocs = querySnapshot.documents.compactMap {
-                        try? $0.data(as: HistoryEntry.self)
-                    }*/
-                    
                     let confirmedDocs = querySnapshot.documents
-                        .filter { !$0.metadata.hasPendingWrites }
                         .compactMap { try? $0.data(as: HistoryEntry.self) }
                     
                     DispatchQueue.main.async {

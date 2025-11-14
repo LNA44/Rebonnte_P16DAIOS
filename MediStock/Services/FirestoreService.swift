@@ -162,4 +162,30 @@ class FirestoreService: FirestoreServicing {
             throw error
         }
     }
+    
+    func deleteHistory(for medicineIds: [String]) async throws {
+        guard !medicineIds.isEmpty else { return }
+        
+        // Firestore limite à 10 valeurs max pour whereField donc on découpe le tableau
+        let chunks = medicineIds.chunked(into: 10)
+        
+        for chunk in chunks {
+            let querySnapshot = try await db.collection("history")
+                .whereField("medicineId", in: chunk)
+                .getDocuments()
+            
+            // Utiliser un batch pour optimiser les suppressions
+            let batch = db.batch()
+            
+            for document in querySnapshot.documents {
+                batch.deleteDocument(document.reference)
+            }
+            
+            try await batch.commit()
+            
+            print("✅ Batch supprimé : \(querySnapshot.documents.count) entrées d'historique")
+        }
+        
+        print("✅ Historique total supprimé pour \(medicineIds.count) médicament(s)")
+    }
 }

@@ -17,4 +17,5 @@ protocol FirestoreServicing {
     func updateStock(for medicineId: String, newStock: Int) async throws
     func updateMedicine(_ medicine: Medicine) async throws
     func addHistory(action: String,user: String,medicineId: String,details: String) async throws -> HistoryEntry?
+    func deleteHistory(for medicineIds: [String]) async throws
 }

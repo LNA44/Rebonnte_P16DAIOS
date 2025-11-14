@@ -6,34 +6,34 @@ class SessionViewModel: ObservableObject {
     var handle: AuthStateDidChangeListenerHandle?
 
     func listen() {
-        handle = Auth.auth().addStateDidChangeListener { (auth, user) in //closure sur thread principal
+        handle = Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in //closure sur thread principal
             if let user = user {
-                self.session = User(uid: user.uid, email: user.email)
+                self?.session = User(uid: user.uid, email: user.email)
             } else {
-                self.session = nil
+                self?.session = nil
             }
         }
     }
 
     func signUp(email: String, password: String) {
-        Auth.auth().createUser(withEmail: email, password: password) { (result, error) in
+        Auth.auth().createUser(withEmail: email, password: password) { [weak self] (result, error) in
             if let error = error {
                 print("Error creating user: \(error.localizedDescription) \(error)")
             } else {
                 DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
-                    self.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
+                    self?.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
                 }
             }
         }
     }
 
     func signIn(email: String, password: String) {
-        Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] (result, error) in
             if let error = error {
                 print("Error signing in: \(error.localizedDescription)")
             } else {
                 DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
-                    self.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
+                    self?.session = User(uid: result?.user.uid ?? "", email: result?.user.email ?? "")
                 }
             }
         }

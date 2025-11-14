@@ -45,7 +45,7 @@ struct AllMedicinesView: View {
                         Task {
                         let medicinesId = await medicineStockVM.deleteMedicines(at: indexSet)
                     
-                            await medicineStockVM.deleteHistory(medicinesId: medicinesId)
+                            await medicineStockVM.deleteHistory(for: medicinesId)
                         }
                     }
                 }
