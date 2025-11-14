@@ -51,4 +51,10 @@ class AuthService: AuthServicing {
     func signOut() throws {
        try auth.signOut()
     }
+    
+    func removeListener(handle: AuthStateDidChangeListenerHandle?) {
+        if let handle = handle {
+            auth.removeStateDidChangeListener(handle)
+        }
+    }
 }

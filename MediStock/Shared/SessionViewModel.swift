@@ -23,6 +23,7 @@ class SessionViewModel: ObservableObject {
                         print("✅ Utilisateur connecté : \(firebaseUser.email ?? "sans email")")
                     } else {
                         self.session = nil
+                        self.unbind() //suppr le listener actuel à la deconnexion
                         print("👤 Utilisateur déconnecté")
                         NotificationCenter.default.post(name: .userDidSignOut, object: nil)
                     }
@@ -64,8 +65,8 @@ class SessionViewModel: ObservableObject {
     }
 
     func unbind() {
-        if let handle = handle {
-            Auth.auth().removeStateDidChangeListener(handle)
-        }
+        // VM appelle la fonction du service pour supprimer le listener
+        authService.removeListener(handle: handle)
+        handle = nil
     }
 }
