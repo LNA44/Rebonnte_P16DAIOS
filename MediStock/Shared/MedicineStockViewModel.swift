@@ -9,6 +9,7 @@ class MedicineStockViewModel: ObservableObject {
     @Published var filterText: String = ""
     @Published var emailsCache: [String: String] = [:] // uid -> email
     private var lastDocument: DocumentSnapshot?
+    private var lastMedicinesDocument: DocumentSnapshot?
     private var db = Firestore.firestore()
     private var historyListener: ListenerRegistration?
     private var medicinesListener: ListenerRegistration?
@@ -41,15 +42,17 @@ class MedicineStockViewModel: ObservableObject {
         print("🔕 Tous les listeners arrêtés suite à la déconnexion")
     }
 
-    
-    func fetchMedicines() {
-        print("fetchMedicines VM appelé")
-        
-        // Supprimer l'ancien listener si existant
-        medicinesListener?.remove()
-        
-        medicinesListener = firestoreService.fetchMedicines(sortOption: sortOption, filterText: filterText) { [weak self] fetchedMedicines in
-            self?.medicines = fetchedMedicines
+    func fetchNextMedicinesBatch(pageSize: Int = 20) {
+        firestoreService.fetchMedicinesBatch(sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastDocument) { [weak self] newMedicines, lastDoc in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                for med in newMedicines {
+                    if !self.medicines.contains(where: { $0.id == med.id }) {
+                        self.medicines.append(med)
+                    }
+                }
+                self.lastDocument = lastDoc
+            }
         }
     }
     
@@ -85,17 +88,6 @@ class MedicineStockViewModel: ObservableObject {
                     print("✅ History créé pour medicine \(savedMedicine.id ?? "")")
                 }
 
-                // Mise à jour locale de l'historique
-                /*await MainActor.run {
-                    self.history.append(historyEntry ?? HistoryEntry(
-                        id: UUID().uuidString,
-                        medicineId: savedMedicine.id ?? "",
-                        user: user,
-                        action: "Medicine created",
-                        details: ""
-                    ))
-                    print("✅ History mis à jour localement: \(self.history.count) entrées")
-                }*/
             return savedMedicine
         } catch {
             print("❌ Error adding medicine dans la ViewModel: \(error)")

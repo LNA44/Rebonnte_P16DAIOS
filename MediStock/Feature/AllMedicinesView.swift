@@ -14,7 +14,7 @@ struct AllMedicinesView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.leading, 10)
                         .onChange(of: medicineStockVM.filterText) { _, newValue in
-                            medicineStockVM.fetchMedicines()
+                            medicineStockVM.fetchNextMedicinesBatch()
                         }
                     
                     Spacer()
@@ -39,6 +39,11 @@ struct AllMedicinesView: View {
                                 Text("Stock: \(medicine.stock)")
                                     .font(.subheadline)
                             }
+                            .onAppear {
+                                if medicine == medicineStockVM.medicines.last {
+                                    medicineStockVM.fetchNextMedicinesBatch()
+                                }
+                            }
                         }
                     }
                     .onDelete { indexSet in
@@ -61,7 +66,7 @@ struct AllMedicinesView: View {
             }
         }
         .onAppear {
-            medicineStockVM.fetchMedicines()
+            medicineStockVM.fetchNextMedicinesBatch()
         }
     }
 }

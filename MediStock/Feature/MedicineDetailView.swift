@@ -217,7 +217,6 @@ extension MedicineDetailView {
     }
 
     private var historySection: some View {
-        //ScrollView {
             LazyVStack { //Lazy loading coté affichage
                 Text("History")
                     .font(.headline)
@@ -252,9 +251,7 @@ extension MedicineDetailView {
                     }
                 }
             }
-            .padding(.horizontal)
-        //}
-            
+            .padding(.horizontal)            
     }
     
     private func saveIfNeeded() {
@@ -267,6 +264,9 @@ extension MedicineDetailView {
                 let savedMedicine = await medicineStockVM.addMedicine(localMedicine, user: session.session?.uid ?? "")
                 await MainActor.run {
                     self.localMedicine = savedMedicine
+                    if !medicineStockVM.medicines.contains(where: { $0.id == savedMedicine.id }) {
+                        medicineStockVM.medicines.append(savedMedicine)
+                    }
                 }
             }
         } else {

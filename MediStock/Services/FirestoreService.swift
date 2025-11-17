@@ -16,12 +16,12 @@ class FirestoreService: FirestoreServicing {
         db = Firestore.firestore()
     }
     
-    func fetchMedicines(sortOption: Enumerations.SortOption, filterText: String, completion: @escaping ([Medicine]) -> Void) -> ListenerRegistration {
-        print("fetchMedicines appelé")
+    func fetchMedicinesBatch(sortOption: Enumerations.SortOption,filterText: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
+        print("fetchMedicinesBatch appelé")
         
         var query: Query = db.collection("medicines")
         
-        // Appliquer le tri côté serveur
+        // Tri côté serveur
         switch sortOption {
         case .name:
             query = query.order(by: "name", descending: false)
@@ -31,31 +31,37 @@ class FirestoreService: FirestoreServicing {
             break
         }
         
+        // Filtre côté serveur
         if !filterText.isEmpty {
             query = query
                 .whereField("name", isGreaterThanOrEqualTo: filterText)
                 .whereField("name", isLessThanOrEqualTo: filterText + "\u{f8ff}")
         }
         
-        let listener = query.addSnapshotListener { (querySnapshot, error) in
+        // Pagination
+        query = query.limit(to: pageSize)
+        if let lastDoc = lastDocument {
+            query = query.start(afterDocument: lastDoc)
+        }
+        
+        query.getDocuments { snapshot, error in
             if let error = error {
-                print("Error getting documents: \(error)")
-                completion([])
+                print("Error fetching medicines batch: \(error)")
+                completion([], nil)
                 return
             }
             
-            DispatchQueue.global(qos: .userInitiated).async {
-                let fetchedMedicines = querySnapshot?.documents.compactMap { document in
-                    try? document.data(as: Medicine.self)
-                } ?? []
-                
-                DispatchQueue.main.async {
-                    completion(fetchedMedicines)
-                }
+            guard let snapshot = snapshot else {
+                completion([], nil)
+                return
             }
+            
+            let fetchedMedicines = snapshot.documents.compactMap { doc -> Medicine? in
+                try? doc.data(as: Medicine.self)
+            }
+            
+            completion(fetchedMedicines, snapshot.documents.last)
         }
-        
-        return listener
     }
     
     func fetchMedicine(_ id: String) async -> Medicine? {

@@ -10,7 +10,8 @@ import FirebaseFirestore
 import FirebaseAuth
 
 protocol FirestoreServicing {
-    func fetchMedicines(sortOption: Enumerations.SortOption, filterText: String, completion: @escaping ([Medicine]) -> Void) -> ListenerRegistration
+    //func fetchMedicines(sortOption: Enumerations.SortOption, filterText: String, completion: @escaping ([Medicine]) -> Void) -> ListenerRegistration
+    func fetchMedicinesBatch(sortOption: Enumerations.SortOption,filterText: String, pageSize: Int, lastDocument: DocumentSnapshot?,completion: @escaping ([Medicine], DocumentSnapshot?) -> Void)
     func fetchMedicine(_ id: String) async -> Medicine?
     func fetchAisles(onUpdate: @escaping ([String]) -> Void) -> ListenerRegistration
     func addMedicine(_ medicine: Medicine, user: String) async throws -> Medicine

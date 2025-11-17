@@ -14,6 +14,11 @@ struct MedicineListView: View {
                         Text("Stock: \(medicine.stock)")
                             .font(.subheadline)
                     }
+                    .onAppear {
+                        if medicine == medicineStockVM.medicines.last {
+                            medicineStockVM.fetchNextMedicinesBatch()
+                        }
+                    }
                 }
             }
             .onDelete { indexSet in
@@ -25,7 +30,7 @@ struct MedicineListView: View {
         }
         .navigationBarTitle(aisle)
         .onAppear {
-            medicineStockVM.fetchMedicines()
+            medicineStockVM.fetchNextMedicinesBatch()
         }
     }
 }
