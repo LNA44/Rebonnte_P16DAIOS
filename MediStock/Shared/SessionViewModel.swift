@@ -5,12 +5,15 @@ class SessionViewModel: ObservableObject {
     @Published var session: AppUser?
     var handle: AuthStateDidChangeListenerHandle?
     let authService: AuthService
+    let firestoreService: FirestoreService
     
     //MARK: -Initialization
     init(
-        authService: AuthService = AuthService.shared
+        authService: AuthService = AuthService.shared,
+        firestoreService: FirestoreService = FirestoreService.shared
     ) {
         self.authService = authService
+        self.firestoreService = firestoreService
     }
     
     func listen() {
@@ -31,11 +34,16 @@ class SessionViewModel: ObservableObject {
             }
         }
     
+    
     func signUp(email: String, password: String) {
         authService.signUp(email: email, password: password) { [weak self] (user, error) in
-            DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
+            Task {
                 if let user = user {
-                    self?.session = AppUser(uid: user.uid, email: user.email)
+                    let user = AppUser(uid: user.uid, email: user.email)
+                    try await self?.firestoreService.createUser(user: user)
+                    DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
+                        self?.session = user
+                    }
                 } else if let error = error {
                     print("error \(error)")
                 }

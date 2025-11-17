@@ -7,6 +7,7 @@ class MedicineStockViewModel: ObservableObject {
     @Published var aisles: [String] = []
     @Published var history: [HistoryEntry] = []
     @Published var filterText: String = ""
+    @Published var emailsCache: [String: String] = [:] // uid -> email
     private var db = Firestore.firestore()
     private var historyListener: ListenerRegistration?
     private var medicinesListener: ListenerRegistration?
@@ -270,6 +271,20 @@ class MedicineStockViewModel: ObservableObject {
                     }
                 }
             }
+    }
+    
+    func fetchEmail(for uid: String) async -> String {
+        if let cached = emailsCache[uid] {
+            return cached
+        }
+        do {
+            let email = try await firestoreService.getEmail(uid: uid) ?? "Unknown"
+            emailsCache[uid] = email
+            return email
+        } catch {
+            emailsCache[uid] = "Error"
+            return "Error"
+        }
     }
     
     deinit {

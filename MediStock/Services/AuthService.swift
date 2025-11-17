@@ -57,4 +57,5 @@ class AuthService: AuthServicing {
             auth.removeStateDidChangeListener(handle)
         }
     }
+    
 }

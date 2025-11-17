@@ -188,4 +188,27 @@ class FirestoreService: FirestoreServicing {
         
         print("✅ Historique total supprimé pour \(medicineIds.count) médicament(s)")
     }
+    
+    func createUser(user: AppUser) async throws {
+        let docRef = db.collection("users").document(user.uid)
+        do {
+            try docRef.setData(from: user)
+            print("Utilisateur créé avec succès dans firestore !")
+        } catch {
+            print("Erreur lors de la création de l'utilisateur : \(error)")
+            throw error
+        }
+    }
+    
+    func getEmail(uid: String) async throws -> String? {
+        let docRef = db.collection("users").document(uid)
+        do {
+            let document = try await docRef.getDocument()
+            let user = try document.data(as: AppUser.self)
+            return user.email
+        } catch {
+            print("Erreur récupération email : \(error)")
+            throw error
+        }
+    }
 }

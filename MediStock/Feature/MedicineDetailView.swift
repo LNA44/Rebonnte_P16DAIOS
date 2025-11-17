@@ -183,8 +183,11 @@ extension MedicineDetailView {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(entry.action)
                         .font(.headline)
-                    Text("User: \(entry.user)")
+                    Text("User: \(medicineStockVM.emailsCache[entry.user] ?? "Chargement...")")
                         .font(.subheadline)
+                        .task {
+                            _ = await medicineStockVM.fetchEmail(for: entry.user)
+                        }
                     Text("Date: \(entry.timestamp.formatted())")
                         .font(.subheadline)
                     Text("Details: \(entry.details)")
