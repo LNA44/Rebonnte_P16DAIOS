@@ -218,34 +218,38 @@ extension MedicineDetailView {
     }
 
     private var historySection: some View {
-        VStack(alignment: .leading) {
-            Text("History")
-                .font(.headline)
-                .padding(.top, 20)
-            ForEach(medicineStockVM.history
-                .filter { $0.medicineId == localMedicine.id }
-                .sorted { $0.timestamp < $1.timestamp },
-                    id: \.id) { entry in
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(entry.action)
-                        .font(.headline)
-                    Text("User: \(medicineStockVM.emailsCache[entry.user] ?? "Chargement...")")
-                        .font(.subheadline)
-                        .task {
-                            _ = await medicineStockVM.fetchEmail(for: entry.user)
-                        }
-                    Text("Date: \(entry.timestamp.formatted())")
-                        .font(.subheadline)
-                    Text("Details: \(entry.details)")
-                        .font(.subheadline)
+        ScrollView {
+            LazyVStack(alignment: .center) {
+                Text("History")
+                    .font(.headline)
+                    .padding(.top, 20)
+                ForEach(medicineStockVM.history
+                    .filter { $0.medicineId == localMedicine.id }
+                    .sorted { $0.timestamp < $1.timestamp },
+                        id: \.id) { entry in
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(entry.action)
+                            .font(.headline)
+                        Text("User: \(medicineStockVM.emailsCache[entry.user] ?? "Chargement...")")
+                            .font(.subheadline)
+                            .task {
+                                _ = await medicineStockVM.fetchEmail(for: entry.user)
+                            }
+                        Text("Date: \(entry.timestamp.formatted())")
+                            .font(.subheadline)
+                        Text("Details: \(entry.details)")
+                            .font(.subheadline)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+                    .padding(.bottom, 5)
                 }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(10)
-                .padding(.bottom, 5)
             }
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
+            
     }
     
     private func saveIfNeeded() {
