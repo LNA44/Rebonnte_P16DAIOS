@@ -8,6 +8,7 @@ class MedicineStockViewModel: ObservableObject {
     @Published var history: [HistoryEntry] = []
     @Published var filterText: String = ""
     @Published var emailsCache: [String: String] = [:] // uid -> email
+    private var lastDocument: DocumentSnapshot?
     private var db = Firestore.firestore()
     private var historyListener: ListenerRegistration?
     private var medicinesListener: ListenerRegistration?
@@ -245,7 +246,7 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func fetchHistory(for medicine: Medicine) {
+    /*func fetchHistory(for medicine: Medicine) {
         historyListener?.remove()
         guard let medicineId = medicine.id else { return }
         
@@ -271,7 +272,24 @@ class MedicineStockViewModel: ObservableObject {
                     }
                 }
             }
+    }*/
+    
+    func fetchNextHistoryBatch(for medicine: Medicine, pageSize: Int = 20) {
+        guard let medicineId = medicine.id else { return }
+        
+        firestoreService.fetchHistoryBatch(for: medicineId, pageSize: pageSize, lastDocument: lastDocument) { [weak self] newEntries, lastDoc in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                for entry in newEntries {
+                    if !self.history.contains(where: { $0.id == entry.id }) {
+                        self.history.append(entry)
+                    }
+                }
+                self.lastDocument = lastDoc
+            }
+        }
     }
+    
     
     func fetchEmail(for uid: String) async -> String {
         if let cached = emailsCache[uid] {

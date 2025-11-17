@@ -189,6 +189,38 @@ class FirestoreService: FirestoreServicing {
         print("✅ Historique total supprimé pour \(medicineIds.count) médicament(s)")
     }
     
+    func fetchHistoryBatch(for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshot?) -> Void) {
+        var query: Query = db.collection("history")
+            .whereField("medicineId", isEqualTo: medicineId)
+            .order(by: "timestamp", descending: true)
+            .limit(to: pageSize)
+        
+        if let lastDoc = lastDocument {
+            query = query.start(afterDocument: lastDoc)
+        }
+        
+        query.getDocuments { snapshot, error in
+            if let error = error {
+                print("❌ Error fetching history batch: \(error)")
+                completion([], nil)
+                return
+            }
+            
+            guard let snapshot = snapshot else {
+                completion([], nil)
+                return
+            }
+            
+            let entries = snapshot.documents.compactMap { doc -> HistoryEntry? in
+                var entry = try? doc.data(as: HistoryEntry.self)
+                entry?.id = doc.documentID // assure id unique
+                return entry
+            }
+            
+            completion(entries, snapshot.documents.last)
+        }
+    }
+    
     func createUser(user: AppUser) async throws {
         let docRef = db.collection("users").document(user.uid)
         do {

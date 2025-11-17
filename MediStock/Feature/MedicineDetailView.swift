@@ -5,7 +5,6 @@ struct MedicineDetailView: View {
     @EnvironmentObject var session: SessionViewModel
     @State var medicine: Medicine
     @State var isNew: Bool = false //pr gérer l'ajout d'un médicament
-    //@State private var hasSaved = false
     @State private var hasSavedAisle = false
     @State private var isEditingStock = false
     @State private var stockText: String = ""
@@ -51,7 +50,7 @@ struct MedicineDetailView: View {
                 medicine = Medicine(name: "", stock: 0, aisle: "")
                 localMedicine = medicine
             } else {
-                medicineStockVM.fetchHistory(for: medicine)
+                medicineStockVM.fetchNextHistoryBatch(for: medicine)
             }
         }
         .onDisappear {
@@ -218,8 +217,8 @@ extension MedicineDetailView {
     }
 
     private var historySection: some View {
-        ScrollView {
-            LazyVStack(alignment: .center) {
+        //ScrollView {
+            LazyVStack { //Lazy loading coté affichage
                 Text("History")
                     .font(.headline)
                     .padding(.top, 20)
@@ -245,10 +244,16 @@ extension MedicineDetailView {
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
                     .padding(.bottom, 5)
+                    .onAppear {
+                        // ⚡️ Lazy loading côté données : charger batch suivant si dernier élément
+                        if entry == medicineStockVM.history.last {
+                            medicineStockVM.fetchNextHistoryBatch(for: medicine)
+                        }
+                    }
                 }
             }
             .padding(.horizontal)
-        }
+        //}
             
     }
     

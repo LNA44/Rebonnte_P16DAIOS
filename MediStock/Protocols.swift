@@ -19,6 +19,7 @@ protocol FirestoreServicing {
     func updateMedicine(_ medicine: Medicine) async throws
     func addHistory(action: String,user: String,medicineId: String,details: String) async throws -> HistoryEntry?
     func deleteHistory(for medicineIds: [String]) async throws
+    func fetchHistoryBatch(for medicineId: String, pageSize: Int, lastDocument: DocumentSnapshot?, completion: @escaping ([HistoryEntry], DocumentSnapshot?) -> Void)
     func createUser(user: AppUser) async throws
     func getEmail(uid: String) async throws -> String?
 }
