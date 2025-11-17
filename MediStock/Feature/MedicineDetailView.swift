@@ -84,12 +84,18 @@ extension MedicineDetailView {
                         guard !isNew else { return }
                         isEditingStock = true
                         Task {
-                            let newStock = await medicineStockVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
-                            DispatchQueue.main.async {
-                                //self.medicine.stock = newStock
-                                print("localmedicine.stock \(newStock)")
-                                self.localMedicine.stock = newStock
+                            if localMedicine.stock >= 1 {
+                                let newStock = await medicineStockVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
+                                DispatchQueue.main.async {
+                                    //self.medicine.stock = newStock
+                                    print("localmedicine.stock \(newStock)")
+                                    self.localMedicine.stock = newStock
+                                }
                             }
+                            if localMedicine.stock < 1 {
+                                return
+                            }
+                            
                             isEditingStock = false
                         }
                     }
@@ -101,9 +107,26 @@ extension MedicineDetailView {
                 
                 TextField("Stock", value: $localMedicine.stock, formatter: NumberFormatter())
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .keyboardType(.numberPad)
+                .keyboardType(.decimalPad)
                 .frame(width: 100)
                 .disabled(isNew)
+                .onSubmit {
+                    let currentStock = medicineStockVM.medicines.first(where: { $0.id == localMedicine.id })?.stock ?? localMedicine.stock
+                    if localMedicine.stock < 0 {
+                        localMedicine.stock = currentStock
+                        return
+                    }
+                    
+                    if localMedicine.stock != currentStock {
+                        Task {
+                            await medicineStockVM.updateStock(
+                                localMedicine,
+                                by: localMedicine.stock - currentStock,
+                                user: session.session?.uid ?? ""
+                            )
+                        }
+                    }
+                }
                 
                 Button(action: {
                     Task {
