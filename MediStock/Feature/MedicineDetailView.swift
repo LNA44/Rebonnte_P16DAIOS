@@ -9,7 +9,9 @@ struct MedicineDetailView: View {
     @State private var hasSavedAisle = false
     @State private var isEditingStock = false
     @FocusState private var isAisleFocused: Bool
+    @State private var lastValidAisle: String = ""
     @FocusState private var isNameFocused: Bool
+    @State private var lastValidName: String = ""
     @State private var localMedicine: Medicine // pour éviter que quand on maj aisle la liste de AisleListView se maj et qu'on sorte de la vue details
     
     init(medicine: Medicine, medicineStockVM: MedicineStockViewModel, isNew: Bool = false) {
@@ -67,7 +69,15 @@ extension MedicineDetailView {
                 .padding(.bottom, 10)
                 .onChange(of: isNameFocused) { _, focused in
                     if !focused {
-                        saveIfNeeded()
+                        // Vérifie si le texte contient un chiffre
+                        if localMedicine.name.rangeOfCharacter(from: .decimalDigits) != nil {
+                            // Contient un chiffre → revenir à la dernière valeur valide
+                            localMedicine.name = lastValidName
+                        } else {
+                            // Pas de chiffres → sauvegarde et mise à jour de la dernière valeur valide
+                            lastValidName = localMedicine.name
+                            saveIfNeeded()
+                        }
                     }
                 }
         }
@@ -160,11 +170,24 @@ extension MedicineDetailView {
                 .padding(.bottom, 10)
                 .disabled(localMedicine.name.isEmpty)
                 .onChange(of: localMedicine.aisle) {_, newAisle in
-                    let userId = session.session?.uid ?? "Unknown user"
-                    if !isNew {
-                        Task {
-                            await medicineStockVM.addHistory(action: "Updated \(medicine.name)", user: userId, medicineId: localMedicine.id ?? "", details: "Updated medicine details")
+                    if newAisle.allSatisfy({ $0.isNumber }) {
+                        // Chiffres seulement → update lastValidAisle
+                        lastValidAisle = newAisle
+                        
+                        // Si le champ n'est pas vide et ce n'est pas un nouveau médicament, on ajoute l'historique
+                        if !newAisle.isEmpty && !isNew {
+                            Task {
+                                await medicineStockVM.addHistory(
+                                    action: "Updated \(localMedicine.name)",
+                                    user: session.session?.uid ?? "Unknown user",
+                                    medicineId: localMedicine.id ?? "",
+                                    details: "Updated medicine details"
+                                )
+                            }
                         }
+                    } else {
+                        // Contient une lettre → revenir à la dernière valeur valide
+                        localMedicine.aisle = lastValidAisle
                     }
                 }
         }
