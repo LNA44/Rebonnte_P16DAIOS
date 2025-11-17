@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseAuth
 
 protocol FirestoreServicing {
     func fetchMedicines(sortOption: Enumerations.SortOption, filterText: String, completion: @escaping ([Medicine]) -> Void) -> ListenerRegistration
@@ -18,9 +19,14 @@ protocol FirestoreServicing {
     func updateMedicine(_ medicine: Medicine) async throws
     func addHistory(action: String,user: String,medicineId: String,details: String) async throws -> HistoryEntry?
     func deleteHistory(for medicineIds: [String]) async throws
+    func createUser(user: AppUser) async throws
     func getEmail(uid: String) async throws -> String?
 }
 
 protocol AuthServicing {
-    
+    func listenToAuthStateChanges(completion: @escaping (FirebaseAuth.User?) -> Void) -> AuthStateDidChangeListenerHandle
+    func signUp(email: String, password: String, completion: @escaping (AppUser?, Error?) -> Void)
+    func signIn(email: String, password: String, completion: @escaping (AppUser?, Error?)-> Void)
+    func signOut() throws
+    func removeListener(handle: AuthStateDidChangeListenerHandle?)
 }

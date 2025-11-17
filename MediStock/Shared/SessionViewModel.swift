@@ -4,13 +4,13 @@ import Firebase
 class SessionViewModel: ObservableObject {
     @Published var session: AppUser?
     var handle: AuthStateDidChangeListenerHandle?
-    let authService: AuthService
-    let firestoreService: FirestoreService
+    let authService: AuthServicing
+    let firestoreService: FirestoreServicing
     
     //MARK: -Initialization
     init(
-        authService: AuthService = AuthService.shared,
-        firestoreService: FirestoreService = FirestoreService.shared
+        authService: AuthServicing = AuthService.shared,
+        firestoreService: FirestoreServicing = FirestoreService.shared
     ) {
         self.authService = authService
         self.firestoreService = firestoreService
@@ -39,10 +39,11 @@ class SessionViewModel: ObservableObject {
         authService.signUp(email: email, password: password) { [weak self] (user, error) in
             Task {
                 if let user = user {
+                    guard let self = self else { return }
                     let user = AppUser(uid: user.uid, email: user.email)
-                    try await self?.firestoreService.createUser(user: user)
-                    DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
-                        self?.session = user
+                    try await self.firestoreService.createUser(user: user)
+                    await MainActor.run {
+                        self.session = user
                     }
                 } else if let error = error {
                     print("error \(error)")

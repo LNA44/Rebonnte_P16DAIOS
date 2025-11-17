@@ -8,6 +8,8 @@ struct MedicineDetailView: View {
     //@State private var hasSaved = false
     @State private var hasSavedAisle = false
     @State private var isEditingStock = false
+    @State private var stockText: String = ""
+    @State private var originalStock: Int = 0
     @FocusState private var isAisleFocused: Bool
     @State private var lastValidAisle: String = ""
     @FocusState private var isNameFocused: Bool
@@ -93,21 +95,21 @@ extension MedicineDetailView {
                     Task {
                         guard !isNew else { return }
                         isEditingStock = true
-                        Task {
-                            if localMedicine.stock >= 1 {
-                                let newStock = await medicineStockVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
-                                DispatchQueue.main.async {
-                                    //self.medicine.stock = newStock
-                                    print("localmedicine.stock \(newStock)")
-                                    self.localMedicine.stock = newStock
-                                }
+                        if localMedicine.stock >= 1 {
+                            let newStock = await medicineStockVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
+                            DispatchQueue.main.async {
+                                //self.medicine.stock = newStock
+                                originalStock = newStock  
+                                stockText = "\(newStock)"
+                                print("localmedicine.stock \(newStock)")
+                                self.localMedicine.stock = newStock
                             }
-                            if localMedicine.stock < 1 {
-                                return
-                            }
-                            
-                            isEditingStock = false
                         }
+                        if localMedicine.stock < 1 {
+                            return
+                        }
+                        
+                        isEditingStock = false
                     }
                 }) {
                     Image(systemName: "minus.circle")
@@ -115,39 +117,60 @@ extension MedicineDetailView {
                         .foregroundColor(.red)
                 }
                 
-                TextField("Stock", value: $localMedicine.stock, formatter: NumberFormatter())
+                TextField("Stock", text: $stockText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(.decimalPad)
                 .frame(width: 100)
                 .disabled(isNew)
+                .onAppear {
+                    // Récupérer le stock réel depuis le VM
+                    let realStock = medicineStockVM.medicines.first(where: { $0.id == localMedicine.id })?.stock ?? localMedicine.stock
+                    originalStock = realStock
+                    stockText = "\(realStock)"
+                }
                 .onSubmit {
-                    let currentStock = medicineStockVM.medicines.first(where: { $0.id == localMedicine.id })?.stock ?? localMedicine.stock
-                    if localMedicine.stock < 0 {
-                        localMedicine.stock = currentStock
+                    guard let newStock = Int(stockText) else {
+                        stockText = "\(originalStock)"
                         return
                     }
                     
-                    if localMedicine.stock != currentStock {
+                    if newStock < 0 {
+                        stockText = "\(originalStock)"
+                        return
+                    }
+                    
+                    if newStock != originalStock {
+                        let difference = newStock - originalStock
+                        
                         Task {
-                            await medicineStockVM.updateStock(
-                                localMedicine,
-                                by: localMedicine.stock - currentStock,
+                            let finalStock = await medicineStockVM.updateStock(
+                                localMedicine,  // ← Avec son stock d'origine
+                                by: difference,
                                 user: session.session?.uid ?? ""
                             )
+                            
+                            await MainActor.run {
+                                localMedicine.stock = finalStock
+                                originalStock = finalStock
+                                stockText = "\(finalStock)"
+                            }
                         }
+                        print("Stock mis à jour de \(originalStock) à \(newStock) (différence: \(difference))")
                     }
                 }
                 
                 Button(action: {
                     Task {
                         guard !isNew else { return }
-                            isEditingStock = true
-                            let newStock = await medicineStockVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
-                            DispatchQueue.main.async {
-                                print("localmedicine.stock \(newStock)")
-                                self.localMedicine.stock = newStock
-                            }
-                            isEditingStock = false
+                        isEditingStock = true
+                        let newStock = await medicineStockVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
+                        DispatchQueue.main.async {
+                            print("localmedicine.stock \(newStock)")
+                            self.localMedicine.stock = newStock
+                            originalStock = newStock
+                            stockText = "\(newStock)"
+                        }
+                        isEditingStock = false
                     }
                 }) {
                     Image(systemName: "plus.circle")
