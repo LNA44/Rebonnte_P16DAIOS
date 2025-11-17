@@ -64,6 +64,7 @@ class FirestoreService: FirestoreServicing {
         }
     }
     
+    
     func fetchMedicine(_ id: String) async -> Medicine? {
         let docRef = db.collection("medicines").document(id)
         

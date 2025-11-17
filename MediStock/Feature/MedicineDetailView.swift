@@ -46,6 +46,10 @@ struct MedicineDetailView: View {
         }
         .navigationBarTitle("Medicine Details", displayMode: .inline)
         .onAppear {
+            print("🔍 MedicineDetailView appeared")
+                        print("🔍 Medicine ID: \(localMedicine.id ?? "nil")")
+                        print("🔍 Medicine exists in VM: \(medicineStockVM.medicines.contains(where: { $0.id == localMedicine.id }))")
+                        print("🔍 Total medicines count: \(medicineStockVM.medicines.count)")
             if isNew {
                 medicine = Medicine(name: "", stock: 0, aisle: "")
                 localMedicine = medicine
