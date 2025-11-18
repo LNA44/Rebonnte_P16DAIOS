@@ -16,7 +16,7 @@ class FirestoreService: FirestoreServicing {
         db = Firestore.firestore()
     }
     
-    func fetchMedicinesBatch(sortOption: Enumerations.SortOption,filterText: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
+    func fetchMedicinesBatch(sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
         print("fetchMedicinesBatch appelé")
         
         var query: Query = db.collection("medicines")
@@ -32,10 +32,10 @@ class FirestoreService: FirestoreServicing {
         }
         
         // Filtre côté serveur
-        if !filterText.isEmpty {
+        if let filter = filterText, !filter.isEmpty {
             query = query
-                .whereField("name", isGreaterThanOrEqualTo: filterText)
-                .whereField("name", isLessThanOrEqualTo: filterText + "\u{f8ff}")
+                .whereField("name", isGreaterThanOrEqualTo: filter)
+                .whereField("name", isLessThanOrEqualTo: filter + "\u{f8ff}")
         }
         
         // Pagination

@@ -215,7 +215,6 @@
 		F398C9982EBE3BD800DF3BEE /* Feature */ = {
 			isa = PBXGroup;
 			children = (
-				53E0D8EB2C06717200DE1134 /* MainTabView.swift */,
 				53E0D8D72C06097900DE1134 /* LoginView.swift */,
 				F39080A12ECB26F200CE36E7 /* UserViewModel.swift */,
 				53E0D8D92C06098F00DE1134 /* MedicineListView.swift */,
@@ -241,6 +240,7 @@
 				53E0D8962C06084700DE1134 /* MediStockApp.swift */,
 				53E0D8982C06084700DE1134 /* ContentView.swift */,
 				53E0D8E12C065FFE00DE1134 /* AppDelegate.swift */,
+				53E0D8EB2C06717200DE1134 /* MainTabView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";

@@ -14,7 +14,9 @@ struct AllMedicinesView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.leading, 10)
                         .onChange(of: medicineStockVM.filterText) { _, newValue in
-                            medicineStockVM.fetchNextMedicinesBatch()
+                            medicineStockVM.medicines = []
+                            medicineStockVM.lastMedicinesDocument = nil
+                            medicineStockVM.fetchNextMedicinesBatch(filterText: newValue.isEmpty ? nil : newValue)
                         }
                     
                     Spacer()
@@ -40,7 +42,7 @@ struct AllMedicinesView: View {
                                     .font(.subheadline)
                             }
                             .onAppear {
-                                if medicine == medicineStockVM.medicines.last {
+                                if medicine == medicineStockVM.medicines.last && medicineStockVM.filterText.isEmpty {
                                     medicineStockVM.fetchNextMedicinesBatch()
                                 }
                             }
@@ -48,25 +50,27 @@ struct AllMedicinesView: View {
                     }
                     .onDelete { indexSet in
                         Task {
-                        let medicinesId = await medicineStockVM.deleteMedicines(at: indexSet)
-                    
+                            let medicinesId = await medicineStockVM.deleteMedicines(at: indexSet)
+                            
                             await medicineStockVM.deleteHistory(for: medicinesId)
                         }
                     }
                 }
                 .navigationBarTitle("All Medicines")
                 .navigationBarItems(trailing: NavigationLink(destination:
-                    MedicineDetailView(
-                        medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM,
-                        isNew: true
-                    )
+                                                                MedicineDetailView(
+                                                                    medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM,
+                                                                    isNew: true
+                                                                )
                                                             ) {
                     Image(systemName: "plus")
                 })
             }
         }
         .onAppear {
-            medicineStockVM.fetchNextMedicinesBatch()
+            if medicineStockVM.medicines.isEmpty && medicineStockVM.filterText.isEmpty {
+                medicineStockVM.fetchNextMedicinesBatch()
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct AisleListView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @EnvironmentObject var session: SessionViewModel
+    @Binding var selectedTab: Int
 
     var body: some View {
         NavigationStack {
@@ -38,11 +39,18 @@ struct AisleListView: View {
         .onAppear {
             medicineStockVM.fetchAisles()
         }
+        .onChange(of: selectedTab) {_, newTab in
+                    if newTab == 0 {
+                        // L’utilisateur revient sur l’onglet Aisles
+                        medicineStockVM.fetchAisles()
+                        medicineStockVM.fetchNextMedicinesBatch()
+                    }
+                }
     }
 }
 
 struct AisleListView_Previews: PreviewProvider {
     static var previews: some View {
-        AisleListView(medicineStockVM: MedicineStockViewModel())
+        AisleListView(medicineStockVM: MedicineStockViewModel(), selectedTab: .constant(0))
     }
 }

@@ -9,7 +9,7 @@ class MedicineStockViewModel: ObservableObject {
     @Published var filterText: String = ""
     @Published var emailsCache: [String: String] = [:] // uid -> email
     private var lastDocument: DocumentSnapshot?
-    private var lastMedicinesDocument: DocumentSnapshot?
+    var lastMedicinesDocument: DocumentSnapshot?
     private var db = Firestore.firestore()
     private var historyListener: ListenerRegistration?
     private var medicinesListener: ListenerRegistration?
@@ -42,8 +42,8 @@ class MedicineStockViewModel: ObservableObject {
         print("🔕 Tous les listeners arrêtés suite à la déconnexion")
     }
 
-    func fetchNextMedicinesBatch(pageSize: Int = 20) {
-        firestoreService.fetchMedicinesBatch(sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastDocument) { [weak self] newMedicines, lastDoc in
+    func fetchNextMedicinesBatch(pageSize: Int = 20, filterText: String? = nil) {
+        firestoreService.fetchMedicinesBatch(sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastMedicinesDocument) { [weak self] newMedicines, lastDoc in
             guard let self = self else { return }
             DispatchQueue.main.async {
                 for med in newMedicines {
@@ -51,7 +51,7 @@ class MedicineStockViewModel: ObservableObject {
                         self.medicines.append(med)
                     }
                 }
-                self.lastDocument = lastDoc
+                self.lastMedicinesDocument = lastDoc
             }
         }
     }
