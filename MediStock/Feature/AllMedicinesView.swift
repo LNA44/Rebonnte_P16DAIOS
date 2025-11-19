@@ -3,7 +3,6 @@ import SwiftUI
 struct AllMedicinesView: View {
     @EnvironmentObject var session: SessionViewModel
     @ObservedObject var medicineStockVM: MedicineStockViewModel
-    @State private var sortOption: Enumerations.SortOption = .none
     
     var body: some View {
         NavigationView {
@@ -13,21 +12,34 @@ struct AllMedicinesView: View {
                     TextField("Filter by name", text: $medicineStockVM.filterText)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.leading, 10)
+                        .accessibilityLabel("Filter by name")
+                        .accessibilityHint("Enter text to filter the list of medicines by name")
                         .onChange(of: medicineStockVM.filterText) { _, newValue in
+                            let lowerFilter = newValue.lowercased()
                             medicineStockVM.medicines = []
                             medicineStockVM.lastMedicinesDocument = nil
-                            medicineStockVM.fetchNextMedicinesBatch(filterText: newValue.isEmpty ? nil : newValue)
+                            medicineStockVM.fetchNextMedicinesBatch(filterText: lowerFilter.isEmpty ? nil : lowerFilter)
                         }
                     
                     Spacer()
                     
-                    Picker("Sort by", selection: $sortOption) {
+                    Picker("Sort by", selection: $medicineStockVM.sortOption) {
                         Text("None").tag(Enumerations.SortOption.none)
                         Text("Name").tag(Enumerations.SortOption.name)
                         Text("Stock").tag(Enumerations.SortOption.stock)
                     }
                     .pickerStyle(MenuPickerStyle())
                     .padding(.trailing, 10)
+                    .accessibilityLabel("Sort options")
+                    .accessibilityHint("Select how to sort the list of medicines")
+                    .onChange(of: medicineStockVM.sortOption) {_, newSort in
+                        // Réinitialiser la pagination et la liste
+                        medicineStockVM.medicines = []
+                        medicineStockVM.lastMedicinesDocument = nil
+                        
+                        // Recharger les medicines triées
+                        medicineStockVM.fetchNextMedicinesBatch(filterText: medicineStockVM.filterText.isEmpty ? nil : medicineStockVM.filterText)
+                    }
                 }
                 .padding(.top, 10)
                 
@@ -38,8 +50,12 @@ struct AllMedicinesView: View {
                             VStack(alignment: .leading) {
                                 Text(medicine.name)
                                     .font(.headline)
+                                    .accessibilityLabel("Medicine name")
+                                    .accessibilityValue(medicine.name)
                                 Text("Stock: \(medicine.stock)")
                                     .font(.subheadline)
+                                    .accessibilityLabel("Stock quantity")
+                                    .accessibilityValue("\(medicine.stock)")
                             }
                             .onAppear {
                                 if medicine == medicineStockVM.medicines.last && medicineStockVM.filterText.isEmpty {
@@ -57,16 +73,14 @@ struct AllMedicinesView: View {
                     }
                 }
                 .navigationBarTitle("All Medicines")
-                .navigationBarItems(trailing: NavigationLink(destination:
-                                                                MedicineDetailView(
-                                                                    medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM,
-                                                                    isNew: true
-                                                                )
-                                                            ) {
+                .navigationBarItems(trailing: NavigationLink(destination: MedicineDetailView(medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM, isNew: true)) {
                     Image(systemName: "plus")
+                        .accessibilityLabel("Add new medicine")
+                        .accessibilityHint("Tap to add a new medicine")
                 })
             }
         }
+        .hideKeyboardOnTap() 
         .onAppear {
             if medicineStockVM.medicines.isEmpty && medicineStockVM.filterText.isEmpty {
                 medicineStockVM.fetchNextMedicinesBatch()

@@ -17,25 +17,51 @@ class FirestoreService: FirestoreServicing {
     }
     
     func fetchMedicinesBatch(sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
-        print("fetchMedicinesBatch appelé")
-        
         var query: Query = db.collection("medicines")
-        
-        // Tri côté serveur
-        switch sortOption {
-        case .name:
-            query = query.order(by: "name", descending: false)
-        case .stock:
-            query = query.order(by: "stock", descending: false)
-        case .none:
-            break
-        }
-        
-        // Filtre côté serveur
-        if let filter = filterText, !filter.isEmpty {
+
+        let hasFilter = filterText != nil && !filterText!.isEmpty
+
+        // Filtre + tri côté serveur
+        if hasFilter {
+            let filterLower = filterText!.lowercased()
+            
+            // Filtre par name_lowercase
             query = query
-                .whereField("name", isGreaterThanOrEqualTo: filter)
-                .whereField("name", isLessThanOrEqualTo: filter + "\u{f8ff}")
+                .whereField("name_lowercase", isGreaterThanOrEqualTo: filterLower)
+                .whereField("name_lowercase", isLessThanOrEqualTo: filterLower + "\u{f8ff}")
+            
+            // Ajouter le tri selon l'option
+            switch sortOption {
+            case .name:
+                query = query.order(by: "name_lowercase", descending: false)
+                print("✅ Filtre par nom + tri par nom appliqués")
+                
+            case .stock:
+                // Utilise l'index composite : name_lowercase + stock
+                query = query
+                    .order(by: "name_lowercase", descending: false) // Nécessaire pour le filtre
+                    .order(by: "stock", descending: true)           // Tri secondaire par stock
+                print("✅ Filtre par nom + tri par stock appliqués (index composite)")
+                
+            case .none:
+                query = query.order(by: "name_lowercase", descending: false)
+                print("✅ Filtre par nom appliqué")
+            }
+        } else {
+            
+            // Aucun filtre → tri normal
+            switch sortOption {
+            case .name:
+                print("📝 Tri par NOM")
+                query = query.order(by: "name_lowercase")
+
+            case .stock:
+                print("📦 Tri par STOCK")
+                query = query.order(by: "stock", descending: true)
+
+            case .none:
+                print("⚪ Aucun tri")
+            }
         }
         
         // Pagination
@@ -43,7 +69,7 @@ class FirestoreService: FirestoreServicing {
         if let lastDoc = lastDocument {
             query = query.start(afterDocument: lastDoc)
         }
-        
+
         query.getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching medicines batch: \(error)")
@@ -110,7 +136,9 @@ class FirestoreService: FirestoreServicing {
         let docId = medicine.id ?? UUID().uuidString
         var medicineToSave = medicine
         medicineToSave.id = docId
-
+        medicineToSave.name_lowercase = medicine.name.lowercased()
+        //let stockPadded = String(format: "%05d", medicineToSave.stock)
+        //medicineToSave.combinedField = "\(medicineToSave.name_lowercase)_\(stockPadded)"
         do {
             try db.collection("medicines").document(docId).setData(from: medicineToSave)
 
@@ -144,9 +172,19 @@ class FirestoreService: FirestoreServicing {
         }
     
     func updateMedicine(_ medicine: Medicine) async throws {
-            guard let id = medicine.id else { return }
-            try db.collection("medicines").document(id).setData(from: medicine)
-        }
+        guard let id = medicine.id else { return }
+        // 1️⃣ Crée une copie modifiable
+        var medicineToUpdate = medicine
+        
+        // 2️⃣ Mets à jour name_lowercase
+        medicineToUpdate.name_lowercase = medicine.name.lowercased()
+        
+        // 3️⃣ Mets à jour combinedField
+        //let stockPadded = String(format: "%05d", medicineToUpdate.stock)
+        //medicineToUpdate.combinedField = "\(medicineToUpdate.name_lowercase)_\(stockPadded)"
+        
+        try db.collection("medicines").document(id).setData(from: medicineToUpdate)
+    }
     
     func addHistory(action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry? {
         let newId = UUID().uuidString

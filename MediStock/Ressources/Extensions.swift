@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 extension Array {
     func chunked(into size: Int) -> [[Element]] {
@@ -17,4 +18,12 @@ extension Array {
 
 extension Notification.Name {
     static let userDidSignOut = Notification.Name("userDidSignOut")
+}
+
+extension View {
+    func hideKeyboardOnTap() -> some View {
+        self.onTapGesture {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
+    }
 }

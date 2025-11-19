@@ -35,7 +35,7 @@ class SessionViewModel: ObservableObject {
         }
     
     
-    func signUp(email: String, password: String) {
+    func signUp(email: String, password: String, completion: @escaping () -> Void) {
         authService.signUp(email: email, password: password) { [weak self] (user, error) in
             Task {
                 if let user = user {
@@ -48,11 +48,12 @@ class SessionViewModel: ObservableObject {
                 } else if let error = error {
                     print("error \(error)")
                 }
+                completion()
             }
         }
     }
 
-    func signIn(email: String, password: String) {
+    func signIn(email: String, password: String, completion: @escaping () -> Void) {
         authService.signIn(email: email, password: password) { [weak self] (user, error) in
             DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
                 if let user = user {
@@ -60,6 +61,7 @@ class SessionViewModel: ObservableObject {
                 } else if let error = error {
                     print("error \(error)")
                 }
+                completion()
             }
         }
     }

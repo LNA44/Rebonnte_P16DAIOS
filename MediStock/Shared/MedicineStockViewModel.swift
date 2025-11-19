@@ -14,7 +14,7 @@ class MedicineStockViewModel: ObservableObject {
     private var historyListener: ListenerRegistration?
     private var medicinesListener: ListenerRegistration?
     private var aislesListener: ListenerRegistration?
-    @Published private var sortOption: Enumerations.SortOption = .none
+    @Published var sortOption: Enumerations.SortOption = .none
     let firestoreService: FirestoreServicing
         
         //MARK: -Initialization

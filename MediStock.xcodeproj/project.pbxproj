@@ -90,6 +90,7 @@
 		F374FC8E2EC77B0D0099DFEE /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F38317F02EC22D850060FF29 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		F38317F22EC2390D0060FF29 /* Enumerations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enumerations.swift; sourceTree = "<group>"; };
+		F38EA5802ECCCA9E00D68E47 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F39080A12ECB26F200CE36E7 /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
 		F3986C5E2EC5E18000FC57F7 /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
 		F3986C612EC5E1B300FC57F7 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
@@ -156,6 +157,7 @@
 		53E0D8952C06084700DE1134 /* MediStock */ = {
 			isa = PBXGroup;
 			children = (
+				F38EA5802ECCCA9E00D68E47 /* Info.plist */,
 				F398C9C72EBE3CD700DF3BEE /* Ressources */,
 				F398C9C62EBE3CBD00DF3BEE /* App */,
 				F398C9972EBE3BC700DF3BEE /* Model */,
@@ -599,6 +601,8 @@
 				DEVELOPMENT_TEAM = 64KCF3XZ6R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MediStock/Info.plist;
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This app uses Firebase Analytics to improve the user experience.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -628,6 +632,8 @@
 				DEVELOPMENT_TEAM = 64KCF3XZ6R;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MediStock/Info.plist;
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "This app uses Firebase Analytics to improve the user experience.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

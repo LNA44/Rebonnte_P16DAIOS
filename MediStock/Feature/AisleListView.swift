@@ -3,7 +3,6 @@ import SwiftUI
 struct AisleListView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @EnvironmentObject var session: SessionViewModel
-   // @Binding var selectedTab: Int
 
     var body: some View {
         NavigationStack {
@@ -11,6 +10,7 @@ struct AisleListView: View {
                 ForEach(medicineStockVM.aisles, id: \.self) { aisle in
                     NavigationLink(destination: MedicineListView(medicineStockVM: medicineStockVM, aisle: aisle)) {
                         Text(aisle)
+                          .accessibilityHint("Tap to view medicines in this aisle")
                     }
                 }
             }
@@ -23,6 +23,8 @@ struct AisleListView: View {
                         )
                     ) {
                 Image(systemName: "plus")
+                    .accessibilityLabel("Add new medicine")
+                    .accessibilityHint("Tap to add a new medicine")
             })
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -30,8 +32,10 @@ struct AisleListView: View {
                         session.signOut()
                     }) {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
-                            .imageScale(.large)       // taille de l’icône
+                            .imageScale(.large)     
                             .foregroundColor(.blue)
+                            .accessibilityLabel("Sign out")
+                            .accessibilityHint("Tap to sign out from the application")
                     }
                 }
             }
@@ -39,13 +43,6 @@ struct AisleListView: View {
         .onAppear {
             medicineStockVM.fetchAisles()
         }
-       /* .onChange(of: selectedTab) {_, newTab in
-                    if newTab == 0 {
-                        // L’utilisateur revient sur l’onglet Aisles
-                        medicineStockVM.fetchAisles()
-                        medicineStockVM.fetchNextMedicinesBatch()
-                    }
-                }*/
     }
 }
 

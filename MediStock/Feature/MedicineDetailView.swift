@@ -29,6 +29,7 @@ struct MedicineDetailView: View {
                 Text(localMedicine.name)
                     .font(.largeTitle)
                     .padding(.top, 20)
+                    .padding(.leading, 15)
 
                 // Medicine Name
                 medicineNameSection
@@ -44,6 +45,7 @@ struct MedicineDetailView: View {
             }
             .padding(.vertical)
         }
+        .hideKeyboardOnTap()
         .navigationBarTitle("Medicine Details", displayMode: .inline)
         .onAppear {
             print("🔍 MedicineDetailView appeared")
@@ -72,6 +74,8 @@ extension MedicineDetailView {
                 .focused($isNameFocused)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.bottom, 10)
+                .accessibilityLabel("Medicine Name")
+                .accessibilityHint("Enter the medicine name. Letters only, no numbers allowed")
                 .onChange(of: isNameFocused) { _, focused in
                     if !focused {
                         // Vérifie si le texte contient un chiffre
@@ -119,12 +123,16 @@ extension MedicineDetailView {
                         .font(.title)
                         .foregroundColor(.red)
                 }
+                .accessibilityLabel("Decrease stock")
+                .accessibilityHint("Tap to decrease the stock by one unit")
                 
                 TextField("Stock", text: $stockText)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .keyboardType(.decimalPad)
                 .frame(width: 100)
                 .disabled(isNew)
+                .accessibilityLabel("Stock quantity")
+                .accessibilityHint("Enter the current stock quantity")
                 .onAppear {
                     // Récupérer le stock réel depuis le VM
                     let realStock = medicineStockVM.medicines.first(where: { $0.id == localMedicine.id })?.stock ?? localMedicine.stock
@@ -163,7 +171,7 @@ extension MedicineDetailView {
                 }
                 
                 Button(action: {
-                    Task {
+                    Task { 
                         guard !isNew else { return }
                         isEditingStock = true
                         let newStock = await medicineStockVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
@@ -180,6 +188,8 @@ extension MedicineDetailView {
                         .font(.title)
                         .foregroundColor(.green)
                 }
+                .accessibilityLabel("Increase stock")
+                .accessibilityHint("Tap to increase the stock by one unit")
             }
             .padding(.bottom, 10)
         }
@@ -195,6 +205,8 @@ extension MedicineDetailView {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.bottom, 10)
                 .disabled(localMedicine.name.isEmpty)
+                .accessibilityLabel("Aisle")
+                .accessibilityHint("Enter the aisle where this medicine is stored")
                 .onChange(of: localMedicine.aisle) {_, newAisle in
                     if newAisle.allSatisfy({ $0.isNumber }) {
                         // Chiffres seulement → update lastValidAisle
