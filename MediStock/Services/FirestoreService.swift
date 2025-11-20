@@ -18,7 +18,7 @@ class FirestoreService: FirestoreServicing {
     
     func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
         var query: Query = db.collection(collection)
-
+        var sortClientSide = false // 🆕 Flag pour tri côté client
         let hasFilter = filterText != nil && !filterText!.isEmpty
 
         // Filtre + tri côté serveur
@@ -37,12 +37,13 @@ class FirestoreService: FirestoreServicing {
                 print("✅ Filtre par nom + tri par nom appliqués")
                 
             case .stock:
-                // Utilise l'index composite : name_lowercase + stock
+               /* // Utilise l'index composite : name_lowercase + stock
                 query = query
                     .order(by: "name_lowercase", descending: false) // Nécessaire pour le filtre
                     .order(by: "stock", descending: true)           // Tri secondaire par stock
-                print("✅ Filtre par nom + tri par stock appliqués (index composite)")
-                
+                print("✅ Filtre par nom + tri par stock appliqués (index composite)")*/
+                sortClientSide = true
+                print("⚠️ Filtre par nom (serveur) + tri par stock (client)")
             case .none:
                 query = query.order(by: "name_lowercase", descending: false)
                 print("✅ Filtre par nom appliqué")
@@ -82,8 +83,13 @@ class FirestoreService: FirestoreServicing {
                 return
             }
             
-            let fetchedMedicines = snapshot.documents.compactMap { doc -> Medicine? in
+            var fetchedMedicines = snapshot.documents.compactMap { doc -> Medicine? in
                 try? doc.data(as: Medicine.self)
+            }
+            
+            if sortClientSide {
+                fetchedMedicines.sort { $0.stock > $1.stock }
+                print("✅ Tri par stock effectué côté client (\(fetchedMedicines.count) items)")
             }
             
             completion(fetchedMedicines, snapshot.documents.last)
