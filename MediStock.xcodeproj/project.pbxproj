@@ -38,6 +38,7 @@
 		53E0D8EE2C06718100DE1134 /* AllMedicinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53E0D8ED2C06718100DE1134 /* AllMedicinesView.swift */; };
 		F367A5222ECF0750007018BA /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F367A5212ECF0750007018BA /* LoginViewModel.swift */; };
 		F367A5252ECF0AE9007018BA /* AisleListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F367A5242ECF0AE9007018BA /* AisleListViewModel.swift */; };
+		F367A5282ECF21F3007018BA /* MedicineDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F367A5272ECF21F3007018BA /* MedicineDetailViewModel.swift */; };
 		F374FC8F2EC77B0D0099DFEE /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F374FC8E2EC77B0D0099DFEE /* AuthService.swift */; };
 		F38317F12EC22D850060FF29 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38317F02EC22D850060FF29 /* Extensions.swift */; };
 		F38317F32EC2390D0060FF29 /* Enumerations.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38317F22EC2390D0060FF29 /* Enumerations.swift */; };
@@ -90,6 +91,7 @@
 		53E0D8ED2C06718100DE1134 /* AllMedicinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllMedicinesView.swift; sourceTree = "<group>"; };
 		F367A5212ECF0750007018BA /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		F367A5242ECF0AE9007018BA /* AisleListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AisleListViewModel.swift; sourceTree = "<group>"; };
+		F367A5272ECF21F3007018BA /* MedicineDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicineDetailViewModel.swift; sourceTree = "<group>"; };
 		F374FC8E2EC77B0D0099DFEE /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F38317F02EC22D850060FF29 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		F38317F22EC2390D0060FF29 /* Enumerations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enumerations.swift; sourceTree = "<group>"; };
@@ -215,6 +217,15 @@
 			path = AisleList;
 			sourceTree = "<group>";
 		};
+		F367A5262ECF21E0007018BA /* MedicineDetail */ = {
+			isa = PBXGroup;
+			children = (
+				53E0D8E72C066F6500DE1134 /* MedicineDetailView.swift */,
+				F367A5272ECF21F3007018BA /* MedicineDetailViewModel.swift */,
+			);
+			path = MedicineDetail;
+			sourceTree = "<group>";
+		};
 		F3986C5F2EC5E18000FC57F7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -239,8 +250,8 @@
 			children = (
 				F367A5232ECF0ADA007018BA /* AisleList */,
 				F367A5202ECF073E007018BA /* Login */,
+				F367A5262ECF21E0007018BA /* MedicineDetail */,
 				53E0D8D92C06098F00DE1134 /* MedicineListView.swift */,
-				53E0D8E72C066F6500DE1134 /* MedicineDetailView.swift */,
 				53E0D8ED2C06718100DE1134 /* AllMedicinesView.swift */,
 			);
 			path = Feature;
@@ -451,6 +462,7 @@
 				F3986C602EC5E18000FC57F7 /* FirestoreService.swift in Sources */,
 				53E0D8E62C066F4100DE1134 /* AisleListView.swift in Sources */,
 				F38317F12EC22D850060FF29 /* Extensions.swift in Sources */,
+				F367A5282ECF21F3007018BA /* MedicineDetailViewModel.swift in Sources */,
 				53E0D8972C06084700DE1134 /* MediStockApp.swift in Sources */,
 				53E0D8E82C066F6500DE1134 /* MedicineDetailView.swift in Sources */,
 				53E0D8EE2C06718100DE1134 /* AllMedicinesView.swift in Sources */,

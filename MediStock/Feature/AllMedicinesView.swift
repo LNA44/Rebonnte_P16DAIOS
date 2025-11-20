@@ -3,6 +3,7 @@ import SwiftUI
 struct AllMedicinesView: View {
     @EnvironmentObject var session: SessionViewModel
     @ObservedObject var medicineStockVM: MedicineStockViewModel
+    @ObservedObject var medicineDetailVM: MedicineDetailViewModel
     
     var body: some View {
         NavigationView {
@@ -46,7 +47,7 @@ struct AllMedicinesView: View {
                 // Liste des Médicaments
                 List {
                     ForEach(medicineStockVM.medicines, id: \.id) { medicine in
-                        NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM)) {
+                        NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM)) {
                             VStack(alignment: .leading) {
                                 Text(medicine.name)
                                     .font(.headline)
@@ -73,7 +74,7 @@ struct AllMedicinesView: View {
                     }
                 }
                 .navigationBarTitle("All Medicines")
-                .navigationBarItems(trailing: NavigationLink(destination: MedicineDetailView(medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM, isNew: true)) {
+                .navigationBarItems(trailing: NavigationLink(destination: MedicineDetailView(medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM, isNew: true)) {
                     Image(systemName: "plus")
                         .accessibilityLabel("Add new medicine")
                         .accessibilityHint("Tap to add a new medicine")
@@ -91,6 +92,6 @@ struct AllMedicinesView: View {
 
 struct AllMedicinesView_Previews: PreviewProvider {
     static var previews: some View {
-        AllMedicinesView(medicineStockVM: MedicineStockViewModel())
+        AllMedicinesView(medicineStockVM: MedicineStockViewModel(), medicineDetailVM: MedicineDetailViewModel(medicineStockVM: MedicineStockViewModel()))
     }
 }

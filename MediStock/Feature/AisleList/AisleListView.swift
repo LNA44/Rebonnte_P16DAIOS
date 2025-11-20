@@ -4,12 +4,13 @@ struct AisleListView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @EnvironmentObject var session: SessionViewModel
     @ObservedObject var aisleListVM: AisleListViewModel
+    @ObservedObject var medicineDetailVM: MedicineDetailViewModel
 
     var body: some View {
         NavigationStack {
             List {
                 ForEach(aisleListVM.aisles, id: \.self) { aisle in
-                    NavigationLink(destination: MedicineListView(medicineStockVM: medicineStockVM, aisle: aisle)) {
+                    NavigationLink(destination: MedicineListView(medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM, aisle: aisle)) {
                         Text(aisle)
                           .accessibilityHint("Tap to view medicines in this aisle")
                     }
@@ -19,9 +20,7 @@ struct AisleListView: View {
             .navigationBarItems(trailing:
                     NavigationLink(destination:
                         MedicineDetailView(
-                            medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM,
-                            isNew: true
-                        )
+                            medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM, isNew: true)
                     ) {
                 Image(systemName: "plus")
                     .accessibilityLabel("Add new medicine")
@@ -49,6 +48,6 @@ struct AisleListView: View {
 
 struct AisleListView_Previews: PreviewProvider {
     static var previews: some View {
-        AisleListView(medicineStockVM: MedicineStockViewModel(), aisleListVM: AisleListViewModel(sessionVM: SessionViewModel()))
+        AisleListView(medicineStockVM: MedicineStockViewModel(), aisleListVM: AisleListViewModel(sessionVM: SessionViewModel()), medicineDetailVM: MedicineDetailViewModel(medicineStockVM: MedicineStockViewModel()))
     }
 }

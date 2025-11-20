@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MedicineDetailView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
+    @ObservedObject var medicineDetailVM: MedicineDetailViewModel
     @EnvironmentObject var session: SessionViewModel
     @State var medicine: Medicine
     @State var isNew: Bool = false //pr gérer l'ajout d'un médicament
@@ -15,10 +16,11 @@ struct MedicineDetailView: View {
     @State private var lastValidName: String = ""
     @State private var localMedicine: Medicine // pour éviter que quand on maj aisle la liste de AisleListView se maj et qu'on sorte de la vue details
     
-    init(medicine: Medicine, medicineStockVM: MedicineStockViewModel, isNew: Bool = false) {
+    init(medicine: Medicine, medicineStockVM: MedicineStockViewModel, medicineDetailVM: MedicineDetailViewModel, isNew: Bool = false) {
         self.medicine = medicine
         self._localMedicine = State(initialValue: medicine) // copie locale
         self.medicineStockVM = medicineStockVM
+        self.medicineDetailVM = medicineDetailVM
         self._isNew = State(initialValue: isNew)
     }
    
@@ -56,7 +58,7 @@ struct MedicineDetailView: View {
                 medicine = Medicine(name: "", stock: 0, aisle: "")
                 localMedicine = medicine
             } else {
-                medicineStockVM.fetchNextHistoryBatch(for: medicine)
+                medicineDetailVM.fetchNextHistoryBatch(for: medicine)
             }
         }
         .onDisappear {
@@ -103,7 +105,7 @@ extension MedicineDetailView {
                         guard !isNew else { return }
                         isEditingStock = true
                         if localMedicine.stock >= 1 {
-                            let newStock = await medicineStockVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
+                            let newStock = await medicineDetailVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
                             DispatchQueue.main.async {
                                 //self.medicine.stock = newStock
                                 originalStock = newStock  
@@ -154,7 +156,7 @@ extension MedicineDetailView {
                         let difference = newStock - originalStock
                         
                         Task {
-                            let finalStock = await medicineStockVM.updateStock(
+                            let finalStock = await medicineDetailVM.updateStock(
                                 localMedicine,  // ← Avec son stock d'origine
                                 by: difference,
                                 user: session.session?.uid ?? ""
@@ -174,7 +176,7 @@ extension MedicineDetailView {
                     Task { 
                         guard !isNew else { return }
                         isEditingStock = true
-                        let newStock = await medicineStockVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
+                        let newStock = await medicineDetailVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
                         DispatchQueue.main.async {
                             print("localmedicine.stock \(newStock)")
                             self.localMedicine.stock = newStock
@@ -215,7 +217,7 @@ extension MedicineDetailView {
                         // Si le champ n'est pas vide et ce n'est pas un nouveau médicament, on ajoute l'historique
                         if !newAisle.isEmpty && !isNew {
                             Task {
-                                await medicineStockVM.addHistory(
+                                await medicineDetailVM.addHistory(
                                     action: "Updated \(localMedicine.name)",
                                     user: session.session?.uid ?? "Unknown user",
                                     medicineId: localMedicine.id ?? "",
@@ -244,10 +246,10 @@ extension MedicineDetailView {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(entry.action)
                             .font(.headline)
-                        Text("User: \(medicineStockVM.emailsCache[entry.user] ?? "Chargement...")")
+                        Text("User: \(medicineDetailVM.emailsCache[entry.user] ?? "Chargement...")")
                             .font(.subheadline)
                             .task {
-                                _ = await medicineStockVM.fetchEmail(for: entry.user)
+                                _ = await medicineDetailVM.fetchEmail(for: entry.user)
                             }
                         Text("Date: \(entry.timestamp.formatted())")
                             .font(.subheadline)
@@ -262,7 +264,7 @@ extension MedicineDetailView {
                     .onAppear {
                         // ⚡️ Lazy loading côté données : charger batch suivant si dernier élément
                         if entry == medicineStockVM.history.last {
-                            medicineStockVM.fetchNextHistoryBatch(for: medicine)
+                            medicineDetailVM.fetchNextHistoryBatch(for: medicine)
                         }
                     }
                 }
@@ -277,7 +279,7 @@ extension MedicineDetailView {
         if isNew {
             self.isNew = false
             Task {
-                let savedMedicine = await medicineStockVM.addMedicine(localMedicine, user: session.session?.uid ?? "")
+                let savedMedicine = await medicineDetailVM.addMedicine(localMedicine, user: session.session?.uid ?? "")
                 await MainActor.run {
                     self.localMedicine = savedMedicine
                     if !medicineStockVM.medicines.contains(where: { $0.id == savedMedicine.id }) {
@@ -287,7 +289,7 @@ extension MedicineDetailView {
             }
         } else {
             Task {
-                await medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")
+                await medicineDetailVM.updateMedicine(localMedicine, user: session.session?.uid ?? "")
             }
         }
     }
@@ -297,7 +299,7 @@ extension MedicineDetailView {
             print("🧾 Sauvegarde : localMedicine.aisle =", localMedicine.aisle)
             print("🧾 Avant envoi : medicine.id =", localMedicine.id ?? "nil")
             Task {
-                await medicineStockVM.updateMedicine(localMedicine, user: session.session?.uid ?? "", shouldAddHistory: false)
+                await medicineDetailVM.updateMedicine(localMedicine, user: session.session?.uid ?? "", shouldAddHistory: false)
                 medicine = localMedicine
                 isNew = false
             }
