@@ -45,7 +45,7 @@ class AisleListViewModel: ObservableObject {
         // Retirer l'ancien listener si existant
         aislesListener?.remove()
         
-        aislesListener = firestoreService.fetchAisles { [weak self] aisles in
+        aislesListener = firestoreService.fetchAisles(collection: "medicines") { [weak self] aisles in
             self?.aisles = aisles
         }
     }

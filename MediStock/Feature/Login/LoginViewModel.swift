@@ -29,7 +29,7 @@ class LoginViewModel: ObservableObject {
                 if let user = user {
                     guard let self = self else { return }
                     let user = AppUser(uid: user.uid, email: user.email)
-                    try await self.firestoreService.createUser(user: user)
+                    try await self.firestoreService.createUser(collection: "users", user: user)
                     await MainActor.run {
                         self.sessionVM.updateSession(user: user)
                     }

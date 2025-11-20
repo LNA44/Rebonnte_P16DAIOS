@@ -31,7 +31,7 @@ class MedicineDetailViewModel: ObservableObject {
 
         do {
             // Appel du service
-            let savedMedicine = try await firestoreService.addMedicine(medicine, user: user)
+            let savedMedicine = try await firestoreService.addMedicine(collection: "medicines", medicine, user: user)
 
             // Appel asynchrone de addHistory
                 let historyEntry = await addHistory(
@@ -73,7 +73,7 @@ class MedicineDetailViewModel: ObservableObject {
 
             do {
                 // 1️⃣ Mise à jour dans Firestore via le service
-                try await firestoreService.updateStock(for: id, newStock: newStock)
+                try await firestoreService.updateStock(collection: "medicines", for: id, newStock: newStock)
 
                 // 2️⃣ Mise à jour locale
                 if let index = medicineStockVM.medicines.firstIndex(where: { $0.id == id }) {
@@ -101,7 +101,7 @@ class MedicineDetailViewModel: ObservableObject {
 
             do {
                 // 1️⃣ Mise à jour Firestore
-                try await firestoreService.updateMedicine(medicine)
+                try await firestoreService.updateMedicine(collection: "medicines", medicine)
 
                 // 2️⃣ Mise à jour locale
                 if let index = medicineStockVM.medicines.firstIndex(where: { $0.id == id }) {
@@ -164,7 +164,7 @@ class MedicineDetailViewModel: ObservableObject {
     func fetchNextHistoryBatch(for medicine: Medicine, pageSize: Int = 20) {
         guard let medicineId = medicine.id else { return }
         
-        firestoreService.fetchHistoryBatch(for: medicineId, pageSize: pageSize, lastDocument: lastDocument) { [weak self] newEntries, lastDoc in
+        firestoreService.fetchHistoryBatch(collection: "history", for: medicineId, pageSize: pageSize, lastDocument: lastDocument) { [weak self] newEntries, lastDoc in
             guard let self = self else { return }
             DispatchQueue.main.async { [self] in
                 for entry in newEntries {
@@ -182,7 +182,7 @@ class MedicineDetailViewModel: ObservableObject {
             return cached
         }
         do {
-            let email = try await firestoreService.getEmail(uid: uid) ?? "Unknown"
+            let email = try await firestoreService.getEmail(collection: "users", uid: uid) ?? "Unknown"
             emailsCache[uid] = email
             return email
         } catch {

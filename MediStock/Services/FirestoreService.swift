@@ -16,8 +16,8 @@ class FirestoreService: FirestoreServicing {
         db = Firestore.firestore()
     }
     
-    func fetchMedicinesBatch(sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
-        var query: Query = db.collection("medicines")
+    func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
+        var query: Query = db.collection(collection)
 
         let hasFilter = filterText != nil && !filterText!.isEmpty
 
@@ -91,8 +91,8 @@ class FirestoreService: FirestoreServicing {
     }
     
     
-    func fetchMedicine(_ id: String) async -> Medicine? {
-        let docRef = db.collection("medicines").document(id)
+    func fetchMedicine(_ id: String, collection: String = "medicines") async -> Medicine? {
+        let docRef = db.collection(collection).document(id)
         
         do {
             let snapshot = try await docRef.getDocument()
@@ -104,10 +104,10 @@ class FirestoreService: FirestoreServicing {
         }
     }
     
-    func fetchAisles(onUpdate: @escaping ([String]) -> Void) -> ListenerRegistration {
+    func fetchAisles(collection: String, onUpdate: @escaping ([String]) -> Void) -> ListenerRegistration {
         print("fetchAisles appelé")
         
-        let listener = db.collection("medicines").addSnapshotListener { (querySnapshot, error) in
+        let listener = db.collection(collection).addSnapshotListener { (querySnapshot, error) in
             if let error = error {
                 print("Error getting documents: \(error)")
                 onUpdate([])
@@ -130,7 +130,7 @@ class FirestoreService: FirestoreServicing {
         return listener
     }
     
-    func addMedicine(_ medicine: Medicine, user: String) async throws -> Medicine {
+    func addMedicine(collection: String, _ medicine: Medicine, user: String) async throws -> Medicine {
         print("add medicine appelé")
 
         let docId = medicine.id ?? UUID().uuidString
@@ -140,7 +140,7 @@ class FirestoreService: FirestoreServicing {
         //let stockPadded = String(format: "%05d", medicineToSave.stock)
         //medicineToSave.combinedField = "\(medicineToSave.name_lowercase)_\(stockPadded)"
         do {
-            try db.collection("medicines").document(docId).setData(from: medicineToSave)
+            try db.collection(collection).document(docId).setData(from: medicineToSave)
 
             print("✅ Medicine ajouté")
 
@@ -151,12 +151,12 @@ class FirestoreService: FirestoreServicing {
         }
     }
     
-    func deleteMedicines(withIds ids: [String]) async -> [String] {
+    func deleteMedicines(collection: String, withIds ids: [String]) async -> [String] {
         var deletedIds: [String] = []
 
         for id in ids {
             do {
-                try await db.collection("medicines").document(id).delete()
+                try await db.collection(collection).document(id).delete()
                 print("✅ Successfully deleted medicine with id \(id)")
                 deletedIds.append(id)
             } catch {
@@ -167,11 +167,11 @@ class FirestoreService: FirestoreServicing {
         return deletedIds
     }
     
-    func updateStock(for medicineId: String, newStock: Int) async throws {
-            try await db.collection("medicines").document(medicineId).updateData(["stock": newStock])
+    func updateStock(collection: String, for medicineId: String, newStock: Int) async throws {
+            try await db.collection(collection).document(medicineId).updateData(["stock": newStock])
         }
     
-    func updateMedicine(_ medicine: Medicine) async throws {
+    func updateMedicine(collection: String,_ medicine: Medicine) async throws {
         guard let id = medicine.id else { return }
         // 1️⃣ Crée une copie modifiable
         var medicineToUpdate = medicine
@@ -183,7 +183,7 @@ class FirestoreService: FirestoreServicing {
         //let stockPadded = String(format: "%05d", medicineToUpdate.stock)
         //medicineToUpdate.combinedField = "\(medicineToUpdate.name_lowercase)_\(stockPadded)"
         
-        try db.collection("medicines").document(id).setData(from: medicineToUpdate)
+        try db.collection(collection).document(id).setData(from: medicineToUpdate)
     }
     
     func addHistory(action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry? {
@@ -208,14 +208,14 @@ class FirestoreService: FirestoreServicing {
         }
     }
     
-    func deleteHistory(for medicineIds: [String]) async throws {
+    func deleteHistory(collection: String, for medicineIds: [String]) async throws {
         guard !medicineIds.isEmpty else { return }
         
         // Firestore limite à 10 valeurs max pour whereField donc on découpe le tableau
         let chunks = medicineIds.chunked(into: 10)
         
         for chunk in chunks {
-            let querySnapshot = try await db.collection("history")
+            let querySnapshot = try await db.collection(collection)
                 .whereField("medicineId", in: chunk)
                 .getDocuments()
             
@@ -234,8 +234,8 @@ class FirestoreService: FirestoreServicing {
         print("✅ Historique total supprimé pour \(medicineIds.count) médicament(s)")
     }
     
-    func fetchHistoryBatch(for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshot?) -> Void) {
-        var query: Query = db.collection("history")
+    func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshot?) -> Void) {
+        var query: Query = db.collection(collection)
             .whereField("medicineId", isEqualTo: medicineId)
             .order(by: "timestamp", descending: true)
             .limit(to: pageSize)
@@ -266,8 +266,8 @@ class FirestoreService: FirestoreServicing {
         }
     }
     
-    func createUser(user: AppUser) async throws {
-        let docRef = db.collection("users").document(user.uid)
+    func createUser(collection: String, user: AppUser) async throws {
+        let docRef = db.collection(collection).document(user.uid)
         do {
             try docRef.setData(from: user)
             print("Utilisateur créé avec succès dans firestore !")
@@ -277,8 +277,8 @@ class FirestoreService: FirestoreServicing {
         }
     }
     
-    func getEmail(uid: String) async throws -> String? {
-        let docRef = db.collection("users").document(uid)
+    func getEmail(collection: String, uid: String) async throws -> String? {
+        let docRef = db.collection(collection).document(uid)
         do {
             let document = try await docRef.getDocument()
             let user = try document.data(as: AppUser.self)

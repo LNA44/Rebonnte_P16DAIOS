@@ -22,7 +22,7 @@ class MedicineStockViewModel: ObservableObject {
     }
     
     func fetchNextMedicinesBatch(pageSize: Int = 20, filterText: String? = nil) {
-        firestoreService.fetchMedicinesBatch(sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastMedicinesDocument) { [weak self] newMedicines, lastDoc in
+        firestoreService.fetchMedicinesBatch(collection: "medicines", sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastMedicinesDocument) { [weak self] newMedicines, lastDoc in
             guard let self = self else { return }
             DispatchQueue.main.async {
                 for med in newMedicines {
@@ -42,7 +42,7 @@ class MedicineStockViewModel: ObservableObject {
         medicines.remove(atOffsets: offsets)
 
         // Supprimer côté Firestore
-        let deletedIds = await firestoreService.deleteMedicines(withIds: idsToDelete)
+        let deletedIds = await firestoreService.deleteMedicines(collection: "medicines", withIds: idsToDelete)
 
         return deletedIds
     }
@@ -52,7 +52,7 @@ class MedicineStockViewModel: ObservableObject {
         
         do {
             // Appel au service
-            try await firestoreService.deleteHistory(for: medicineIds)
+            try await firestoreService.deleteHistory(collection: "history", for: medicineIds)
             
             // Mise à jour du state local
             await MainActor.run {
