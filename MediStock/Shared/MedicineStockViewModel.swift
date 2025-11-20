@@ -10,37 +10,31 @@ class MedicineStockViewModel: ObservableObject {
     @Published var emailsCache: [String: String] = [:] // uid -> email
     private var lastDocument: DocumentSnapshot?
     var lastMedicinesDocument: DocumentSnapshot?
-    private var db = Firestore.firestore()
-    private var historyListener: ListenerRegistration?
-    private var medicinesListener: ListenerRegistration?
+    //private var historyListener: ListenerRegistration?
+    //private var medicinesListener: ListenerRegistration?
     private var aislesListener: ListenerRegistration?
     @Published var sortOption: Enumerations.SortOption = .none
     let firestoreService: FirestoreServicing
-        
-        //MARK: -Initialization
-        init(
-            firestoreService: FirestoreServicing = FirestoreService.shared,
-        ) {
-            self.firestoreService = firestoreService
-            setupNotifications()
-        }
     
-    private func setupNotifications() {
+    //MARK: -Initialization
+    init(
+        firestoreService: FirestoreServicing = FirestoreService.shared
+    ) {
+        self.firestoreService = firestoreService
+       // setupNotifications()
+    }
+    
+    /*private func setupNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(userDidSignOut), name: .userDidSignOut, object: nil)
     }
     
     @objc private func userDidSignOut() { //arrete les listeners avt destruction du VM pour eviter erreurs firebase qui manque de permissions
-        medicinesListener?.remove()
-        medicinesListener = nil
         
         aislesListener?.remove()
         aislesListener = nil
-        
-        historyListener?.remove()
-        historyListener = nil
-        
+    
         print("🔕 Tous les listeners arrêtés suite à la déconnexion")
-    }
+    }*/
 
     func fetchNextMedicinesBatch(pageSize: Int = 20, filterText: String? = nil) {
         firestoreService.fetchMedicinesBatch(sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastMedicinesDocument) { [weak self] newMedicines, lastDoc in
@@ -55,19 +49,15 @@ class MedicineStockViewModel: ObservableObject {
             }
         }
     }
-    
-    func fetchMedicine(by id: String) async -> Medicine? {
-        return await firestoreService.fetchMedicine(id)
-    }
 
-    func fetchAisles() {
+   /* func fetchAisles() {
         // Retirer l'ancien listener si existant
         aislesListener?.remove()
         
         aislesListener = firestoreService.fetchAisles { [weak self] aisles in
             self?.aisles = aisles
         }
-    }
+    }*/
 
     func addMedicine(_ medicine: Medicine, user: String) async -> Medicine {
         print("add medicine appelé dans la ViewModel")
@@ -238,34 +228,6 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    /*func fetchHistory(for medicine: Medicine) {
-        historyListener?.remove()
-        guard let medicineId = medicine.id else { return }
-        
-        historyListener = db.collection("history")
-            .whereField("medicineId", isEqualTo: medicineId)
-            .order(by: "timestamp", descending: true) //index créé dans firestore pour synchroniser cache et serveur ensuite
-            .addSnapshotListener { [weak self] (querySnapshot, error) in
-                guard let self = self else { return }
-                
-                if let error = error {
-                    print("❌ Error: \(error)")
-                    return
-                }
-                
-                guard let querySnapshot = querySnapshot else { return }
-                
-                DispatchQueue.global(qos: .userInitiated).async {
-                    let confirmedDocs = querySnapshot.documents
-                        .compactMap { try? $0.data(as: HistoryEntry.self) }
-                    
-                    DispatchQueue.main.async {
-                        self.history = confirmedDocs
-                    }
-                }
-            }
-    }*/
-    
     func fetchNextHistoryBatch(for medicine: Medicine, pageSize: Int = 20) {
         guard let medicineId = medicine.id else { return }
         
@@ -297,13 +259,12 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
     
-    deinit {
+    /*deinit {
         // ✅ Retire tous les listeners a la suppression du VM
         NotificationCenter.default.removeObserver(self)
-        medicinesListener?.remove()
-        historyListener?.remove()
+
         aislesListener?.remove()
         
         print("🧹 Tous les listeners nettoyés")
-    }
+    }*/
 }

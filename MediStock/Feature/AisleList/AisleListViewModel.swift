@@ -1,0 +1,56 @@
+//
+//  AisleListViewModel.swift
+//  MediStock
+//
+//  Created by Ordinateur elena on 20/11/2025.
+//
+
+import Foundation
+import Firebase
+
+class AisleListViewModel: ObservableObject {
+    private let sessionVM: SessionViewModel
+    private var aislesListener: ListenerRegistration?
+    let firestoreService: FirestoreServicing
+    @Published var aisles: [String] = []
+
+    init(sessionVM: SessionViewModel, firestoreService: FirestoreServicing = FirestoreService.shared) {
+        self.sessionVM = sessionVM
+        self.firestoreService = firestoreService
+        setupNotifications()
+    }
+    
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(userDidSignOut), name: .userDidSignOut, object: nil)
+    }
+    
+    @objc private func userDidSignOut() { //arrete les listeners avt destruction du VM pour eviter erreurs firebase qui manque de permissions
+        
+        aislesListener?.remove()
+        aislesListener = nil
+    
+        print("🔕 Tous les listeners arrêtés suite à la déconnexion")
+    }
+    
+    deinit {
+        // ✅ Retire tous les listeners a la suppression du VM
+        NotificationCenter.default.removeObserver(self)
+
+        aislesListener?.remove()
+        
+        print("🧹 Tous les listeners nettoyés")
+    }
+    
+    func fetchAisles() {
+        // Retirer l'ancien listener si existant
+        aislesListener?.remove()
+        
+        aislesListener = firestoreService.fetchAisles { [weak self] aisles in
+            self?.aisles = aisles
+        }
+    }
+    
+    func signOut() {
+        sessionVM.signOut()
+    }
+}

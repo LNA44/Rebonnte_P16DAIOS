@@ -34,7 +34,7 @@ class SessionViewModel: ObservableObject {
             }
         }
     
-    
+    /*
     func signUp(email: String, password: String, completion: @escaping () -> Void) {
         authService.signUp(email: email, password: password) { [weak self] (user, error) in
             Task {
@@ -65,7 +65,11 @@ class SessionViewModel: ObservableObject {
             }
         }
     }
-
+    */
+    func updateSession(user: AppUser?) {
+            self.session = user
+        }
+    
     func signOut() {
         do {
             try authService.signOut()
@@ -74,7 +78,7 @@ class SessionViewModel: ObservableObject {
             print("Error signing out: \(error.localizedDescription)")
         }
     }
-
+    
     func unbind() {
         // VM appelle la fonction du service pour supprimer le listener
         authService.removeListener(handle: handle)

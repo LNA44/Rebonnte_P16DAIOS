@@ -2,10 +2,11 @@ import SwiftUI
 
 struct MainTabView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
-    
+    @ObservedObject var aisleListVM: AisleListViewModel
+
     var body: some View {
         TabView {
-            AisleListView(medicineStockVM: medicineStockVM)
+            AisleListView(medicineStockVM: medicineStockVM, aisleListVM: aisleListVM)
                 .tabItem {
                     Image(systemName: "list.dash")
                     Text("Aisles")
@@ -22,6 +23,6 @@ struct MainTabView: View {
 
 struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
-        MainTabView(medicineStockVM: MedicineStockViewModel())
+        MainTabView(medicineStockVM: MedicineStockViewModel(), aisleListVM: AisleListViewModel(sessionVM: SessionViewModel()))
     }
 }

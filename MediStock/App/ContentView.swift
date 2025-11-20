@@ -2,14 +2,17 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var session: SessionViewModel
-    @StateObject var medicineStockVM = MedicineStockViewModel()
+    @ObservedObject var medicineStockVM: MedicineStockViewModel
+    @ObservedObject var loginVM: LoginViewModel
+    @ObservedObject var aisleListVM: AisleListViewModel
+
 
     var body: some View {
         Group {
             if session.session != nil {
-                MainTabView(medicineStockVM: medicineStockVM)
+                MainTabView(medicineStockVM: medicineStockVM, aisleListVM: aisleListVM)
             } else {
-                LoginView()
+                LoginView(loginVM: loginVM)
             }
         }
         .onAppear {
@@ -20,6 +23,6 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().environmentObject(SessionViewModel())
+        ContentView(medicineStockVM: MedicineStockViewModel(), loginVM: LoginViewModel(sessionVM: SessionViewModel()), aisleListVM: AisleListViewModel(sessionVM: SessionViewModel())).environmentObject(SessionViewModel())
     }
 }
