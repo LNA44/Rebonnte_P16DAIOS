@@ -22,8 +22,8 @@ struct MainTabView: View {
     }
 }
 
-struct MainTabView_Previews: PreviewProvider {
+/*struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
         MainTabView(medicineStockVM: MedicineStockViewModel(), aisleListVM: AisleListViewModel(sessionVM: SessionViewModel()), medicineDetailVM: MedicineDetailViewModel(medicineStockVM: MedicineStockViewModel()))
     }
-}
+}*/

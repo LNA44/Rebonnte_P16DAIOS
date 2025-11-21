@@ -37,11 +37,6 @@ class FirestoreService: FirestoreServicing {
                 print("✅ Filtre par nom + tri par nom appliqués")
                 
             case .stock:
-               /* // Utilise l'index composite : name_lowercase + stock
-                query = query
-                    .order(by: "name_lowercase", descending: false) // Nécessaire pour le filtre
-                    .order(by: "stock", descending: true)           // Tri secondaire par stock
-                print("✅ Filtre par nom + tri par stock appliqués (index composite)")*/
                 sortClientSide = true
                 print("⚠️ Filtre par nom (serveur) + tri par stock (client)")
             case .none:
@@ -79,7 +74,12 @@ class FirestoreService: FirestoreServicing {
             }
             
             guard let snapshot = snapshot else {
-                completion([], nil, nil)
+                let errorInvalidSnapshot = NSError(
+                            domain: "Firestore",
+                            code: -1,
+                            userInfo: [NSLocalizedDescriptionKey: "Snapshot Firestore invalide"]
+                        )
+                completion([], nil, errorInvalidSnapshot)
                 return
             }
             
@@ -95,16 +95,7 @@ class FirestoreService: FirestoreServicing {
             completion(fetchedMedicines, snapshot.documents.last, nil)
         }
     }
-    
-    
-    /*func fetchMedicine(_ id: String, collection: String = "medicines") async throws -> Medicine? {
-        let docRef = db.collection(collection).document(id)
-        
-            let snapshot = try await docRef.getDocument()
-            let medicine = try snapshot.data(as: Medicine.self)
-            return medicine
-    }*/
-    
+ 
     func fetchAisles(collection: String, onUpdate: @escaping ([String], Error?) -> Void) -> ListenerRegistration {
         print("fetchAisles appelé")
         
@@ -138,8 +129,6 @@ class FirestoreService: FirestoreServicing {
         var medicineToSave = medicine
         medicineToSave.id = docId
         medicineToSave.name_lowercase = medicine.name.lowercased()
-        //let stockPadded = String(format: "%05d", medicineToSave.stock)
-        //medicineToSave.combinedField = "\(medicineToSave.name_lowercase)_\(stockPadded)"
             try db.collection(collection).document(docId).setData(from: medicineToSave)
             print("✅ Medicine ajouté")
             return medicineToSave
@@ -167,10 +156,6 @@ class FirestoreService: FirestoreServicing {
         
         // 2️⃣ Mets à jour name_lowercase
         medicineToUpdate.name_lowercase = medicine.name.lowercased()
-        
-        // 3️⃣ Mets à jour combinedField
-        //let stockPadded = String(format: "%05d", medicineToUpdate.stock)
-        //medicineToUpdate.combinedField = "\(medicineToUpdate.name_lowercase)_\(stockPadded)"
         
         try db.collection(collection).document(id).setData(from: medicineToUpdate)
     }
@@ -234,7 +219,12 @@ class FirestoreService: FirestoreServicing {
             }
             
             guard let snapshot = snapshot else {
-                completion([], nil, nil)
+                let errorInvalidSnapshot = NSError(
+                            domain: "Firestore",
+                            code: -1,
+                            userInfo: [NSLocalizedDescriptionKey: "Snapshot Firestore invalide"]
+                        )
+                completion([], nil, errorInvalidSnapshot)
                 return
             }
             

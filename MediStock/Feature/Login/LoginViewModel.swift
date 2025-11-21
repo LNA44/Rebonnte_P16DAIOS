@@ -25,28 +25,32 @@ class LoginViewModel: ObservableObject {
     }
     
     func signUp(email: String, password: String, completion: @escaping () -> Void) {
-        authService.signUp(email: email, password: password) { [weak self] (user, error) in
-            Task {  [weak self] in
-                if let user = user {
-                    guard let self = self else { return }
-                    let user = AppUser(uid: user.uid, email: user.email)
+        authService.signUp(email: email, password: password) { [weak self] (appUser, error) in
+            guard let self = self else { return }
+            
+            Task { [weak self] in
+                guard let self = self else { return }
+                
+                if let user = appUser {
                     do {
                         try await self.firestoreService.createUser(collection: "users", user: user)
+                        
                         await MainActor.run {
                             self.sessionVM.updateSession(user: user)
                             self.appError = nil
                         }
+                        
                     } catch {
                         await MainActor.run {
-                               self.appError = AppError.fromAuth(error)
-                           }
+                            self.appError = AppError.fromAuth(error)
+                        }
                     }
                 } else if let error = error {
-                    guard let self = self else { return }
                     await MainActor.run {
-                           self.appError = AppError.fromAuth(error)
-                       }
+                        self.appError = AppError.fromAuth(error)
+                    }
                 }
+                
                 completion()
             }
         }

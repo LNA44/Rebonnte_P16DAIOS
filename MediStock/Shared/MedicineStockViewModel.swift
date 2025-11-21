@@ -8,7 +8,6 @@ class MedicineStockViewModel: ObservableObject {
     @Published var history: [HistoryEntry] = []
     @Published var filterText: String = ""
     var lastMedicinesDocument: DocumentSnapshot?
-    private var aislesListener: ListenerRegistration?
     @Published var sortOption: Enumerations.SortOption = .none
     let firestoreService: FirestoreServicing
     @Published var appError: AppError?

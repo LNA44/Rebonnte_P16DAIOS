@@ -1,7 +1,7 @@
 import Foundation
 import FirebaseFirestoreSwift
 
-struct Medicine: Identifiable, Codable, Equatable {
+struct Medicine: Identifiable, Codable, Equatable, Hashable {
     @DocumentID var id: String?
     var name: String
     var stock: Int

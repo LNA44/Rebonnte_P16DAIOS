@@ -21,8 +21,9 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+/*struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(medicineStockVM: MedicineStockViewModel(), loginVM: LoginViewModel(sessionVM: SessionViewModel()), aisleListVM: AisleListViewModel(sessionVM: SessionViewModel()), medicineDetailVM: MedicineDetailViewModel(medicineStockVM: MedicineStockViewModel())).environmentObject(SessionViewModel())
     }
 }
+*/

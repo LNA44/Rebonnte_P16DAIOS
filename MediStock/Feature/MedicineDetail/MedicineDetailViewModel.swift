@@ -12,7 +12,7 @@ import Firebase
 class MedicineDetailViewModel: ObservableObject {
     let authService: AuthServicing
     let firestoreService: FirestoreServicing
-    private let medicineStockVM: MedicineStockViewModel
+    private weak var medicineStockVM: MedicineStockViewModel?
     var lastDocument: DocumentSnapshot? //history document
     @Published var emailsCache: [String: String] = [:] // uid -> email
     @Published var appError: AppError?
@@ -64,9 +64,9 @@ class MedicineDetailViewModel: ObservableObject {
     
     func updateStock(_ medicine: Medicine, by amount: Int, user: String) async -> Int {
         print("updateStock appelé")
-        guard let id = medicine.id else { return 0 }
+        guard let stockVM = medicineStockVM, let id = medicine.id else { return 0 }
         
-        let currentStock = medicineStockVM.medicines.first(where: { $0.id == id })?.stock ?? medicine.stock
+        let currentStock = stockVM.medicines.first(where: { $0.id == id })?.stock ?? medicine.stock
         let newStock = currentStock + amount
         
         do {
@@ -74,8 +74,8 @@ class MedicineDetailViewModel: ObservableObject {
             try await firestoreService.updateStock(collection: "medicines", for: id, newStock: newStock)
             
             // 2️⃣ Mise à jour locale
-            if let index = medicineStockVM.medicines.firstIndex(where: { $0.id == id }) {
-                medicineStockVM.medicines[index].stock = newStock
+            if let index = stockVM.medicines.firstIndex(where: { $0.id == id }) {
+                stockVM.medicines[index].stock = newStock
             }
             
             // 3️⃣ Ajout à l'historique
@@ -95,15 +95,15 @@ class MedicineDetailViewModel: ObservableObject {
     
     func updateMedicine(_ medicine: Medicine, user: String, shouldAddHistory: Bool = true) async {
         print("update medicine appelé")
-        guard let id = medicine.id else { return }
+        guard let stockVM = medicineStockVM, let id = medicine.id else { return }
         
         do {
             // 1️⃣ Mise à jour Firestore
             try await firestoreService.updateMedicine(collection: "medicines", medicine)
             
             // 2️⃣ Mise à jour locale
-            if let index = medicineStockVM.medicines.firstIndex(where: { $0.id == id }) {
-                medicineStockVM.medicines[index] = medicine
+            if let index = stockVM.medicines.firstIndex(where: { $0.id == id }) {
+                stockVM.medicines[index] = medicine
             }
             
             // 3️⃣ Ajout à l'historique si demandé
@@ -123,6 +123,7 @@ class MedicineDetailViewModel: ObservableObject {
     
     func addHistory(action: String,user: String,medicineId: String,details: String) async -> HistoryEntry? {
         print("addHistory appelé dans la ViewModel")
+        guard let stockVM = medicineStockVM else { return nil }
 
         do {
             // Appel du service
@@ -138,30 +139,21 @@ class MedicineDetailViewModel: ObservableObject {
                 
                 // Mise à jour locale de l'historique
                 await MainActor.run {
-                    medicineStockVM.history.append(historyEntry!)
-                    print("✅ History mis à jour localement: \(medicineStockVM.history.count) entrées")
+                    stockVM.history.append(historyEntry!)
+                    print("✅ History mis à jour localement: \(stockVM.history.count) entrées")
                 }
             }
             self.appError = nil
             return historyEntry
         } catch {
             self.appError = AppError.fromFirestore(error)
-
-            // Création d'une entrée d'historique locale en cas d'échec
-            let localHistoryEntry = HistoryEntry(
-                id: UUID().uuidString,
-                medicineId: medicineId,
-                user: user,
-                action: action,
-                details: details
-            )
-            return localHistoryEntry
+            return nil
         }
     }
     
     func fetchNextHistoryBatch(for medicine: Medicine, pageSize: Int = 20) {
-        guard let medicineId = medicine.id else { return }
-        
+        guard let stockVM = medicineStockVM, let medicineId = medicine.id else { return }
+
         firestoreService.fetchHistoryBatch(collection: "history", for: medicineId, pageSize: pageSize, lastDocument: lastDocument) { [weak self] newEntries, lastDoc, error in
             guard let self = self else { return }
             if let error = error {
@@ -169,8 +161,8 @@ class MedicineDetailViewModel: ObservableObject {
                 return
             }
             for entry in newEntries {
-                if !self.medicineStockVM.history.contains(where: { $0.id == entry.id }) {
-                    self.medicineStockVM.history.append(entry)
+                if !stockVM.history.contains(where: { $0.id == entry.id }) {
+                    stockVM.history.append(entry)
                 }
             }
             self.lastDocument = lastDoc

@@ -187,7 +187,7 @@
 		53E0D8A62C06084900DE1134 /* MediStockTests */ = {
 			isa = PBXGroup;
 			children = (
-				53E0D8A72C06084900DE1134 /* MediStockTests.swift */,
+				F38FC39C2ED09DEE00BCD914 /* AisleListViewModelUnitTests */,
 			);
 			path = MediStockTests;
 			sourceTree = "<group>";
@@ -242,6 +242,14 @@
 				53E0D8ED2C06718100DE1134 /* AllMedicinesView.swift */,
 			);
 			path = AllMedicines;
+			sourceTree = "<group>";
+		};
+		F38FC39C2ED09DEE00BCD914 /* AisleListViewModelUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				53E0D8A72C06084900DE1134 /* MediStockTests.swift */,
+			);
+			path = AisleListViewModelUnitTests;
 			sourceTree = "<group>";
 		};
 		F3986C5F2EC5E18000FC57F7 /* Services */ = {

@@ -27,12 +27,22 @@ class AuthService: AuthServicing {
         auth.createUser(withEmail: email, password: password) { result, error in
             if let error = error {
                 completion(nil, error)
-            } else if let user = result?.user {
+                return
+            } 
+            guard let user = result?.user else {
+                completion(nil, NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Utilisateur introuvable"]))
+                return
+            }
+            
+            // Force la création d’un token valide avant que le VM fasse quoi que ce soit pour que le token soit dispo avant la création de l'utilisateur dans firestore
+            user.getIDTokenForcingRefresh(true) { _, tokenError in
+                if let tokenError = tokenError {
+                    completion(nil, tokenError)
+                    return
+                }
+                
                 let appUser = AppUser(uid: user.uid, email: user.email ?? "")
                 completion(appUser, nil)
-            } else {
-                let error = NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Utilisateur introuvable"])
-                completion(nil, error)
             }
         }
     }

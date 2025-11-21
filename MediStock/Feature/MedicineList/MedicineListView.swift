@@ -43,8 +43,9 @@ struct MedicineListView: View {
     }
 }
 
-struct MedicineListView_Previews: PreviewProvider {
+/*struct MedicineListView_Previews: PreviewProvider {
     static var previews: some View {
         MedicineListView(medicineStockVM: MedicineStockViewModel(), medicineDetailVM: MedicineDetailViewModel(medicineStockVM: MedicineStockViewModel()), aisle: "Aisle 1").environmentObject(SessionViewModel())
     }
 }
+*/
