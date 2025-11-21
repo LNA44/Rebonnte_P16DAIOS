@@ -11,6 +11,7 @@ class LoginViewModel: ObservableObject {
     let authService: AuthServicing
     let firestoreService: FirestoreServicing
     private let sessionVM: SessionViewModel
+    @Published var appError: AppError?
     
     //MARK: -Initialization
     init(
@@ -25,16 +26,26 @@ class LoginViewModel: ObservableObject {
     
     func signUp(email: String, password: String, completion: @escaping () -> Void) {
         authService.signUp(email: email, password: password) { [weak self] (user, error) in
-            Task {
+            Task {  [weak self] in
                 if let user = user {
                     guard let self = self else { return }
                     let user = AppUser(uid: user.uid, email: user.email)
-                    try await self.firestoreService.createUser(collection: "users", user: user)
-                    await MainActor.run {
-                        self.sessionVM.updateSession(user: user)
+                    do {
+                        try await self.firestoreService.createUser(collection: "users", user: user)
+                        await MainActor.run {
+                            self.sessionVM.updateSession(user: user)
+                            self.appError = nil
+                        }
+                    } catch {
+                        await MainActor.run {
+                               self.appError = AppError.fromAuth(error)
+                           }
                     }
                 } else if let error = error {
-                    print("error \(error)")
+                    guard let self = self else { return }
+                    await MainActor.run {
+                           self.appError = AppError.fromAuth(error)
+                       }
                 }
                 completion()
             }
@@ -43,15 +54,21 @@ class LoginViewModel: ObservableObject {
     
     func signIn(email: String, password: String, completion: @escaping () -> Void) {
         authService.signIn(email: email, password: password) { [weak self] (user, error) in
-            DispatchQueue.main.async { //ajouté car closure pas forcément sur thread principal
+            Task { //ajouté car closure pas forcément sur thread principal
                 if let user = user {
-                    self?.sessionVM.updateSession(user: AppUser(uid: user.uid, email: user.email))
+                    guard let self = self else { return }
+                    await MainActor.run {
+                        self.sessionVM.updateSession(user: AppUser(uid: user.uid, email: user.email))
+                        self.appError = nil
+                    }
                 } else if let error = error {
-                    print("error \(error)")
+                    guard let self = self else { return }
+                    await MainActor.run {
+                        self.appError = AppError.fromAuth(error)
+                    }
                 }
                 completion()
             }
         }
     }
-    
 }

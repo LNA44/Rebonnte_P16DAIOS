@@ -8,11 +8,10 @@ class MedicineStockViewModel: ObservableObject {
     @Published var history: [HistoryEntry] = []
     @Published var filterText: String = ""
     var lastMedicinesDocument: DocumentSnapshot?
-    //private var historyListener: ListenerRegistration?
-    //private var medicinesListener: ListenerRegistration?
     private var aislesListener: ListenerRegistration?
     @Published var sortOption: Enumerations.SortOption = .none
     let firestoreService: FirestoreServicing
+    @Published var appError: AppError?
     
     //MARK: -Initialization
     init(
@@ -22,16 +21,18 @@ class MedicineStockViewModel: ObservableObject {
     }
     
     func fetchNextMedicinesBatch(pageSize: Int = 20, filterText: String? = nil) {
-        firestoreService.fetchMedicinesBatch(collection: "medicines", sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastMedicinesDocument) { [weak self] newMedicines, lastDoc in
+        firestoreService.fetchMedicinesBatch(collection: "medicines", sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastMedicinesDocument) { [weak self] newMedicines, lastDoc, error in
             guard let self = self else { return }
-            DispatchQueue.main.async {
-                for med in newMedicines {
-                    if !self.medicines.contains(where: { $0.id == med.id }) {
-                        self.medicines.append(med)
-                    }
-                }
-                self.lastMedicinesDocument = lastDoc
+            if let error = error {
+                self.appError = AppError.fromFirestore(error)
             }
+            for med in newMedicines {
+                if !self.medicines.contains(where: { $0.id == med.id }) {
+                    self.medicines.append(med)
+                }
+            }
+            self.lastMedicinesDocument = lastDoc
+            self.appError = nil
         }
     }
 
@@ -40,11 +41,15 @@ class MedicineStockViewModel: ObservableObject {
 
         // Supprimer localement avant l'appel Firestore
         medicines.remove(atOffsets: offsets)
-
         // Supprimer côté Firestore
-        let deletedIds = await firestoreService.deleteMedicines(collection: "medicines", withIds: idsToDelete)
-
-        return deletedIds
+        do {
+            let deletedIds = try await firestoreService.deleteMedicines(collection: "medicines", withIds: idsToDelete)
+            self.appError = nil
+            return deletedIds
+        } catch {
+            self.appError = AppError.fromFirestore(error)
+            return []
+        }
     }
 
     func deleteHistory(for medicineIds: [String]) async {
@@ -55,17 +60,11 @@ class MedicineStockViewModel: ObservableObject {
             try await firestoreService.deleteHistory(collection: "history", for: medicineIds)
             
             // Mise à jour du state local
-            await MainActor.run {
-                self.history.removeAll { medicineIds.contains($0.medicineId) }
-                print("✅ Historique local mis à jour : \(medicineIds.count) médicament(s)")
-            }
-            
+            self.history.removeAll { medicineIds.contains($0.medicineId) }
+            self.appError = nil
+            print("✅ Historique local mis à jour : \(medicineIds.count) médicament(s)")
         } catch {
-            await MainActor.run {
-                //self.errorMessage = "Erreur lors de la suppression de l'historique : \(error.localizedDescription)"
-                //self.showError = true
-            }
-            print("❌ Erreur deleteHistory : \(error.localizedDescription)")
+            self.appError = AppError.fromFirestore(error)
         }
     }
 }

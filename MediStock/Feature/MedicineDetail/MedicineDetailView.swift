@@ -64,6 +64,13 @@ struct MedicineDetailView: View {
         .onDisappear {
             saveAisleIfNeeded()
         }
+        .alert(item: $medicineDetailVM.appError) { appError in
+            Alert(
+                title: Text("Erreur"),
+                message: Text(appError.userMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 }
 

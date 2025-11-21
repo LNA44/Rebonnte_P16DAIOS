@@ -11,11 +11,14 @@ import Firebase
 class AisleListViewModel: ObservableObject {
     private let sessionVM: SessionViewModel
     private var aislesListener: ListenerRegistration?
+    let authService: AuthServicing
     let firestoreService: FirestoreServicing
     @Published var aisles: [String] = []
+    @Published var appError: AppError?
 
-    init(sessionVM: SessionViewModel, firestoreService: FirestoreServicing = FirestoreService.shared) {
+    init(sessionVM: SessionViewModel, authService: AuthServicing = AuthService.shared, firestoreService: FirestoreServicing = FirestoreService.shared) {
         self.sessionVM = sessionVM
+        self.authService = authService
         self.firestoreService = firestoreService
         setupNotifications()
     }
@@ -45,12 +48,23 @@ class AisleListViewModel: ObservableObject {
         // Retirer l'ancien listener si existant
         aislesListener?.remove()
         
-        aislesListener = firestoreService.fetchAisles(collection: "medicines") { [weak self] aisles in
-            self?.aisles = aisles
+        aislesListener = firestoreService.fetchAisles(collection: "medicines") { [weak self] aisles, error in
+            guard let self = self else { return }
+            if let error = error {
+                self.appError = AppError.fromFirestore(error)
+                return
+            }
+            self.appError = nil
+            self.aisles = aisles
         }
     }
     
     func signOut() {
-        sessionVM.signOut()
+        do {
+            try authService.signOut()
+            self.sessionVM.session = nil
+        } catch let error {
+            self.appError = AppError.fromAuth(error)
+        }
     }
 }

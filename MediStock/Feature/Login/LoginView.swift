@@ -5,7 +5,6 @@ struct LoginView: View {
     @State private var password = ""
     @State private var isLogInLoading = false
     @State private var isSignUpLoading = false
-   // @EnvironmentObject var session: SessionViewModel
     @ObservedObject var loginVM: LoginViewModel
     @Environment(\.colorScheme) var colorScheme
 
@@ -81,6 +80,13 @@ struct LoginView: View {
         }
         .hideKeyboardOnTap() 
         .padding()
+        .alert(item: $loginVM.appError) { appError in
+            Alert(
+                title: Text("Erreur"),
+                message: Text(appError.userMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 }
 

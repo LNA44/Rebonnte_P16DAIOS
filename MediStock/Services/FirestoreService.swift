@@ -16,7 +16,7 @@ class FirestoreService: FirestoreServicing {
         db = Firestore.firestore()
     }
     
-    func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?) -> Void) {
+    func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?, Error?) -> Void) {
         var query: Query = db.collection(collection)
         var sortClientSide = false // 🆕 Flag pour tri côté client
         let hasFilter = filterText != nil && !filterText!.isEmpty
@@ -74,12 +74,12 @@ class FirestoreService: FirestoreServicing {
         query.getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching medicines batch: \(error)")
-                completion([], nil)
+                completion([], nil, error)
                 return
             }
             
             guard let snapshot = snapshot else {
-                completion([], nil)
+                completion([], nil, nil)
                 return
             }
             
@@ -92,31 +92,26 @@ class FirestoreService: FirestoreServicing {
                 print("✅ Tri par stock effectué côté client (\(fetchedMedicines.count) items)")
             }
             
-            completion(fetchedMedicines, snapshot.documents.last)
+            completion(fetchedMedicines, snapshot.documents.last, nil)
         }
     }
     
     
-    func fetchMedicine(_ id: String, collection: String = "medicines") async -> Medicine? {
+    /*func fetchMedicine(_ id: String, collection: String = "medicines") async throws -> Medicine? {
         let docRef = db.collection(collection).document(id)
         
-        do {
             let snapshot = try await docRef.getDocument()
             let medicine = try snapshot.data(as: Medicine.self)
             return medicine
-        } catch {
-            print("Error fetching medicine: \(error)")
-            return nil
-        }
-    }
+    }*/
     
-    func fetchAisles(collection: String, onUpdate: @escaping ([String]) -> Void) -> ListenerRegistration {
+    func fetchAisles(collection: String, onUpdate: @escaping ([String], Error?) -> Void) -> ListenerRegistration {
         print("fetchAisles appelé")
         
         let listener = db.collection(collection).addSnapshotListener { (querySnapshot, error) in
             if let error = error {
                 print("Error getting documents: \(error)")
-                onUpdate([])
+                onUpdate([], error)
             } else {
                 DispatchQueue.global(qos: .userInitiated).async {
                     let allMedicines = querySnapshot?.documents.compactMap { document in
@@ -127,7 +122,7 @@ class FirestoreService: FirestoreServicing {
                     let aislesSorted = Array(aislesSet).sorted()
                     
                     DispatchQueue.main.async {
-                        onUpdate(aislesSorted)
+                        onUpdate(aislesSorted, nil)
                     }
                 }
             }
@@ -145,29 +140,17 @@ class FirestoreService: FirestoreServicing {
         medicineToSave.name_lowercase = medicine.name.lowercased()
         //let stockPadded = String(format: "%05d", medicineToSave.stock)
         //medicineToSave.combinedField = "\(medicineToSave.name_lowercase)_\(stockPadded)"
-        do {
             try db.collection(collection).document(docId).setData(from: medicineToSave)
-
             print("✅ Medicine ajouté")
-
             return medicineToSave
-        } catch {
-            print("❌ Error adding medicine: \(error)")
-            throw error
-        }
     }
     
-    func deleteMedicines(collection: String, withIds ids: [String]) async -> [String] {
+    func deleteMedicines(collection: String, withIds ids: [String]) async throws -> [String] {
         var deletedIds: [String] = []
 
         for id in ids {
-            do {
                 try await db.collection(collection).document(id).delete()
-                print("✅ Successfully deleted medicine with id \(id)")
                 deletedIds.append(id)
-            } catch {
-                print("❌ Error removing document \(id): \(error.localizedDescription)")
-            }
         }
 
         return deletedIds
@@ -201,17 +184,11 @@ class FirestoreService: FirestoreServicing {
             action: action,
             details: details
         )
-
-        do {
             print("💾 [addHistory] Envoi vers Firestore...")
             try db.collection("history").document(newId).setData(from: historyEntry)
 
             print("✅ History ajouté avec succès")
             return historyEntry
-        } catch {
-            print("❌ Error adding history: \(error)")
-            throw error
-        }
     }
     
     func deleteHistory(collection: String, for medicineIds: [String]) async throws {
@@ -240,7 +217,7 @@ class FirestoreService: FirestoreServicing {
         print("✅ Historique total supprimé pour \(medicineIds.count) médicament(s)")
     }
     
-    func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshot?) -> Void) {
+    func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshot?, Error?) -> Void) {
         var query: Query = db.collection(collection)
             .whereField("medicineId", isEqualTo: medicineId)
             .order(by: "timestamp", descending: true)
@@ -252,13 +229,12 @@ class FirestoreService: FirestoreServicing {
         
         query.getDocuments { snapshot, error in
             if let error = error {
-                print("❌ Error fetching history batch: \(error)")
-                completion([], nil)
+                completion([], nil, error)
                 return
             }
             
             guard let snapshot = snapshot else {
-                completion([], nil)
+                completion([], nil, nil)
                 return
             }
             
@@ -268,30 +244,20 @@ class FirestoreService: FirestoreServicing {
                 return entry
             }
             
-            completion(entries, snapshot.documents.last)
+            completion(entries, snapshot.documents.last, nil)
         }
     }
     
     func createUser(collection: String, user: AppUser) async throws {
         let docRef = db.collection(collection).document(user.uid)
-        do {
             try docRef.setData(from: user)
             print("Utilisateur créé avec succès dans firestore !")
-        } catch {
-            print("Erreur lors de la création de l'utilisateur : \(error)")
-            throw error
-        }
     }
     
     func getEmail(collection: String, uid: String) async throws -> String? {
         let docRef = db.collection(collection).document(uid)
-        do {
             let document = try await docRef.getDocument()
             let user = try document.data(as: AppUser.self)
             return user.email
-        } catch {
-            print("Erreur récupération email : \(error)")
-            throw error
-        }
     }
 }

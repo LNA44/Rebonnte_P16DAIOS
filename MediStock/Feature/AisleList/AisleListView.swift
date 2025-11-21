@@ -29,7 +29,7 @@ struct AisleListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        session.signOut()
+                        aisleListVM.signOut()
                     }) {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .imageScale(.large)     
@@ -42,6 +42,13 @@ struct AisleListView: View {
         }
         .onAppear {
             aisleListVM.fetchAisles()
+        }
+        .alert(item: $aisleListVM.appError) { appError in
+            Alert(
+                title: Text("Erreur"),
+                message: Text(appError.userMessage),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
 }

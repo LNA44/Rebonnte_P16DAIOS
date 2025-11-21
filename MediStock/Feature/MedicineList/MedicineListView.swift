@@ -33,6 +33,13 @@ struct MedicineListView: View {
         .onAppear {
             medicineStockVM.fetchNextMedicinesBatch()
         }
+        .alert(item: $medicineStockVM.appError) { appError in
+            Alert(
+                title: Text("Erreur"),
+                message: Text(appError.userMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 }
 
