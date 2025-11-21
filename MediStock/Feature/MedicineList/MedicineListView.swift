@@ -1,13 +1,14 @@
 import SwiftUI
 
 struct MedicineListView: View {
+    @EnvironmentObject var dataStore: DataStore
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @ObservedObject var medicineDetailVM: MedicineDetailViewModel
     var aisle: String
 
     var body: some View {
         List {
-            ForEach(medicineStockVM.medicines.filter { $0.aisle == aisle }, id: \.id) { medicine in
+            ForEach(dataStore.medicines.filter { $0.aisle == aisle }, id: \.id) { medicine in
                 NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM, isNew: false)) {
                     VStack(alignment: .leading) {
                         Text(medicine.name)
@@ -16,7 +17,7 @@ struct MedicineListView: View {
                             .font(.subheadline)
                     }
                     .onAppear {
-                        if medicine == medicineStockVM.medicines.last {
+                        if medicine == dataStore.medicines.last {
                             medicineStockVM.fetchNextMedicinesBatch()
                         }
                     }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AllMedicinesView: View {
     @EnvironmentObject var session: SessionViewModel
+    @EnvironmentObject var dataStore: DataStore
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @ObservedObject var medicineDetailVM: MedicineDetailViewModel
     
@@ -17,7 +18,7 @@ struct AllMedicinesView: View {
                             .accessibilityHint("Enter text to filter the list of medicines by name")
                             .onChange(of: medicineStockVM.filterText) { _, newValue in
                                 let lowerFilter = newValue.lowercased()
-                                medicineStockVM.medicines = []
+                                dataStore.medicines = []
                                 medicineStockVM.lastMedicinesDocument = nil
                                 medicineStockVM.fetchNextMedicinesBatch(filterText: lowerFilter.isEmpty ? nil : lowerFilter)
                             }
@@ -35,7 +36,7 @@ struct AllMedicinesView: View {
                         .accessibilityHint("Select how to sort the list of medicines")
                         .onChange(of: medicineStockVM.sortOption) {_, newSort in
                             // Réinitialiser la pagination et la liste
-                            medicineStockVM.medicines = []
+                            dataStore.medicines = []
                             medicineStockVM.lastMedicinesDocument = nil
                             
                             // Recharger les medicines triées
@@ -46,7 +47,7 @@ struct AllMedicinesView: View {
                     
                     // Liste des Médicaments
                     List {
-                        ForEach(medicineStockVM.medicines, id: \.id) { medicine in
+                        ForEach(dataStore.medicines, id: \.id) { medicine in
                             NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM)) {
                                 VStack(alignment: .leading) {
                                     Text(medicine.name)
@@ -59,7 +60,7 @@ struct AllMedicinesView: View {
                                         .accessibilityValue("\(medicine.stock)")
                                 }
                                 .onAppear {
-                                    if medicine == medicineStockVM.medicines.last && medicineStockVM.filterText.isEmpty {
+                                    if medicine == dataStore.medicines.last && medicineStockVM.filterText.isEmpty {
                                         medicineStockVM.fetchNextMedicinesBatch()
                                     }
                                 }
@@ -83,7 +84,7 @@ struct AllMedicinesView: View {
                 }
         }
         .onAppear {
-            if medicineStockVM.medicines.isEmpty && medicineStockVM.filterText.isEmpty {
+            if dataStore.medicines.isEmpty && medicineStockVM.filterText.isEmpty {
                 medicineStockVM.fetchNextMedicinesBatch()
             }
         }

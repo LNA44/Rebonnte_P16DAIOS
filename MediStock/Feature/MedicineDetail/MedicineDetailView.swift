@@ -4,6 +4,7 @@ struct MedicineDetailView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @ObservedObject var medicineDetailVM: MedicineDetailViewModel
     @EnvironmentObject var session: SessionViewModel
+    @EnvironmentObject var dataStore: DataStore
     @State var medicine: Medicine
     @State var isNew: Bool = false //pr gérer l'ajout d'un médicament
     @State private var hasSavedAisle = false
@@ -52,8 +53,8 @@ struct MedicineDetailView: View {
         .onAppear {
             print("🔍 MedicineDetailView appeared")
                         print("🔍 Medicine ID: \(localMedicine.id ?? "nil")")
-                        print("🔍 Medicine exists in VM: \(medicineStockVM.medicines.contains(where: { $0.id == localMedicine.id }))")
-                        print("🔍 Total medicines count: \(medicineStockVM.medicines.count)")
+                        print("🔍 Medicine exists in VM: \(dataStore.medicines.contains(where: { $0.id == localMedicine.id }))")
+                        print("🔍 Total medicines count: \(dataStore.medicines.count)")
             if isNew {
                 medicine = Medicine(name: "", stock: 0, aisle: "")
                 localMedicine = medicine
@@ -144,7 +145,7 @@ extension MedicineDetailView {
                 .accessibilityHint("Enter the current stock quantity")
                 .onAppear {
                     // Récupérer le stock réel depuis le VM
-                    let realStock = medicineStockVM.medicines.first(where: { $0.id == localMedicine.id })?.stock ?? localMedicine.stock
+                    let realStock = dataStore.medicines.first(where: { $0.id == localMedicine.id })?.stock ?? localMedicine.stock
                     originalStock = realStock
                     stockText = "\(realStock)"
                 }
@@ -246,7 +247,7 @@ extension MedicineDetailView {
                 Text("History")
                     .font(.headline)
                     .padding(.top, 20)
-                ForEach(medicineStockVM.history
+                ForEach(dataStore.history
                     .filter { $0.medicineId == localMedicine.id }
                     .sorted { $0.timestamp < $1.timestamp },
                         id: \.id) { entry in
@@ -270,7 +271,7 @@ extension MedicineDetailView {
                     .padding(.bottom, 5)
                     .onAppear {
                         // ⚡️ Lazy loading côté données : charger batch suivant si dernier élément
-                        if entry == medicineStockVM.history.last {
+                        if entry == dataStore.history.last {
                             medicineDetailVM.fetchNextHistoryBatch(for: medicine)
                         }
                     }
@@ -289,8 +290,8 @@ extension MedicineDetailView {
                 let savedMedicine = await medicineDetailVM.addMedicine(localMedicine, user: session.session?.uid ?? "")
                 await MainActor.run {
                     self.localMedicine = savedMedicine
-                    if !medicineStockVM.medicines.contains(where: { $0.id == savedMedicine.id }) {
-                        medicineStockVM.medicines.append(savedMedicine)
+                    if !dataStore.medicines.contains(where: { $0.id == savedMedicine.id }) {
+                        dataStore.medicines.append(savedMedicine)
                     }
                 }
             }
