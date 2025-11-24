@@ -17,17 +17,17 @@ class SessionViewModel: ObservableObject {
     }
     
     func listen() {
-        handle = authService.listenToAuthStateChanges { [weak self] firebaseUser in
+        handle = authService.listenToAuthStateChanges { [weak self] userInfo in
             guard let self = self else { return }
-            
-            Task { @MainActor in
-                if let firebaseUser = firebaseUser {
-                    self.session = AppUser(uid: firebaseUser.uid, email: firebaseUser.email)
-                    print("✅ Utilisateur connecté : \(firebaseUser.email ?? "sans email")")
+
+            Task { @MainActor [weak self] in
+                if let userInfo = userInfo {
+                    self?.session = AppUser(uid: userInfo.uid, email: userInfo.email)
+                    print("✅ Utilisateur connecté : \(userInfo.email ?? "sans email")")
                 } else {
-                    self.session = nil
-                    self.unbind() //suppr le listener actuel à la deconnexion
-                    print("👤 Utilisateur déconnecté")
+                    self?.session = nil
+                    self?.unbind()
+                    print("👤 Utilisateur déconnexion")
                 }
             }
         }
@@ -38,6 +38,7 @@ class SessionViewModel: ObservableObject {
     }
     
     func unbind() {
+        guard handle != nil else { return }
         // VM appelle la fonction du service pour supprimer le listener
         authService.removeListener(handle: handle)
         handle = nil

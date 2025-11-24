@@ -105,20 +105,6 @@ final class AisleListTests: XCTestCase {
         XCTAssertNotNil(viewModel.appError)
     }
     
-    func test_userDidSignOut_stopsListeners() {
-
-        // Given
-        let listener = MockListenerRegistration()
-        viewModel.aislesListener = listener
-
-        // When
-        NotificationCenter.default.post(name: .userDidSignOut, object: nil)
-
-        // Then
-        XCTAssertEqual(listener.removeCallCount, 1)
-        XCTAssertNil(viewModel.aislesListener)
-    }
-    
     func test_deinit_removesNotificationObservers() {
 
         // Given

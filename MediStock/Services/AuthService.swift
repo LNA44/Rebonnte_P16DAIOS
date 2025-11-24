@@ -17,10 +17,11 @@ class AuthService: AuthServicing {
         auth = Auth.auth()
     }
     
-    func listenToAuthStateChanges(completion: @escaping (FirebaseAuth.User?) -> Void) -> AuthStateDidChangeListenerHandle {
-        return auth.addStateDidChangeListener { _, user in //closure sur thread principal
-            completion(user)
-        }
+    func listenToAuthStateChanges(completion: @escaping (AuthUserInfo?) -> Void) -> AuthStateDidChangeListenerHandle {
+        return Auth.auth().addStateDidChangeListener { _, user in
+                let userInfo = user.map { AuthUserInfo(uid: $0.uid, email: $0.email) }
+                completion(userInfo)
+            }
     }
     
     func signUp(email: String, password: String, completion: @escaping (AppUser?, Error?) -> Void) {

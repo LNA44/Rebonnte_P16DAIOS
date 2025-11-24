@@ -19,10 +19,11 @@ final class MockAuthService: AuthServicing {
     var mockUser: AppUser?
     var mockError: Error?
     
-    var listenerCallback: ((FirebaseAuth.User?) -> Void)?
+    var listenerCallback: ((AuthUserInfo?) -> Void)?
 
+    var lastAuthListener: MockAuthStateListenerHandle? 
     // Pour enregistrer si removeListener a été appelé
-    var removedHandle: AuthStateDidChangeListenerHandle?
+    var removedHandle: MockAuthStateListenerHandle?
 
     func signOut() throws {
         if shouldThrowOnSignOut {
@@ -32,14 +33,23 @@ final class MockAuthService: AuthServicing {
     }
 
     func listenToAuthStateChanges(
-            completion: @escaping (FirebaseAuth.User?) -> Void
+            completion: @escaping (AuthUserInfo?) -> Void
         ) -> AuthStateDidChangeListenerHandle {
             listenerCallback = completion
-            return MockAuthStateListenerHandle()
+            // ✅ Créer ET stocker le listener
+            let listener = MockAuthStateListenerHandle()
+            lastAuthListener = listener
+            return listener
         }
-
+    
     func removeListener(handle: AuthStateDidChangeListenerHandle?) {
-        removedHandle = handle
+        guard let mockHandle = handle as? MockAuthStateListenerHandle else {
+            return
+        }
+        // ✅ Stocker le handle ET appeler remove()
+        removedHandle = mockHandle
+        mockHandle.remove() // ← AJOUT CRUCIAL
+        listenerCallback = nil
     }
 
     // Optionnel : helper pour simuler un changement d'état depuis le test
@@ -62,10 +72,4 @@ final class MockAuthService: AuthServicing {
         }
 }
 
-/*extension MockAuthService {
-    func simulateAuthStateChange(user: AppUser?) {
-        listenerCallback?(user)
-    }
-}*/
 
-final class MockAuthStateListenerHandle: NSObject {}

@@ -58,6 +58,7 @@
 		F3BA35B32ED4587100E99566 /* MedicineDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B22ED4587100E99566 /* MedicineDetailViewModelTests.swift */; };
 		F3BA35B52ED45C0B00E99566 /* MockDocumentSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */; };
 		F3BA35B92ED462D500E99566 /* SessionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B82ED462D500E99566 /* SessionViewModelTests.swift */; };
+		F3BA35BF2ED4704200E99566 /* AuthUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35BE2ED4704200E99566 /* AuthUserInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -120,6 +121,7 @@
 		F3BA35B22ED4587100E99566 /* MedicineDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicineDetailViewModelTests.swift; sourceTree = "<group>"; };
 		F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDocumentSnapshot.swift; sourceTree = "<group>"; };
 		F3BA35B82ED462D500E99566 /* SessionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModelTests.swift; sourceTree = "<group>"; };
+		F3BA35BE2ED4704200E99566 /* AuthUserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUserInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -289,6 +291,7 @@
 				53E0D8DB2C06099C00DE1134 /* Medicine.swift */,
 				53E0D8E92C066F7A00DE1134 /* HistoryEntry.swift */,
 				F398C9C92EBE59F400DF3BEE /* User.swift */,
+				F3BA35BE2ED4704200E99566 /* AuthUserInfo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -534,6 +537,7 @@
 				53E0D8E22C065FFE00DE1134 /* AppDelegate.swift in Sources */,
 				53E0D8D82C06097900DE1134 /* LoginView.swift in Sources */,
 				53E0D8EA2C066F7A00DE1134 /* HistoryEntry.swift in Sources */,
+				F3BA35BF2ED4704200E99566 /* AuthUserInfo.swift in Sources */,
 				F3986C622EC5E1B300FC57F7 /* Protocols.swift in Sources */,
 				53E0D8E02C0609B900DE1134 /* SessionViewModel.swift in Sources */,
 				53E0D8DE2C0609A800DE1134 /* MedicineStockViewModel.swift in Sources */,

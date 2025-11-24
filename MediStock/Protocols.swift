@@ -24,7 +24,7 @@ protocol FirestoreServicing {
 }
 
 protocol AuthServicing {
-    func listenToAuthStateChanges(completion: @escaping (FirebaseAuth.User?) -> Void) -> AuthStateDidChangeListenerHandle
+    func listenToAuthStateChanges(completion: @escaping (AuthUserInfo?) -> Void) -> AuthStateDidChangeListenerHandle
     func signUp(email: String, password: String, completion: @escaping (AppUser?, Error?) -> Void)
     func signIn(email: String, password: String, completion: @escaping (AppUser?, Error?)-> Void)
     func signOut() throws
