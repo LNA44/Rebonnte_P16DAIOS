@@ -8,7 +8,7 @@
 import Foundation
 @testable import MediStock
 
-class MockDocumentSnapshot: DocumentSnapshotType {
+class MockDocumentSnapshotMedicineStockVM: DocumentSnapshotType {
     let id: String
     init(id: String = UUID().uuidString) {
         self.id = id

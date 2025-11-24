@@ -56,11 +56,21 @@
 		F3BA35AD2ED4551200E99566 /* MockSessionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35AC2ED4551200E99566 /* MockSessionVM.swift */; };
 		F3BA35B02ED4575600E99566 /* LoginViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35AF2ED4575600E99566 /* LoginViewModelTests.swift */; };
 		F3BA35B32ED4587100E99566 /* MedicineDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B22ED4587100E99566 /* MedicineDetailViewModelTests.swift */; };
-		F3BA35B52ED45C0B00E99566 /* MockDocumentSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */; };
+		F3BA35B52ED45C0B00E99566 /* StubDocumentSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B42ED45C0B00E99566 /* StubDocumentSnapshot.swift */; };
 		F3BA35B92ED462D500E99566 /* SessionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B82ED462D500E99566 /* SessionViewModelTests.swift */; };
 		F3BA35BF2ED4704200E99566 /* AuthUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35BE2ED4704200E99566 /* AuthUserInfo.swift */; };
 		F3BA35C22ED47C8800E99566 /* MedicineStockViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35C12ED47C8800E99566 /* MedicineStockViewModelTests.swift */; };
-		F3BA35C42ED4875800E99566 /* MockDocumentSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35C32ED4875800E99566 /* MockDocumentSnapshot.swift */; };
+		F3BA35C42ED4875800E99566 /* MockDocumentSnapshotMedicineStockVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35C32ED4875800E99566 /* MockDocumentSnapshotMedicineStockVM.swift */; };
+		F3BA35C92ED4979400E99566 /* AisleListVMIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35C82ED4979400E99566 /* AisleListVMIntegrationTests.swift */; };
+		F3BA35CB2ED4993F00E99566 /* FakeFirestoreIntegrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35CA2ED4993F00E99566 /* FakeFirestoreIntegrationService.swift */; };
+		F3BA35CD2ED49AD400E99566 /* FakeAuthServiceIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35CC2ED49AD400E99566 /* FakeAuthServiceIntegrationTests.swift */; };
+		F3BA35CF2ED49AF300E99566 /* FakeSessionViewModelIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35CE2ED49AF300E99566 /* FakeSessionViewModelIntegrationTests.swift */; };
+		F3BA35D22ED49D2C00E99566 /* LoginViewModelntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35D12ED49D2C00E99566 /* LoginViewModelntegrationTests.swift */; };
+		F3BA35D42ED49E1200E99566 /* FakeAuthServiceWithError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35D32ED49E1200E99566 /* FakeAuthServiceWithError.swift */; };
+		F3BA35D82ED49F3700E99566 /* FakeFirestoreServiceWithError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35D72ED49F3700E99566 /* FakeFirestoreServiceWithError.swift */; };
+		F3BA35DC2ED49FEF00E99566 /* MedicineDetailViewModelIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35DB2ED49FEF00E99566 /* MedicineDetailViewModelIntegrationTests.swift */; };
+		F3BA35DF2ED4A6C600E99566 /* SessionVMIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35DE2ED4A6C600E99566 /* SessionVMIntegrationTests.swift */; };
+		F3BA35E22ED4A87F00E99566 /* MedicineStockIntegrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35E12ED4A87F00E99566 /* MedicineStockIntegrationViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -121,11 +131,21 @@
 		F3BA35AC2ED4551200E99566 /* MockSessionVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSessionVM.swift; sourceTree = "<group>"; };
 		F3BA35AF2ED4575600E99566 /* LoginViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModelTests.swift; sourceTree = "<group>"; };
 		F3BA35B22ED4587100E99566 /* MedicineDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicineDetailViewModelTests.swift; sourceTree = "<group>"; };
-		F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDocumentSnapshot.swift; sourceTree = "<group>"; };
+		F3BA35B42ED45C0B00E99566 /* StubDocumentSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubDocumentSnapshot.swift; sourceTree = "<group>"; };
 		F3BA35B82ED462D500E99566 /* SessionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModelTests.swift; sourceTree = "<group>"; };
 		F3BA35BE2ED4704200E99566 /* AuthUserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUserInfo.swift; sourceTree = "<group>"; };
 		F3BA35C12ED47C8800E99566 /* MedicineStockViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicineStockViewModelTests.swift; sourceTree = "<group>"; };
-		F3BA35C32ED4875800E99566 /* MockDocumentSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDocumentSnapshot.swift; sourceTree = "<group>"; };
+		F3BA35C32ED4875800E99566 /* MockDocumentSnapshotMedicineStockVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDocumentSnapshotMedicineStockVM.swift; sourceTree = "<group>"; };
+		F3BA35C82ED4979400E99566 /* AisleListVMIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AisleListVMIntegrationTests.swift; sourceTree = "<group>"; };
+		F3BA35CA2ED4993F00E99566 /* FakeFirestoreIntegrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeFirestoreIntegrationService.swift; sourceTree = "<group>"; };
+		F3BA35CC2ED49AD400E99566 /* FakeAuthServiceIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeAuthServiceIntegrationTests.swift; sourceTree = "<group>"; };
+		F3BA35CE2ED49AF300E99566 /* FakeSessionViewModelIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeSessionViewModelIntegrationTests.swift; sourceTree = "<group>"; };
+		F3BA35D12ED49D2C00E99566 /* LoginViewModelntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModelntegrationTests.swift; sourceTree = "<group>"; };
+		F3BA35D32ED49E1200E99566 /* FakeAuthServiceWithError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeAuthServiceWithError.swift; sourceTree = "<group>"; };
+		F3BA35D72ED49F3700E99566 /* FakeFirestoreServiceWithError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeFirestoreServiceWithError.swift; sourceTree = "<group>"; };
+		F3BA35DB2ED49FEF00E99566 /* MedicineDetailViewModelIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicineDetailViewModelIntegrationTests.swift; sourceTree = "<group>"; };
+		F3BA35DE2ED4A6C600E99566 /* SessionVMIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionVMIntegrationTests.swift; sourceTree = "<group>"; };
+		F3BA35E12ED4A87F00E99566 /* MedicineStockIntegrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicineStockIntegrationViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,12 +231,8 @@
 		53E0D8A62C06084900DE1134 /* MediStockTests */ = {
 			isa = PBXGroup;
 			children = (
-				F3BA35C02ED47C6E00E99566 /* MedicineStockViewModelUnitTests */,
-				F3BA35B72ED462C200E99566 /* SessionViewModelUnitTests */,
-				F3BA35B62ED462AE00E99566 /* Mocks */,
-				F3BA35B12ED4585800E99566 /* MedicineDetailViewModelUnitTests */,
-				F3BA35AE2ED4573D00E99566 /* LoginViewModelUnitTests */,
-				F38FC39C2ED09DEE00BCD914 /* AisleListViewModelUnitTests */,
+				F3BA35C62ED496AB00E99566 /* IntegrationTests */,
+				F3BA35C52ED4969400E99566 /* UnitTests */,
 			);
 			path = MediStockTests;
 			sourceTree = "<group>";
@@ -366,7 +382,7 @@
 			isa = PBXGroup;
 			children = (
 				F3BA35B22ED4587100E99566 /* MedicineDetailViewModelTests.swift */,
-				F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */,
+				F3BA35B42ED45C0B00E99566 /* StubDocumentSnapshot.swift */,
 			);
 			path = MedicineDetailViewModelUnitTests;
 			sourceTree = "<group>";
@@ -394,9 +410,87 @@
 			isa = PBXGroup;
 			children = (
 				F3BA35C12ED47C8800E99566 /* MedicineStockViewModelTests.swift */,
-				F3BA35C32ED4875800E99566 /* MockDocumentSnapshot.swift */,
+				F3BA35C32ED4875800E99566 /* MockDocumentSnapshotMedicineStockVM.swift */,
 			);
 			path = MedicineStockViewModelUnitTests;
+			sourceTree = "<group>";
+		};
+		F3BA35C52ED4969400E99566 /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35C02ED47C6E00E99566 /* MedicineStockViewModelUnitTests */,
+				F3BA35B72ED462C200E99566 /* SessionViewModelUnitTests */,
+				F3BA35B62ED462AE00E99566 /* Mocks */,
+				F3BA35B12ED4585800E99566 /* MedicineDetailViewModelUnitTests */,
+				F3BA35AE2ED4573D00E99566 /* LoginViewModelUnitTests */,
+				F38FC39C2ED09DEE00BCD914 /* AisleListViewModelUnitTests */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
+		F3BA35C62ED496AB00E99566 /* IntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35E02ED4A86A00E99566 /* MedicineStockViewModelIntegrationTests */,
+				F3BA35DD2ED4A6B600E99566 /* SessionViewModelIntegrationTests */,
+				F3BA35DA2ED49FD500E99566 /* MedicineDetailViewModelIntegrationTests */,
+				F3BA35D92ED49FC100E99566 /* Fake */,
+				F3BA35D02ED49D1A00E99566 /* LoginViewModelIntegrationTests */,
+				F3BA35C72ED4977C00E99566 /* AisleListViewModelIntegrationTests */,
+			);
+			path = IntegrationTests;
+			sourceTree = "<group>";
+		};
+		F3BA35C72ED4977C00E99566 /* AisleListViewModelIntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35C82ED4979400E99566 /* AisleListVMIntegrationTests.swift */,
+			);
+			path = AisleListViewModelIntegrationTests;
+			sourceTree = "<group>";
+		};
+		F3BA35D02ED49D1A00E99566 /* LoginViewModelIntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35D12ED49D2C00E99566 /* LoginViewModelntegrationTests.swift */,
+			);
+			path = LoginViewModelIntegrationTests;
+			sourceTree = "<group>";
+		};
+		F3BA35D92ED49FC100E99566 /* Fake */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35CC2ED49AD400E99566 /* FakeAuthServiceIntegrationTests.swift */,
+				F3BA35D32ED49E1200E99566 /* FakeAuthServiceWithError.swift */,
+				F3BA35CE2ED49AF300E99566 /* FakeSessionViewModelIntegrationTests.swift */,
+				F3BA35D72ED49F3700E99566 /* FakeFirestoreServiceWithError.swift */,
+				F3BA35CA2ED4993F00E99566 /* FakeFirestoreIntegrationService.swift */,
+			);
+			path = Fake;
+			sourceTree = "<group>";
+		};
+		F3BA35DA2ED49FD500E99566 /* MedicineDetailViewModelIntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35DB2ED49FEF00E99566 /* MedicineDetailViewModelIntegrationTests.swift */,
+			);
+			path = MedicineDetailViewModelIntegrationTests;
+			sourceTree = "<group>";
+		};
+		F3BA35DD2ED4A6B600E99566 /* SessionViewModelIntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35DE2ED4A6C600E99566 /* SessionVMIntegrationTests.swift */,
+			);
+			path = SessionViewModelIntegrationTests;
+			sourceTree = "<group>";
+		};
+		F3BA35E02ED4A86A00E99566 /* MedicineStockViewModelIntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35E12ED4A87F00E99566 /* MedicineStockIntegrationViewModel.swift */,
+			);
+			path = MedicineStockViewModelIntegrationTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -580,16 +674,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3BA35DF2ED4A6C600E99566 /* SessionVMIntegrationTests.swift in Sources */,
 				F3BA35B02ED4575600E99566 /* LoginViewModelTests.swift in Sources */,
+				F3BA35CF2ED49AF300E99566 /* FakeSessionViewModelIntegrationTests.swift in Sources */,
+				F3BA35CB2ED4993F00E99566 /* FakeFirestoreIntegrationService.swift in Sources */,
 				F3BA35B92ED462D500E99566 /* SessionViewModelTests.swift in Sources */,
 				F3BA35AB2ED4536400E99566 /* MockListenerRegistration.swift in Sources */,
 				F3BA35B32ED4587100E99566 /* MedicineDetailViewModelTests.swift in Sources */,
+				F3BA35C92ED4979400E99566 /* AisleListVMIntegrationTests.swift in Sources */,
 				F3BA35AD2ED4551200E99566 /* MockSessionVM.swift in Sources */,
 				53E0D8A82C06084900DE1134 /* AisleListVMTests.swift in Sources */,
+				F3BA35D82ED49F3700E99566 /* FakeFirestoreServiceWithError.swift in Sources */,
+				F3BA35D42ED49E1200E99566 /* FakeAuthServiceWithError.swift in Sources */,
+				F3BA35D22ED49D2C00E99566 /* LoginViewModelntegrationTests.swift in Sources */,
+				F3BA35E22ED4A87F00E99566 /* MedicineStockIntegrationViewModel.swift in Sources */,
 				F3BA35A92ED4532F00E99566 /* MockFirestoreService.swift in Sources */,
-				F3BA35C42ED4875800E99566 /* MockDocumentSnapshot.swift in Sources */,
+				F3BA35CD2ED49AD400E99566 /* FakeAuthServiceIntegrationTests.swift in Sources */,
+				F3BA35C42ED4875800E99566 /* MockDocumentSnapshotMedicineStockVM.swift in Sources */,
+				F3BA35DC2ED49FEF00E99566 /* MedicineDetailViewModelIntegrationTests.swift in Sources */,
 				F3BA35C22ED47C8800E99566 /* MedicineStockViewModelTests.swift in Sources */,
-				F3BA35B52ED45C0B00E99566 /* MockDocumentSnapshot.swift in Sources */,
+				F3BA35B52ED45C0B00E99566 /* StubDocumentSnapshot.swift in Sources */,
 				F3BA35A72ED4529F00E99566 /* MockAuthService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

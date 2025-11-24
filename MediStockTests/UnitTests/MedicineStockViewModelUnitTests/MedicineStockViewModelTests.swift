@@ -117,7 +117,7 @@ final class MedicineStockViewModelTests: XCTestCase {
     
     func test_fetchNextMedicinesBatch_shouldUpdateLastDocument() {
         // Given
-        let lastDoc = MockDocumentSnapshot(id: "doc123")
+        let lastDoc = MockDocumentSnapshotMedicineStockVM(id: "doc123")
         mockFirestoreService.fetchMedicinesBatchResult = ([], lastDoc, nil)
         
         // When
@@ -129,7 +129,7 @@ final class MedicineStockViewModelTests: XCTestCase {
     
     func test_fetchNextMedicinesBatch_withNilLastDocument_shouldSetToNil() {
         // Given
-        sut.lastMedicinesDocument = MockDocumentSnapshot(id: "old")
+        sut.lastMedicinesDocument = MockDocumentSnapshotMedicineStockVM(id: "old")
         mockFirestoreService.fetchMedicinesBatchResult = ([], nil, nil)
         
         // When
@@ -247,7 +247,7 @@ final class MedicineStockViewModelTests: XCTestCase {
     
     func test_fetchNextMedicinesBatch_withLastDocument_shouldPassToService() {
         // Given
-        let lastDoc = MockDocumentSnapshot(id: "doc456")
+        let lastDoc = MockDocumentSnapshotMedicineStockVM(id: "doc456")
         sut.lastMedicinesDocument = lastDoc
         mockFirestoreService.fetchMedicinesBatchResult = ([], nil, nil)
         

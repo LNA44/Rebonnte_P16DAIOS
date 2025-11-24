@@ -35,11 +35,11 @@ class MedicineStockViewModel: ObservableObject {
     func deleteMedicines(at offsets: IndexSet) async -> [String] {
         let idsToDelete = offsets.compactMap { dataStore.medicines[$0].id }
 
-        // Supprimer localement avant l'appel Firestore
-        dataStore.removeMedicines(at: offsets)
         // Supprimer côté Firestore
         do {
             let deletedIds = try await firestoreService.deleteMedicines(collection: "medicines", withIds: idsToDelete)
+            // Supprimer localement avant l'appel Firestore
+                   dataStore.removeMedicines(at: offsets)
             do {
                 try await deleteHistory(for: deletedIds)
             } catch {
