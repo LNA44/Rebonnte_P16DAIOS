@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import MediStock // Remplace par le nom de ton module
+@testable import MediStock
 
 @MainActor
 final class MedicineDetailViewModelTests: XCTestCase {
@@ -111,7 +111,7 @@ final class MedicineDetailViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(result, 0)
-        XCTAssertNotNil(viewModel.appError == nil) // pas d'erreur ajoutée dans ce cas
+        XCTAssertNotNil(viewModel.appError == nil)
     }
     
     func test_updateStock_usesMedicineStock_whenNotInDataStore() async {
@@ -153,7 +153,7 @@ final class MedicineDetailViewModelTests: XCTestCase {
         let returnedStock = await viewModel.updateStock(medicine, by: 3, user: "user1")
         
         // Then
-        XCTAssertEqual(returnedStock, 5) // retourne le currentStock
+        XCTAssertEqual(returnedStock, 5)
         XCTAssertNotNil(viewModel.appError)
     }
 
@@ -344,7 +344,7 @@ final class MedicineDetailViewModelTests: XCTestCase {
     func test_fetchEmail_returnsUnknown_whenServiceReturnsNil() async {
         // Given
         let uid = "user4"
-        mockFirestore.emails[uid] = nil // service renvoie nil
+        mockFirestore.emails[uid] = nil
         
         // When
         let email = await viewModel.fetchEmail(for: uid)

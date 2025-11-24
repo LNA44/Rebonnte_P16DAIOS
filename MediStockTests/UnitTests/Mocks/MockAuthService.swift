@@ -11,7 +11,6 @@ import FirebaseAuth
 
 final class MockAuthService: AuthServicing {
 
-    // Si true, signOut() va thrower pour tester le flux d'erreur
     var shouldThrowOnSignOut = false
     var signUpCalled = false
     var signInCalled = false
@@ -36,7 +35,7 @@ final class MockAuthService: AuthServicing {
             completion: @escaping (AuthUserInfo?) -> Void
         ) -> AuthStateDidChangeListenerHandle {
             listenerCallback = completion
-            // ✅ Créer ET stocker le listener
+
             let listener = MockAuthStateListenerHandle()
             lastAuthListener = listener
             return listener
@@ -46,30 +45,27 @@ final class MockAuthService: AuthServicing {
         guard let mockHandle = handle as? MockAuthStateListenerHandle else {
             return
         }
-        // ✅ Stocker le handle ET appeler remove()
+
         removedHandle = mockHandle
-        mockHandle.remove() // ← AJOUT CRUCIAL
+        mockHandle.remove()
         listenerCallback = nil
     }
-
-    // Optionnel : helper pour simuler un changement d'état depuis le test
-    // func simulateAuthStateChange(user: FirebaseAuth.User?) { ... }
     
     func signUp(email: String,
-                    password: String,
-                    completion: @escaping (AppUser?, Error?) -> Void) {
-
-            signUpCalled = true
-            completion(mockUser, mockError)
-        }
-
-        func signIn(email: String,
-                    password: String,
-                    completion: @escaping (AppUser?, Error?) -> Void) {
-
-            signInCalled = true
-            completion(mockUser, mockError)
-        }
+                password: String,
+                completion: @escaping (AppUser?, Error?) -> Void) {
+        
+        signUpCalled = true
+        completion(mockUser, mockError)
+    }
+    
+    func signIn(email: String,
+                password: String,
+                completion: @escaping (AppUser?, Error?) -> Void) {
+        
+        signInCalled = true
+        completion(mockUser, mockError)
+    }
 }
 
 

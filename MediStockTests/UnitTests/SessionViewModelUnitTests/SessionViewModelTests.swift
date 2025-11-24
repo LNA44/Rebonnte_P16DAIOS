@@ -42,8 +42,8 @@ final class SessionViewModelTests: XCTestCase {
         // Then
         XCTAssertNotNil(sut.authService)
         XCTAssertNotNil(sut.firestoreService)
-        XCTAssertNil(sut.session, "Session devrait être nil à l'initialisation")
-        XCTAssertNil(sut.handle, "Handle devrait être nil à l'initialisation")
+        XCTAssertNil(sut.session)
+        XCTAssertNil(sut.handle)
     }
     
     func test_init_shouldUseInjectedServices() {
@@ -59,8 +59,8 @@ final class SessionViewModelTests: XCTestCase {
         sut.listen()
         
         // Then
-        XCTAssertNotNil(sut.handle, "Un handle devrait être créé")
-        XCTAssertNotNil(mockAuthService.listenerCallback, "Le callback devrait être enregistré")
+        XCTAssertNotNil(sut.handle)
+        XCTAssertNotNil(mockAuthService.listenerCallback)
     }
     
     func test_listen_whenUserConnected_shouldUpdateSession() async {
@@ -145,9 +145,9 @@ final class SessionViewModelTests: XCTestCase {
         // Then
         await fulfillment(of: [expectation], timeout: 1.0)
         XCTAssertEqual(sessionUpdates.count, 2)
-        XCTAssertNotNil(sessionUpdates[0], "Première update devrait être la connexion")
-        XCTAssertNil(sessionUpdates[1], "Deuxième update devrait être la déconnexion")
-        XCTAssertNil(sut.handle, "Handle devrait être nil après unbind")
+        XCTAssertNotNil(sessionUpdates[0])
+        XCTAssertNil(sessionUpdates[1])
+        XCTAssertNil(sut.handle)
     }
     
     func test_listen_calledMultipleTimes_shouldNotCreateMultipleListeners() {
@@ -257,10 +257,9 @@ final class SessionViewModelTests: XCTestCase {
         sut.unbind()
         
         // Then
-        XCTAssertNil(sut.handle, "Handle devrait être nil après unbind")
+        XCTAssertNil(sut.handle)
         XCTAssertEqual(mockAuthService.removedHandle,
-                       handle as? MockAuthStateListenerHandle,
-                       "Le bon handle devrait être passé à removeListener")
+                       handle as? MockAuthStateListenerHandle)
     }
     
     func test_unbind_withoutListener_shouldNotCrash() {
@@ -268,7 +267,7 @@ final class SessionViewModelTests: XCTestCase {
         XCTAssertNil(sut.handle)
         
         // When / Then
-        XCTAssertNoThrow(sut.unbind(), "Unbind sans listener ne devrait pas crasher")
+        XCTAssertNoThrow(sut.unbind())
         XCTAssertNil(sut.handle)
     }
     
@@ -281,7 +280,7 @@ final class SessionViewModelTests: XCTestCase {
         sut.unbind()
         
         // Then
-        XCTAssertNotNil(mockAuthService.removedHandle, "removeListener devrait être appelé")
+        XCTAssertNotNil(mockAuthService.removedHandle)
         XCTAssertEqual(mockAuthService.removedHandle,
                        expectedHandle as? MockAuthStateListenerHandle)
     }
@@ -336,7 +335,7 @@ final class SessionViewModelTests: XCTestCase {
         XCTAssertEqual(sessionStates.count, 2)
         XCTAssertNotNil(sessionStates[0])
         XCTAssertNil(sessionStates[1])
-        XCTAssertNil(sut.handle, "Listener devrait être unbind après déconnexion")
+        XCTAssertNil(sut.handle)
     }
     
     func test_listenThenManualUnbind_shouldStopReceivingUpdates() async {
@@ -359,7 +358,7 @@ final class SessionViewModelTests: XCTestCase {
         
         // Then
         await fulfillment(of: [expectation], timeout: 0.5)
-        XCTAssertNil(sut.session, "Session ne devrait pas être mise à jour après unbind")
+        XCTAssertNil(sut.session)
     }
     
     func test_listen_thenManualUpdate_shouldReceiveBothUpdates() async {
@@ -411,7 +410,7 @@ final class SessionViewModelTests: XCTestCase {
         sut = nil
         
         // Then
-        XCTAssertNil(weakSUT, "SessionViewModel devrait être libéré")
+        XCTAssertNil(weakSUT)
     }
     
     func test_listenerCallback_afterViewModelDeallocated_shouldNotCrash() {
@@ -452,7 +451,7 @@ final class SessionViewModelTests: XCTestCase {
         // Then
         await fulfillment(of: [expectation], timeout: 2.0)
         XCTAssertEqual(updateCount, 5)
-        XCTAssertEqual(sut.session?.uid, "uid-4", "Dernière mise à jour devrait être uid-4")
+        XCTAssertEqual(sut.session?.uid, "uid-4")
     }
     
     func test_alternatingConnectDisconnect_shouldHandleCorrectly() async {
@@ -483,8 +482,8 @@ final class SessionViewModelTests: XCTestCase {
         
         // Vérifier l'alternance
         for i in stride(from: 0, to: 6, by: 2) {
-            XCTAssertNotNil(sessionStates[i], "Index \(i) devrait être connecté")
-            XCTAssertNil(sessionStates[i + 1], "Index \(i + 1) devrait être déconnecté")
+            XCTAssertNotNil(sessionStates[i])
+            XCTAssertNil(sessionStates[i + 1])
         }
     }
     

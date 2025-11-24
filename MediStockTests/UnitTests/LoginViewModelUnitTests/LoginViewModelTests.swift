@@ -80,7 +80,7 @@ final class LoginViewModelTests: XCTestCase {
         // Given
         let mockUser = AppUser(uid: "123", email: "test@test.com")
         mockAuth.mockUser = mockUser
-        mockFirestore.shouldThrowOnCreateUser = true // à ajouter comme flag dans le mock
+        mockFirestore.shouldThrowOnCreateUser = true 
         let exp = expectation(description: "signUp completed")
         
         // When

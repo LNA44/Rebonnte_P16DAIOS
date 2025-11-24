@@ -52,11 +52,11 @@ final class MedicineStockViewModelTests: XCTestCase {
     
     func test_init_shouldInjectDependenciesCorrectly() {
         // Then
-        XCTAssertTrue(sut.firestoreService is MockFiresotreService) // ✅ CORRIGÉ
+        XCTAssertTrue(sut.firestoreService is MockFiresotreService)
         XCTAssertNotNil(sut.dataStore)
         XCTAssertTrue(sut.dataStore === mockDataStore)
-        XCTAssertEqual(mockDataStore.medicines.count, 0) // ✅ AJOUTÉ
-        XCTAssertEqual(mockDataStore.history.count, 0) // ✅ AJOUTÉ
+        XCTAssertEqual(mockDataStore.medicines.count, 0)
+        XCTAssertEqual(mockDataStore.history.count, 0) 
     }
     
     // MARK: - fetchNextMedicinesBatch Tests (12 tests)

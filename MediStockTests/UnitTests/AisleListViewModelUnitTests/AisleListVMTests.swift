@@ -26,7 +26,7 @@ final class AisleListTests: XCTestCase {
         viewModel = AisleListViewModel(
             sessionVM: mockSessionViewModel,
             authService: mockAuth,
-            firestoreService: mockFirestore // <-- important
+            firestoreService: mockFirestore 
         )
     }
     

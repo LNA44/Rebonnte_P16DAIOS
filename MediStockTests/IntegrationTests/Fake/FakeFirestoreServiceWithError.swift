@@ -54,7 +54,6 @@ final class FakeFirestoreServiceWithError: FirestoreServicing {
            completion([], nil, error)
        }
     
-    // ✅ createUser lance une erreur
     func createUser(collection: String, user: AppUser) async throws {
         throw NSError(domain: "FirestoreError", code: 14, userInfo: [
             NSLocalizedDescriptionKey: "Permission denied"

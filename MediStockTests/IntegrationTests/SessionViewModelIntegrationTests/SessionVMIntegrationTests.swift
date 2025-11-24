@@ -90,7 +90,7 @@ final class SessionViewModelIntegrationTests: XCTestCase {
 
         // Then
         XCTAssertNil(sut.session)
-        XCTAssertNil(sut.handle, "Le listener devrait être supprimé après déconnexion")
+        XCTAssertNil(sut.handle, "Listen should be deleted after logout")
 
         // When - ✅ Relancer l'écoute pour une nouvelle session
         sut.listen()

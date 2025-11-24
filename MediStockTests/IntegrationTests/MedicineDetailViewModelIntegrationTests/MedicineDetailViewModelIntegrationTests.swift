@@ -53,7 +53,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let result = await sut.addMedicine(medicine, user: user)
         
         // Then
-        XCTAssertNotNil(result.id, "Le médicament devrait avoir un ID")
+        XCTAssertNotNil(result.id, "Medicine should have an ID")
         XCTAssertEqual(result.name, "Aspirin")
         XCTAssertEqual(result.stock, 10)
         
@@ -89,9 +89,9 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let result = await sut.addMedicine(medicine, user: user)
         
         // Then
-        XCTAssertNil(result.id, "Le médicament ne devrait pas avoir d'ID en cas d'erreur")
-        XCTAssertNotNil(sut.appError, "Une erreur devrait être présente")
-        XCTAssertEqual(dataStore.history.count, 0, "L'historique ne devrait pas être créé en cas d'erreur")
+        XCTAssertNil(result.id, "Medicine shouldn't have an ID in case of error")
+        XCTAssertNotNil(sut.appError, "An error should appear")
+        XCTAssertEqual(dataStore.history.count, 0, "History shouldn't be created in case of error")
     }
     
     // MARK: - Tests increaseStock
@@ -107,7 +107,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let newStock = await sut.increaseStock(medicine, user: user)
         
         // Then
-        XCTAssertEqual(newStock, 6, "Le stock devrait augmenter de 1")
+        XCTAssertEqual(newStock, 6, "Stock should increase by one")
         
         // Vérifier Firestore
         let updatedInFirestore = fakeFirestoreService.medicines.first { $0.id == "med1" }
@@ -137,7 +137,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let newStock = await sut.decreaseStock(medicine, user: user)
         
         // Then
-        XCTAssertEqual(newStock, 9, "Le stock devrait diminuer de 1")
+        XCTAssertEqual(newStock, 9, "Stock should decrease by one")
         
         // Vérifier Firestore
         let updatedInFirestore = fakeFirestoreService.medicines.first { $0.id == "med2" }
@@ -167,7 +167,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let newStock = await sut.updateStock(medicine, by: amount, user: user)
         
         // Then
-        XCTAssertEqual(newStock, 25, "Le stock devrait être 20 + 5 = 25")
+        XCTAssertEqual(newStock, 25, "Stock should be 20+5=25")
         
         // Vérifier que l'historique contient les bonnes informations
         XCTAssertEqual(fakeFirestoreService.histories.count, 1)
@@ -188,7 +188,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let newStock = await sut.updateStock(medicine, by: amount, user: user)
         
         // Then
-        XCTAssertEqual(newStock, 12, "Le stock devrait être 15 - 3 = 12")
+        XCTAssertEqual(newStock, 12, "Stock should be 15 - 3 = 12")
         XCTAssertNil(sut.appError)
     }
     
@@ -209,8 +209,8 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let newStock = await sut.updateStock(medicine, by: 2, user: user)
         
         // Then
-        XCTAssertEqual(newStock, 8, "Le stock devrait rester inchangé en cas d'erreur")
-        XCTAssertNotNil(sut.appError, "Une erreur devrait être présente")
+        XCTAssertEqual(newStock, 8, "Stock should remain the same")
+        XCTAssertNotNil(sut.appError, "An error should appear")
     }
     
     func test_updateStock_withoutMedicineId_shouldReturnZero() async {
@@ -222,7 +222,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let newStock = await sut.updateStock(medicine, by: 5, user: user)
         
         // Then
-        XCTAssertEqual(newStock, 0, "Sans ID, la méthode devrait retourner 0")
+        XCTAssertEqual(newStock, 0, "Without ID the method should return 0")
     }
     
     // MARK: - Tests updateMedicine
@@ -293,7 +293,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         await sut.updateMedicine(medicine, user: user)
         
         // Then
-        XCTAssertNotNil(sut.appError, "Une erreur devrait être présente")
+        XCTAssertNotNil(sut.appError, "An error should appear")
     }
     
     func test_updateMedicine_withoutId_shouldNotUpdate() async {
@@ -308,7 +308,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         
         // Then
         XCTAssertEqual(fakeFirestoreService.medicines.count, initialCount,
-                       "Aucun médicament ne devrait être mis à jour sans ID")
+                       "No medicine should be updated without an ID")
     }
     
     // MARK: - Tests addHistory
@@ -329,7 +329,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         )
         
         // Then
-        XCTAssertNotNil(result, "Une entrée d'historique devrait être créée")
+        XCTAssertNotNil(result)
         XCTAssertEqual(result?.action, action)
         XCTAssertEqual(result?.user, user)
         XCTAssertEqual(result?.medicineId, medicineId)
@@ -362,8 +362,8 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         )
         
         // Then
-        XCTAssertNil(result, "Aucune entrée ne devrait être créée en cas d'erreur")
-        XCTAssertNotNil(sut.appError, "Une erreur devrait être présente")
+        XCTAssertNil(result)
+        XCTAssertNotNil(sut.appError)
         XCTAssertEqual(dataStore.history.count, 0)
     }
     
@@ -414,8 +414,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         sut.fetchNextHistoryBatch(for: medicine)
         
         // Then
-        XCTAssertEqual(dataStore.history.count, initialCount,
-                       "L'historique ne devrait pas être modifié sans ID")
+        XCTAssertEqual(dataStore.history.count, initialCount)
     }
     
     func test_fetchNextHistoryBatch_withError_shouldSetAppError() {
@@ -501,12 +500,12 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
             .store(in: &cancellables)
         
         // When
-        XCTAssertNil(sut.lastDocument, "lastDocument devrait être nil initialement")
+        XCTAssertNil(sut.lastDocument)
         sut.fetchNextHistoryBatch(for: medicine)
         
         // Then
         wait(for: [expectation], timeout: 2.0)
-        XCTAssertNotNil(sut.lastDocument, "lastDocument devrait être défini après le fetch")
+        XCTAssertNotNil(sut.lastDocument)
     }
     
     // MARK: - Tests fetchEmail
@@ -533,8 +532,7 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let email = await sut.fetchEmail(for: uid)
         
         // Then
-        XCTAssertEqual(email, "cached@example.com",
-                       "L'email devrait venir du cache")
+        XCTAssertEqual(email, "cached@example.com")
     }
     
     func test_fetchEmail_withFirestoreError_shouldReturnError() async {

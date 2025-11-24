@@ -74,11 +74,11 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertEqual(fakeAuthService.lastSignUpEmail, email, "L'email devrait être passé au service d'auth")
-        XCTAssertTrue(sessionUpdated, "La session devrait être mise à jour")
-        XCTAssertNil(errorReceived, "Aucune erreur ne devrait être présente")
-        XCTAssertEqual(fakeSessionVM.session?.email, email, "L'email de la session devrait correspondre")
-        XCTAssertEqual(fakeSessionVM.session?.uid, "fakeUID", "L'UID devrait être celui du fake service")
+        XCTAssertEqual(fakeAuthService.lastSignUpEmail, email)
+        XCTAssertTrue(sessionUpdated)
+        XCTAssertNil(errorReceived)
+        XCTAssertEqual(fakeSessionVM.session?.email, email)
+        XCTAssertEqual(fakeSessionVM.session?.uid, "fakeUID")
     }
     
     func test_signUp_shouldCreateUserInFirestore() {
@@ -96,11 +96,11 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         wait(for: [expectation], timeout: 2.0)
         
         // ✅ Vérifications Firestore
-        XCTAssertTrue(fakeFirestoreService.createUserCalled, "createUser devrait être appelé")
-        XCTAssertEqual(fakeFirestoreService.createUserCallCount, 1, "createUser devrait être appelé une fois")
-        XCTAssertEqual(fakeFirestoreService.users.count, 1, "Un utilisateur devrait être créé")
-        XCTAssertEqual(fakeFirestoreService.users.first?.email, email, "L'email devrait correspondre")
-        XCTAssertEqual(fakeFirestoreService.users.first?.uid, "fakeUID", "L'UID devrait correspondre")
+        XCTAssertTrue(fakeFirestoreService.createUserCalled)
+        XCTAssertEqual(fakeFirestoreService.createUserCallCount, 1)
+        XCTAssertEqual(fakeFirestoreService.users.count, 1)
+        XCTAssertEqual(fakeFirestoreService.users.first?.email, email)
+        XCTAssertEqual(fakeFirestoreService.users.first?.uid, "fakeUID")
     }
     
     func test_signUp_withAuthError_shouldSetAppError() {
@@ -131,8 +131,8 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertNotNil(errorReceived, "Une erreur devrait être présente")
-        XCTAssertFalse(fakeFirestoreService.createUserCalled, "createUser ne devrait pas être appelé en cas d'erreur auth")
+        XCTAssertNotNil(errorReceived)
+        XCTAssertFalse(fakeFirestoreService.createUserCalled)
     }
     
     func test_signUp_withFirestoreError_shouldSetAppError() {
@@ -165,8 +165,8 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertNotNil(errorReceived, "Une erreur devrait être présente")
-        XCTAssertNil(fakeSessionVM.session, "La session ne devrait pas être mise à jour en cas d'erreur Firestore")
+        XCTAssertNotNil(errorReceived)
+        XCTAssertNil(fakeSessionVM.session)
     }
     
     // MARK: - Tests SignIn
@@ -196,10 +196,10 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertEqual(fakeAuthService.lastSignInEmail, email, "L'email devrait être passé au service d'auth")
-        XCTAssertTrue(sessionUpdated, "La session devrait être mise à jour")
-        XCTAssertNil(sut.appError, "Aucune erreur ne devrait être présente")
-        XCTAssertEqual(fakeSessionVM.session?.email, email, "L'email de la session devrait correspondre")
+        XCTAssertEqual(fakeAuthService.lastSignInEmail, email)
+        XCTAssertTrue(sessionUpdated)
+        XCTAssertNil(sut.appError)
+        XCTAssertEqual(fakeSessionVM.session?.email, email)
     }
     
     func test_signIn_shouldNotCallFirestore() {
@@ -216,8 +216,8 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertFalse(fakeFirestoreService.createUserCalled, "createUser ne devrait pas être appelé lors du signIn")
-        XCTAssertEqual(fakeFirestoreService.users.count, 0, "Aucun utilisateur ne devrait être créé")
+        XCTAssertFalse(fakeFirestoreService.createUserCalled)
+        XCTAssertEqual(fakeFirestoreService.users.count, 0)
     }
     
     func test_signIn_withAuthError_shouldSetAppError() {
@@ -248,7 +248,7 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertNotNil(errorReceived, "Une erreur devrait être présente")
+        XCTAssertNotNil(errorReceived)
     }
     
     func test_signIn_shouldClearPreviousError() {
@@ -264,7 +264,7 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertNil(sut.appError, "L'erreur précédente devrait être effacée")
+        XCTAssertNil(sut.appError)
     }
     
     // MARK: - Tests d'intégration complets
@@ -301,7 +301,7 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         XCTAssertEqual(fakeFirestoreService.users.first?.email, email)
         
         // Vérifications Session
-        XCTAssertNotNil(finalSessionUser, "La session devrait contenir un utilisateur")
+        XCTAssertNotNil(finalSessionUser)
         XCTAssertEqual(finalSessionUser?.email, email)
         XCTAssertEqual(finalSessionUser?.uid, "fakeUID")
         
@@ -332,11 +332,11 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 2.0)
         
-        XCTAssertNotNil(finalSessionUser, "La session devrait contenir un utilisateur")
+        XCTAssertNotNil(finalSessionUser)
         XCTAssertEqual(finalSessionUser?.email, email)
         XCTAssertEqual(fakeAuthService.lastSignInEmail, email)
         XCTAssertNil(sut.appError)
-        XCTAssertFalse(fakeFirestoreService.createUserCalled, "Firestore ne devrait pas être appelé lors du signIn")
+        XCTAssertFalse(fakeFirestoreService.createUserCalled)
     }
     
     // MARK: - Tests de concurrence
@@ -359,7 +359,7 @@ final class LoginViewModelIntegrationTests: XCTestCase {
         wait(for: [expectation1, expectation2], timeout: 3.0)
         
         XCTAssertNotNil(fakeSessionVM.session)
-        XCTAssertEqual(fakeFirestoreService.createUserCallCount, 2, "createUser devrait être appelé deux fois")
-        XCTAssertEqual(fakeFirestoreService.users.count, 2, "Deux utilisateurs devraient être créés")
+        XCTAssertEqual(fakeFirestoreService.createUserCallCount, 2)
+        XCTAssertEqual(fakeFirestoreService.users.count, 2)
     }
 }

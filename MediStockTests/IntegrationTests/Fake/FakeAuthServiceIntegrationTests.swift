@@ -11,7 +11,7 @@ import FirebaseAuth
 
 final class FakeAuthIntegrationService: AuthServicing {
 
-    // MARK: - State (utile pour les tests)
+    // MARK: - State 
     var didSignOut = false
     var shouldThrowOnSignOut = false
     
@@ -25,12 +25,8 @@ final class FakeAuthIntegrationService: AuthServicing {
     func listenToAuthStateChanges(
             completion: @escaping (AuthUserInfo?) -> Void
         ) -> AuthStateDidChangeListenerHandle {
-            // ✅ Stocker le listener au lieu de l'appeler immédiatement
+            // Stocker le listener au lieu de l'appeler immédiatement
             currentListener = completion
-            
-            // ✅ Optionnel : simuler un état initial (nil = déconnecté)
-            // completion(nil)
-
             return FakeAuthStateListenerHandle()
         }
 
@@ -56,11 +52,11 @@ final class FakeAuthIntegrationService: AuthServicing {
 
     // MARK: - removeListener
     func removeListener(handle: AuthStateDidChangeListenerHandle?) {
-        listenerRemoved = true // ✅ Ajouté
+        listenerRemoved = true
         currentListener = nil
     }
     
-    // MARK: - ✅ Helper pour simuler les changements d'état (pour les tests)
+    // MARK: - ✅ Helper pour simuler les changements d'état
     func simulateAuthStateChange(user: (uid: String, email: String)?) {
         if let user = user {
             let authUserInfo = AuthUserInfo(uid: user.uid, email: user.email)

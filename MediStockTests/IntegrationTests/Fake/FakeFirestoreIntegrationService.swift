@@ -11,7 +11,6 @@ import FirebaseFirestore
 
 class FakeFirestoreIntegrationService: FirestoreServicing {
     
-    // MARK: - Stock interne pour simuler Firestore
     var aisles: [String] = []
     var medicines: [Medicine] = []
     var histories: [HistoryEntry] = []
@@ -71,14 +70,13 @@ class FakeFirestoreIntegrationService: FirestoreServicing {
     // MARK: - addMedicine
     func addMedicine(collection: String, _ medicine: Medicine, user: String) async throws -> Medicine {
         var newMedicine = medicine
-        newMedicine.id = UUID().uuidString // Génère un ID
+        newMedicine.id = UUID().uuidString
         medicines.append(newMedicine)
         return newMedicine
     }
 
     // MARK: - deleteMedicines
     func deleteMedicines(collection: String, withIds ids: [String]) async throws -> [String] {
-        // ✅ Vérifier AVANT toute suppression
         if shouldThrowOnDelete {
             throw NSError(domain: "DeleteError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Simulated delete error"])
         }
@@ -157,7 +155,6 @@ class FakeFirestoreIntegrationService: FirestoreServicing {
 final class FakeListenerRegistration: NSObject, ListenerRegistration {
     func remove() { }
 }
-
 
 // MARK: - FakeDocumentSnapshot 
 

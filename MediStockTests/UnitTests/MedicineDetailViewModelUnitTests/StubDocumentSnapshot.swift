@@ -9,5 +9,5 @@ import FirebaseFirestore
 @testable import MediStock
 
 struct StubDocumentSnapshot: DocumentSnapshotType, Equatable {
-    let id: String = UUID().uuidString // ou juste "" si tu n’as pas besoin d’un id unique
+    let id: String = UUID().uuidString 
 }

@@ -38,7 +38,7 @@ final class MedicineStockViewModelIntegrationTests: XCTestCase {
         // Given
         let medicines = [
             Medicine(id: "med1", name: "Aspirine", stock: 10, aisle: "A1"),
-            Medicine(id: "med2", name: "Paracétamol", stock: 5, aisle: "B2")
+            Medicine(id: "med2", name: "Paracetamol", stock: 5, aisle: "B2")
         ]
         fakeFirestoreService.medicinesData = medicines
         
@@ -187,11 +187,11 @@ final class MedicineStockViewModelIntegrationTests: XCTestCase {
         let deletedIds = await sut.deleteMedicines(at: indexSet)
         
         // Then
-        XCTAssertEqual(deletedIds.count, 0, "Aucun ID retourné en cas d'erreur")
-        XCTAssertNotNil(sut.appError, "Une erreur devrait être définie")
+        XCTAssertEqual(deletedIds.count, 0, "No ID returned in case of an error")
+        XCTAssertNotNil(sut.appError, "An error should be defined")
         
         // ✅ Les données locales doivent être PRÉSERVÉES car Firestore a échoué
-        XCTAssertEqual(dataStore.medicines.count, 1, "Les données ne doivent PAS être supprimées")
+        XCTAssertEqual(dataStore.medicines.count, 1, "Data must not be deleted")
         XCTAssertEqual(dataStore.medicines.first?.id, "med1")
     }
     
