@@ -16,7 +16,7 @@ class FirestoreService: FirestoreServicing {
         db = Firestore.firestore()
     }
     
-    func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([Medicine], DocumentSnapshot?, Error?) -> Void) {
+    func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshotType? = nil, completion: @escaping ([Medicine], DocumentSnapshotType?, Error?) -> Void) {
         var query: Query = db.collection(collection)
         var sortClientSide = false // 🆕 Flag pour tri côté client
         let hasFilter = filterText != nil && !filterText!.isEmpty
@@ -62,7 +62,7 @@ class FirestoreService: FirestoreServicing {
         
         // Pagination
         query = query.limit(to: pageSize)
-        if let lastDoc = lastDocument {
+        if let lastDoc = lastDocument as? DocumentSnapshot {
             query = query.start(afterDocument: lastDoc)
         }
 
@@ -202,13 +202,13 @@ class FirestoreService: FirestoreServicing {
         print("✅ Historique total supprimé pour \(medicineIds.count) médicament(s)")
     }
     
-    func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshot? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshot?, Error?) -> Void) {
+    func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshotType? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshotType?, Error?) -> Void) {
         var query: Query = db.collection(collection)
             .whereField("medicineId", isEqualTo: medicineId)
             .order(by: "timestamp", descending: true)
             .limit(to: pageSize)
         
-        if let lastDoc = lastDocument {
+        if let lastDoc = lastDocument as? DocumentSnapshot {
             query = query.start(afterDocument: lastDoc)
         }
         

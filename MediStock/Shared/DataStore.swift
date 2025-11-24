@@ -14,7 +14,7 @@ class DataStore: ObservableObject {
     @Published var medicines: [Medicine] = []
     @Published var history: [HistoryEntry] = []
     
-    private init() {}
+    init() {}
     
     func updateMedicineStock(id: String, newStock: Int) {
         if let index = medicines.firstIndex(where: { $0.id == id }) {

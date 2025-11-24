@@ -7,7 +7,7 @@ class MedicineStockViewModel: ObservableObject {
     //@Published var aisles: [String] = []
     //@Published var history: [HistoryEntry] = []
     @Published var filterText: String = ""
-    var lastMedicinesDocument: DocumentSnapshot?
+    var lastMedicinesDocument: DocumentSnapshotType?
     @Published var sortOption: Enumerations.SortOption = .none
     let firestoreService: FirestoreServicing
     let dataStore: DataStore

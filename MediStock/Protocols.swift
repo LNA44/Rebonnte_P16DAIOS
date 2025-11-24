@@ -10,9 +10,7 @@ import FirebaseFirestore
 import FirebaseAuth
 
 protocol FirestoreServicing {
-    //func fetchMedicines(sortOption: Enumerations.SortOption, filterText: String, completion: @escaping ([Medicine]) -> Void) -> ListenerRegistration
-    func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String?, pageSize: Int, lastDocument: DocumentSnapshot?, completion: @escaping ([Medicine], DocumentSnapshot?, Error?) -> Void)
-    /*func fetchMedicine(_ id: String, collection: String) async throws -> Medicine?*/
+    func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String?, pageSize: Int, lastDocument: DocumentSnapshotType?, completion: @escaping ([Medicine], DocumentSnapshotType?, Error?) -> Void)
     func fetchAisles(collection: String, onUpdate: @escaping ([String], Error?) -> Void) -> ListenerRegistration
     func addMedicine(collection: String, _ medicine: Medicine, user: String) async throws -> Medicine
     func deleteMedicines(collection: String, withIds ids: [String]) async throws -> [String]
@@ -20,8 +18,8 @@ protocol FirestoreServicing {
     func updateMedicine(collection: String,_ medicine: Medicine) async throws
     func addHistory(action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry?
     func deleteHistory(collection: String, for medicineIds: [String]) async throws
-    func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int, lastDocument: DocumentSnapshot?, completion: @escaping ([HistoryEntry], DocumentSnapshot?, Error?) -> Void)
-    func createUser(collection: String, user: AppUser) async throws 
+    func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int, lastDocument: DocumentSnapshotType?, completion: @escaping ([HistoryEntry], DocumentSnapshotType?, Error?) -> Void)
+    func createUser(collection: String, user: AppUser) async throws
     func getEmail(collection: String, uid: String) async throws -> String?
 }
 
@@ -31,4 +29,8 @@ protocol AuthServicing {
     func signIn(email: String, password: String, completion: @escaping (AppUser?, Error?)-> Void)
     func signOut() throws
     func removeListener(handle: AuthStateDidChangeListenerHandle?)
+}
+
+protocol DocumentSnapshotType {
+    var id: String { get }
 }

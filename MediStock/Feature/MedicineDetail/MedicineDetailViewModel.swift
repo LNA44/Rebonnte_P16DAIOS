@@ -13,8 +13,7 @@ class MedicineDetailViewModel: ObservableObject {
     let authService: AuthServicing
     let dataStore: DataStore
     let firestoreService: FirestoreServicing
-    //private weak var medicineStockVM: MedicineStockViewModel?
-    var lastDocument: DocumentSnapshot? //history document
+    var lastDocument: DocumentSnapshotType? //history document
     @Published var emailsCache: [String: String] = [:] // uid -> email
     @Published var appError: AppError?
     

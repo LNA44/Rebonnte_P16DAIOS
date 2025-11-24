@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Firebase
 
 extension Array {
     func chunked(into size: Int) -> [[Element]] {
@@ -25,5 +26,11 @@ extension View {
         self.onTapGesture {
             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         }
+    }
+}
+
+extension DocumentSnapshot: DocumentSnapshotType {
+    var id: String {
+        return self.documentID
     }
 }

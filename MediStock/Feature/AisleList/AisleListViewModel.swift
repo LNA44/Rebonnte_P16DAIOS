@@ -10,7 +10,7 @@ import Firebase
 
 class AisleListViewModel: ObservableObject {
     private let sessionVM: SessionViewModel
-    private var aislesListener: ListenerRegistration?
+    var aislesListener: ListenerRegistration?
     let authService: AuthServicing
     let firestoreService: FirestoreServicing
     @Published var aisles: [String] = []
