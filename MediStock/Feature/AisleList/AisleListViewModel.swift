@@ -9,14 +9,14 @@ import Foundation
 import Firebase
 
 class AisleListViewModel: ObservableObject {
-    private let sessionVM: SessionViewModel
+    private weak var sessionVM: SessionViewModel?
     var aislesListener: ListenerRegistration?
     let authService: AuthServicing
     let firestoreService: FirestoreServicing
     @Published var aisles: [String] = []
     @Published var appError: AppError?
 
-    init(sessionVM: SessionViewModel, authService: AuthServicing = AuthService.shared, firestoreService: FirestoreServicing = FirestoreService.shared) {
+    init(sessionVM: SessionViewModel? = nil, authService: AuthServicing = AuthService.shared, firestoreService: FirestoreServicing = FirestoreService.shared) {
         self.sessionVM = sessionVM
         self.authService = authService
         self.firestoreService = firestoreService
@@ -24,7 +24,7 @@ class AisleListViewModel: ObservableObject {
     
     deinit {
         // ✅ Retire tous les listeners a la suppression du VM
-
+        print("🗑️ DEINIT AisleListViewModel - \(ObjectIdentifier(self))")
         aislesListener?.remove()
         
         print("🧹 Tous les listeners nettoyés")
@@ -50,7 +50,7 @@ class AisleListViewModel: ObservableObject {
         aislesListener = nil
         do {
             try authService.signOut()
-            self.sessionVM.session = nil
+            self.sessionVM?.session = nil
         } catch let error {
             self.appError = AppError.fromAuth(error)
         }

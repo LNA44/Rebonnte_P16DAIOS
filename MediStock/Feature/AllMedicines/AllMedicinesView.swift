@@ -69,8 +69,6 @@ struct AllMedicinesView: View {
                         .onDelete { indexSet in
                             Task {
                                 await medicineStockVM.deleteMedicines(at: indexSet)
-                                
-                                //await medicineStockVM.deleteHistory(for: medicinesId)
                             }
                         }
                     }

@@ -5,27 +5,19 @@ struct AisleListView: View {
     @EnvironmentObject var session: SessionViewModel
     @ObservedObject var aisleListVM: AisleListViewModel
     @ObservedObject var medicineDetailVM: MedicineDetailViewModel
+    @State private var showNewMedicine = false
 
     var body: some View {
         NavigationStack {
             List {
                 ForEach(aisleListVM.aisles, id: \.self) { aisle in
-                    NavigationLink(destination: MedicineListView(medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM, aisle: aisle)) {
+                    NavigationLink(value: aisle) {
                         Text(aisle)
-                          .accessibilityHint("Tap to view medicines in this aisle")
+                            .accessibilityHint("Tap to view medicines in this aisle")
                     }
                 }
             }
             .navigationBarTitle("Aisles")
-            .navigationBarItems(trailing:
-                    NavigationLink(destination:
-                        MedicineDetailView(
-                            medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM, isNew: true)
-                    ) {
-                Image(systemName: "plus")
-                    .accessibilityLabel("Add new medicine")
-                    .accessibilityHint("Tap to add a new medicine")
-            })
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
@@ -38,6 +30,31 @@ struct AisleListView: View {
                             .accessibilityHint("Tap to sign out from the application")
                     }
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button(action: {
+                                        showNewMedicine = true
+                                    }) {
+                                        Image(systemName: "plus")
+                                            .accessibilityLabel("Add new medicine")
+                                            .accessibilityHint("Tap to add a new medicine")
+                                    }
+                                }
+            }
+            .navigationDestination(for: String.self) { aisle in
+                MedicineListView(
+                    medicineStockVM: medicineStockVM,
+                    medicineDetailVM: medicineDetailVM,
+                    aisle: aisle
+                )
+            }
+            .navigationDestination(isPresented: $showNewMedicine) {
+                MedicineDetailView(
+                    medicine: Medicine(name: "", stock: 0, aisle: ""),
+                    medicineStockVM: medicineStockVM,
+                    medicineDetailVM: medicineDetailVM,
+                    isNew: true
+                )
             }
         }
         .onAppear {

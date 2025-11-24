@@ -5,6 +5,14 @@ struct MedicineListView: View {
     @ObservedObject var medicineStockVM: MedicineStockViewModel
     @ObservedObject var medicineDetailVM: MedicineDetailViewModel
     var aisle: String
+    
+    init(medicineStockVM: MedicineStockViewModel,
+         medicineDetailVM: MedicineDetailViewModel, aisle: String) {
+        self.medicineStockVM = medicineStockVM
+        self.medicineDetailVM = medicineDetailVM
+        self.aisle = aisle
+        print("🏗️ INIT MedicineListView pour \(aisle)")
+    }
 
     var body: some View {
         List {
@@ -33,6 +41,10 @@ struct MedicineListView: View {
         .navigationBarTitle(aisle)
         .onAppear {
             medicineStockVM.fetchNextMedicinesBatch()
+            print("👁️ APPEAR MedicineListView - \(aisle)")
+        }
+        .onDisappear {
+            print("👋 DISAPPEAR MedicineListView - \(aisle)")
         }
         .alert(item: $medicineStockVM.appError) { appError in
             Alert(
