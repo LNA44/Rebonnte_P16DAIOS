@@ -57,6 +57,7 @@
 		F3BA35B02ED4575600E99566 /* LoginViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35AF2ED4575600E99566 /* LoginViewModelTests.swift */; };
 		F3BA35B32ED4587100E99566 /* MedicineDetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B22ED4587100E99566 /* MedicineDetailViewModelTests.swift */; };
 		F3BA35B52ED45C0B00E99566 /* MockDocumentSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */; };
+		F3BA35B92ED462D500E99566 /* SessionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3BA35B82ED462D500E99566 /* SessionViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +119,7 @@
 		F3BA35AF2ED4575600E99566 /* LoginViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModelTests.swift; sourceTree = "<group>"; };
 		F3BA35B22ED4587100E99566 /* MedicineDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedicineDetailViewModelTests.swift; sourceTree = "<group>"; };
 		F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDocumentSnapshot.swift; sourceTree = "<group>"; };
+		F3BA35B82ED462D500E99566 /* SessionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +205,8 @@
 		53E0D8A62C06084900DE1134 /* MediStockTests */ = {
 			isa = PBXGroup;
 			children = (
+				F3BA35B72ED462C200E99566 /* SessionViewModelUnitTests */,
+				F3BA35B62ED462AE00E99566 /* Mocks */,
 				F3BA35B12ED4585800E99566 /* MedicineDetailViewModelUnitTests */,
 				F3BA35AE2ED4573D00E99566 /* LoginViewModelUnitTests */,
 				F38FC39C2ED09DEE00BCD914 /* AisleListViewModelUnitTests */,
@@ -266,10 +270,6 @@
 			isa = PBXGroup;
 			children = (
 				53E0D8A72C06084900DE1134 /* AisleListVMTests.swift */,
-				F3BA35A62ED4529F00E99566 /* MockAuthService.swift */,
-				F3BA35A82ED4532F00E99566 /* MockFirestoreService.swift */,
-				F3BA35AA2ED4536400E99566 /* MockListenerRegistration.swift */,
-				F3BA35AC2ED4551200E99566 /* MockSessionVM.swift */,
 			);
 			path = AisleListViewModelUnitTests;
 			sourceTree = "<group>";
@@ -361,6 +361,25 @@
 				F3BA35B42ED45C0B00E99566 /* MockDocumentSnapshot.swift */,
 			);
 			path = MedicineDetailViewModelUnitTests;
+			sourceTree = "<group>";
+		};
+		F3BA35B62ED462AE00E99566 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35A62ED4529F00E99566 /* MockAuthService.swift */,
+				F3BA35AA2ED4536400E99566 /* MockListenerRegistration.swift */,
+				F3BA35AC2ED4551200E99566 /* MockSessionVM.swift */,
+				F3BA35A82ED4532F00E99566 /* MockFirestoreService.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		F3BA35B72ED462C200E99566 /* SessionViewModelUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				F3BA35B82ED462D500E99566 /* SessionViewModelTests.swift */,
+			);
+			path = SessionViewModelUnitTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -544,6 +563,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F3BA35B02ED4575600E99566 /* LoginViewModelTests.swift in Sources */,
+				F3BA35B92ED462D500E99566 /* SessionViewModelTests.swift in Sources */,
 				F3BA35AB2ED4536400E99566 /* MockListenerRegistration.swift in Sources */,
 				F3BA35B32ED4587100E99566 /* MedicineDetailViewModelTests.swift in Sources */,
 				F3BA35AD2ED4551200E99566 /* MockSessionVM.swift in Sources */,

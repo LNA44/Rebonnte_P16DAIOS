@@ -18,6 +18,8 @@ final class MockAuthService: AuthServicing {
     
     var mockUser: AppUser?
     var mockError: Error?
+    
+    var listenerCallback: ((FirebaseAuth.User?) -> Void)?
 
     // Pour enregistrer si removeListener a été appelé
     var removedHandle: AuthStateDidChangeListenerHandle?
@@ -29,13 +31,12 @@ final class MockAuthService: AuthServicing {
         // sinon rien -> succès
     }
 
-    // Si ton protocole demande une écoute d'auth state:
     func listenToAuthStateChanges(
-        completion: @escaping (FirebaseAuth.User?) -> Void
-    ) -> AuthStateDidChangeListenerHandle {
-
-        return MockAuthStateListenerHandle()
-    }
+            completion: @escaping (FirebaseAuth.User?) -> Void
+        ) -> AuthStateDidChangeListenerHandle {
+            listenerCallback = completion
+            return MockAuthStateListenerHandle()
+        }
 
     func removeListener(handle: AuthStateDidChangeListenerHandle?) {
         removedHandle = handle
@@ -61,5 +62,10 @@ final class MockAuthService: AuthServicing {
         }
 }
 
+/*extension MockAuthService {
+    func simulateAuthStateChange(user: AppUser?) {
+        listenerCallback?(user)
+    }
+}*/
 
 final class MockAuthStateListenerHandle: NSObject {}

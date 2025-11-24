@@ -22,12 +22,10 @@ class MedicineDetailViewModel: ObservableObject {
         authService: AuthServicing = AuthService.shared,
         firestoreService: FirestoreServicing = FirestoreService.shared,
         dataStore: DataStore
-        //medicineStockVM: MedicineStockViewModel
     ) {
         self.authService = authService
         self.firestoreService = firestoreService
         self.dataStore = dataStore
-       // self.medicineStockVM = medicineStockVM
     }
  
     func addMedicine(_ medicine: Medicine, user: String) async -> Medicine {

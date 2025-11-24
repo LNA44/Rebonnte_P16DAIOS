@@ -28,7 +28,6 @@ class SessionViewModel: ObservableObject {
                     self.session = nil
                     self.unbind() //suppr le listener actuel à la deconnexion
                     print("👤 Utilisateur déconnecté")
-                    NotificationCenter.default.post(name: .userDidSignOut, object: nil)
                 }
             }
         }

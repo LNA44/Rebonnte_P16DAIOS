@@ -28,11 +28,6 @@ class MedicineStockViewModel: ObservableObject {
             if let error = error {
                 self.appError = AppError.fromFirestore(error)
             }
-           /* for med in newMedicines {
-                if !self.medicines.contains(where: { $0.id == med.id }) {
-                    self.medicines.append(med)
-                }
-            }*/
             self.dataStore.addMedicinesToLocal(newMedicines)
             self.lastMedicinesDocument = lastDoc
             self.appError = nil
@@ -62,8 +57,6 @@ class MedicineStockViewModel: ObservableObject {
             // Appel au service
             try await firestoreService.deleteHistory(collection: "history", for: medicineIds)
             
-            // Mise à jour du state local
-           // self.history.removeAll { medicineIds.contains($0.medicineId) }
             dataStore.removeHistory(for: medicineIds)
             self.appError = nil
             print("✅ Historique local mis à jour : \(medicineIds.count) médicament(s)")

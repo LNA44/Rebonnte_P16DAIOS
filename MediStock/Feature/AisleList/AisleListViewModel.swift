@@ -20,24 +20,10 @@ class AisleListViewModel: ObservableObject {
         self.sessionVM = sessionVM
         self.authService = authService
         self.firestoreService = firestoreService
-        setupNotifications()
-    }
-    
-    private func setupNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(userDidSignOut), name: .userDidSignOut, object: nil)
-    }
-    
-    @objc private func userDidSignOut() { //arrete les listeners avt destruction du VM pour eviter erreurs firebase qui manque de permissions
-        
-        aislesListener?.remove()
-        aislesListener = nil
-    
-        print("🔕 Tous les listeners arrêtés suite à la déconnexion")
     }
     
     deinit {
         // ✅ Retire tous les listeners a la suppression du VM
-        NotificationCenter.default.removeObserver(self)
 
         aislesListener?.remove()
         
@@ -60,6 +46,8 @@ class AisleListViewModel: ObservableObject {
     }
     
     func signOut() {
+        aislesListener?.remove()
+        aislesListener = nil
         do {
             try authService.signOut()
             self.sessionVM.session = nil
