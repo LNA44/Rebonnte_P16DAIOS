@@ -25,8 +25,8 @@ struct MedicineListView: View {
             }
             .onDelete { indexSet in
                 Task {
-                    let medicinesId = await medicineStockVM.deleteMedicines(at: indexSet)
-                    await medicineStockVM.deleteHistory(for: medicinesId)
+                    await medicineStockVM.deleteMedicines(at: indexSet)
+                    //await medicineStockVM.deleteHistory(for: medicinesId)
                 }
             }
         }

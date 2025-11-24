@@ -3,9 +3,6 @@ import Firebase
 
 @MainActor
 class MedicineStockViewModel: ObservableObject {
-    //@Published var medicines: [Medicine] = []
-    //@Published var aisles: [String] = []
-    //@Published var history: [HistoryEntry] = []
     @Published var filterText: String = ""
     var lastMedicinesDocument: DocumentSnapshotType?
     @Published var sortOption: Enumerations.SortOption = .none
@@ -27,6 +24,7 @@ class MedicineStockViewModel: ObservableObject {
             guard let self = self else { return }
             if let error = error {
                 self.appError = AppError.fromFirestore(error)
+                return
             }
             self.dataStore.addMedicinesToLocal(newMedicines)
             self.lastMedicinesDocument = lastDoc
@@ -42,6 +40,12 @@ class MedicineStockViewModel: ObservableObject {
         // Supprimer côté Firestore
         do {
             let deletedIds = try await firestoreService.deleteMedicines(collection: "medicines", withIds: idsToDelete)
+            do {
+                try await deleteHistory(for: deletedIds)
+            } catch {
+                self.appError = AppError.fromFirestore(error)
+                return []
+            }
             self.appError = nil
             return deletedIds
         } catch {
@@ -50,18 +54,15 @@ class MedicineStockViewModel: ObservableObject {
         }
     }
 
-    func deleteHistory(for medicineIds: [String]) async {
+    func deleteHistory(for medicineIds: [String]) async throws {
         guard !medicineIds.isEmpty else { return }
         
         do {
-            // Appel au service
             try await firestoreService.deleteHistory(collection: "history", for: medicineIds)
-            
             dataStore.removeHistory(for: medicineIds)
             self.appError = nil
-            print("✅ Historique local mis à jour : \(medicineIds.count) médicament(s)")
         } catch {
-            self.appError = AppError.fromFirestore(error)
+            throw error
         }
     }
 }
