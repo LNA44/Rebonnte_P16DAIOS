@@ -5,8 +5,14 @@ struct LoginView: View {
     @State private var password = ""
     @State private var isLogInLoading = false
     @State private var isSignUpLoading = false
-    @ObservedObject var loginVM: LoginViewModel
+    @StateObject var loginVM: LoginViewModel
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var sessionVM: SessionViewModel
+    
+    init() {
+        _loginVM = StateObject(wrappedValue: LoginViewModel(sessionVM: SessionViewModel.shared))
+        print("🏗️ INIT LoginListView")
+       }
 
     var body: some View {
         VStack {
@@ -92,6 +98,8 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(loginVM: LoginViewModel(sessionVM: SessionViewModel())).environmentObject(SessionViewModel())
+        let sessionVM = SessionViewModel()
+        LoginView()
+            .environmentObject(sessionVM)        
     }
 }

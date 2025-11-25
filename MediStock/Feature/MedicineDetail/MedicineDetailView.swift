@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct MedicineDetailView: View {
-    @ObservedObject var medicineStockVM: MedicineStockViewModel
-    @ObservedObject var medicineDetailVM: MedicineDetailViewModel
+    @StateObject var medicineDetailVM: MedicineDetailViewModel
     @EnvironmentObject var session: SessionViewModel
     @EnvironmentObject var dataStore: DataStore
     @State var medicine: Medicine
@@ -17,12 +16,13 @@ struct MedicineDetailView: View {
     @State private var lastValidName: String = ""
     @State private var localMedicine: Medicine // pour éviter que quand on maj aisle la liste de AisleListView se maj et qu'on sorte de la vue details
     
-    init(medicine: Medicine, medicineStockVM: MedicineStockViewModel, medicineDetailVM: MedicineDetailViewModel, isNew: Bool = false) {
+    init(medicine: Medicine, isNew: Bool = false) {
         self.medicine = medicine
         self._localMedicine = State(initialValue: medicine) // copie locale
-        self.medicineStockVM = medicineStockVM
-        self.medicineDetailVM = medicineDetailVM
+        _medicineDetailVM = StateObject(wrappedValue: MedicineDetailViewModel(dataStore: DataStore.shared))
         self._isNew = State(initialValue: isNew)
+        print("🏗️ INIT MedicineDetailView")
+
     }
    
     var body: some View {
@@ -315,11 +315,31 @@ extension MedicineDetailView {
     }
 }
 
-/*struct MedicineDetailView_Previews: PreviewProvider {
+struct MedicineDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        let sampleMedicine = Medicine(name: "Sample", stock: 10, aisle: "Aisle 1")
-        let sampleViewModel = MedicineStockViewModel()
-        MedicineDetailView(medicine: sampleMedicine, medicineStockVM: sampleViewModel).environmentObject(SessionViewModel())
+        // Mock Session
+        let session = SessionViewModel()
+        // Mock DataStore
+        let dataStore = DataStore()
+        
+        // Exemple de Medicine
+        let sampleMedicine = Medicine(name: "Doliprane", stock: 42, aisle: "A1")
+        dataStore.medicines = [sampleMedicine]
+        
+        return Group {
+            NavigationStack {
+                MedicineDetailView(medicine: sampleMedicine, isNew: false)
+                    .environmentObject(session)
+                    .environmentObject(dataStore)
+            }
+            .previewDisplayName("Existing Medicine")
+            
+            NavigationStack {
+                MedicineDetailView(medicine: Medicine(name: "", stock: 0, aisle: ""), isNew: true)
+                    .environmentObject(session)
+                    .environmentObject(dataStore)
+            }
+            .previewDisplayName("New Medicine")
+        }
     }
 }
-*/

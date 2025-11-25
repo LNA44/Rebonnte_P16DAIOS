@@ -17,7 +17,13 @@ class MedicineStockViewModel: ObservableObject {
     ) {
         self.firestoreService = firestoreService
         self.dataStore = dataStore
+        print("🏗️ INIT MedicineStockViewModel - \(ObjectIdentifier(self))")
     }
+    
+    deinit {
+            print("🗑️ DEINIT MedicineStockViewModel - \(ObjectIdentifier(self))")
+        }
+
     
     func fetchNextMedicinesBatch(pageSize: Int = 20, filterText: String? = nil) {
         firestoreService.fetchMedicinesBatch(collection: "medicines", sortOption: sortOption, filterText: filterText, pageSize: pageSize, lastDocument: lastMedicinesDocument) { [weak self] newMedicines, lastDoc, error in
@@ -26,9 +32,11 @@ class MedicineStockViewModel: ObservableObject {
                 self.appError = AppError.fromFirestore(error)
                 return
             }
-            self.dataStore.addMedicinesToLocal(newMedicines)
-            self.lastMedicinesDocument = lastDoc
-            self.appError = nil
+            //Task { @MainActor [weak self] in
+                self.dataStore.addMedicinesToLocal(newMedicines)
+                self.lastMedicinesDocument = lastDoc
+                self.appError = nil
+            //}
         }
     }
 

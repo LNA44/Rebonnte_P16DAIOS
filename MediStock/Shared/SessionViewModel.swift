@@ -2,6 +2,8 @@ import Foundation
 import Firebase
 
 class SessionViewModel: ObservableObject {
+    static let shared = SessionViewModel()
+
     @Published var session: AppUser?
     var handle: AuthStateDidChangeListenerHandle?
     let authService: AuthServicing

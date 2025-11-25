@@ -3,11 +3,11 @@ import SwiftUI
 struct AllMedicinesView: View {
     @EnvironmentObject var session: SessionViewModel
     @EnvironmentObject var dataStore: DataStore
-    @ObservedObject var medicineStockVM: MedicineStockViewModel
-    @ObservedObject var medicineDetailVM: MedicineDetailViewModel
+    @EnvironmentObject var medicineStockVM: MedicineStockViewModel
+    @State private var showNewMedicine: Bool? = nil
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
                 VStack {
                     // Filtrage et Tri
                     HStack {
@@ -48,7 +48,7 @@ struct AllMedicinesView: View {
                     // Liste des Médicaments
                     List {
                         ForEach(dataStore.medicines, id: \.id) { medicine in
-                            NavigationLink(destination: MedicineDetailView(medicine: medicine, medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM)) {
+                            NavigationLink(value: medicine) {
                                 VStack(alignment: .leading) {
                                     Text(medicine.name)
                                         .font(.headline)
@@ -74,11 +74,27 @@ struct AllMedicinesView: View {
                     }
                     .scrollDismissesKeyboard(.immediately) 
                     .navigationBarTitle("All Medicines")
-                    .navigationBarItems(trailing: NavigationLink(destination: MedicineDetailView(medicine: Medicine(name: "", stock: 0, aisle: ""), medicineStockVM: medicineStockVM, medicineDetailVM: medicineDetailVM, isNew: true)) {
-                        Image(systemName: "plus")
-                            .accessibilityLabel("Add new medicine")
-                            .accessibilityHint("Tap to add a new medicine")
-                    })
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            // ✅ Button au lieu de NavigationLink
+                            Button(action: {
+                                showNewMedicine = true
+                            }) {
+                                Image(systemName: "plus")
+                                    .accessibilityLabel("Add new medicine")
+                                    .accessibilityHint("Tap to add a new medicine")
+                            }
+                        }
+                    }
+                }
+                .navigationDestination(for: Medicine.self) { medicine in
+                    MedicineDetailView(medicine: medicine, isNew: false)
+                }
+                .navigationDestination(item: $showNewMedicine) { _ in
+                    MedicineDetailView(
+                        medicine: Medicine(name: "", stock: 0, aisle: ""),
+                        isNew: true
+                    )
                 }
         }
         .onAppear {
@@ -96,9 +112,21 @@ struct AllMedicinesView: View {
     }
 }
 
-/*struct AllMedicinesView_Previews: PreviewProvider {
+struct AllMedicinesView_Previews: PreviewProvider {
     static var previews: some View {
-        AllMedicinesView(medicineStockVM: MedicineStockViewModel(), medicineDetailVM: MedicineDetailViewModel(medicineStockVM: MedicineStockViewModel()))
+        let session = SessionViewModel()
+        let dataStore = DataStore()
+        let medicineStockVM = MedicineStockViewModel(dataStore: dataStore)
+  
+        dataStore.medicines = [
+            Medicine(name: "Doliprane", stock: 42, aisle: "A1"),
+            Medicine(name: "Ibuprofen", stock: 20, aisle: "B3")
+        ]
+
+        return AllMedicinesView()
+            .environmentObject(session)
+            .environmentObject(dataStore)
+            .environmentObject(medicineStockVM)
     }
 }
-*/
+

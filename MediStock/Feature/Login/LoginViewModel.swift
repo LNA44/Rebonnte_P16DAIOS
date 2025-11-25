@@ -22,6 +22,7 @@ class LoginViewModel: ObservableObject {
         self.authService = authService
         self.firestoreService = firestoreService
         self.sessionVM = sessionVM
+        print("🏗️ INIT LoginListViewModel")
     }
     
     func signUp(email: String, password: String, completion: @escaping () -> Void) {

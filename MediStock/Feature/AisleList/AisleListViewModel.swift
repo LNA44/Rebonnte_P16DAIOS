@@ -20,6 +20,7 @@ class AisleListViewModel: ObservableObject {
         self.sessionVM = sessionVM
         self.authService = authService
         self.firestoreService = firestoreService
+        print("🏗️ INIT AisleListViewModel")
     }
     
     deinit {

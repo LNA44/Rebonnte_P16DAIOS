@@ -1,12 +1,15 @@
 import SwiftUI
 
 struct AisleListView: View {
-    @ObservedObject var medicineStockVM: MedicineStockViewModel
     @EnvironmentObject var session: SessionViewModel
-    @ObservedObject var aisleListVM: AisleListViewModel
-    @ObservedObject var medicineDetailVM: MedicineDetailViewModel
-    @State private var showNewMedicine = false
+    @StateObject var aisleListVM: AisleListViewModel
+    @State private var showNewMedicine: Bool? = nil
 
+    init() {
+            _aisleListVM = StateObject(wrappedValue: AisleListViewModel())
+        print("🏗️ INIT AisleListView")
+        }
+    
     var body: some View {
         NavigationStack {
             List {
@@ -43,19 +46,16 @@ struct AisleListView: View {
             }
             .navigationDestination(for: String.self) { aisle in
                 MedicineListView(
-                    medicineStockVM: medicineStockVM,
-                    medicineDetailVM: medicineDetailVM,
                     aisle: aisle
                 )
             }
-            .navigationDestination(isPresented: $showNewMedicine) {
-                MedicineDetailView(
-                    medicine: Medicine(name: "", stock: 0, aisle: ""),
-                    medicineStockVM: medicineStockVM,
-                    medicineDetailVM: medicineDetailVM,
-                    isNew: true
-                )
-            }
+
+            .navigationDestination(item: $showNewMedicine) { _ in
+                            MedicineDetailView(
+                                medicine: Medicine(name: "", stock: 0, aisle: ""),
+                                isNew: true
+                            )
+                        }
         }
         .onAppear {
             aisleListVM.fetchAisles()
@@ -70,9 +70,20 @@ struct AisleListView: View {
     }
 }
 
-/*struct AisleListView_Previews: PreviewProvider {
+struct AisleListView_Previews: PreviewProvider {
     static var previews: some View {
-        AisleListView(medicineStockVM: MedicineStockViewModel(), aisleListVM: AisleListViewModel(sessionVM: SessionViewModel()), medicineDetailVM: MedicineDetailViewModel(medicineStockVM: MedicineStockViewModel()))
+        
+        let session = SessionViewModel()
+        
+        let aisleVM = AisleListViewModel()
+        aisleVM.aisles = ["A1", "A2", "B1", "B2"]
+        
+        return NavigationStack {
+            AisleListView()
+                .environmentObject(session)
+                .environmentObject(DataStore())
+                .environmentObject(MedicineStockViewModel(dataStore: DataStore.shared))
+                .environmentObject(aisleVM)
+        }
     }
 }
-*/

@@ -2,17 +2,16 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var session: SessionViewModel
-    @ObservedObject var medicineStockVM: MedicineStockViewModel
-    @ObservedObject var loginVM: LoginViewModel
+   /* @ObservedObject var loginVM: LoginViewModel
     @ObservedObject var aisleListVM: AisleListViewModel
-    @ObservedObject var medicineDetailVM: MedicineDetailViewModel
+    @ObservedObject var medicineDetailVM: MedicineDetailViewModel*/
 
     var body: some View {
         Group {
             if session.session != nil {
-                MainTabView(medicineStockVM: medicineStockVM, aisleListVM: aisleListVM, medicineDetailVM: medicineDetailVM)
+                MainTabView()
             } else {
-                LoginView(loginVM: loginVM)
+                LoginView()
             }
         }
         .onAppear {

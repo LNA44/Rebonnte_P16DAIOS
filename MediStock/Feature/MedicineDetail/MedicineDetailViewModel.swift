@@ -26,6 +26,7 @@ class MedicineDetailViewModel: ObservableObject {
         self.authService = authService
         self.firestoreService = firestoreService
         self.dataStore = dataStore
+        print("🏗️ INIT MedicineDetailViewModel")
     }
  
     func addMedicine(_ medicine: Medicine, user: String) async -> Medicine {

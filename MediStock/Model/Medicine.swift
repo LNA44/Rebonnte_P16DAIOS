@@ -23,3 +23,4 @@ struct Medicine: Identifiable, Codable, Equatable, Hashable {
                lhs.aisle == rhs.aisle
     }
 }
+
