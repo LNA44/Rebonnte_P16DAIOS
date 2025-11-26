@@ -1,9 +1,7 @@
 name: IOS Build and Test
 
 on:
-push:  # déclenche à chaque push
-# branches:  # si tu veux limiter à certaines branches, décommente et ajoute-les
-#   - main
+push:
 
 jobs:
 build-and-test:
