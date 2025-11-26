@@ -125,7 +125,7 @@ final class MockFiresotreService: FirestoreServicing {
         updatedMedicines.append(medicine)
     }
     
-    func addHistory(action: String, user: String, medicineId: String, details: String) async throws -> HistoryEntry? {
+    func addHistory(collection: String, action: String, user: String, medicineId: String, details: String) async throws -> HistoryEntry? {
         if shouldThrowOnAddHistory { throw NSError(domain: "Firestore", code: 4) }
         let entry = HistoryEntry(id: UUID().uuidString, medicineId: medicineId, user: user, action: action, details: details)
         addedHistories.append(entry)

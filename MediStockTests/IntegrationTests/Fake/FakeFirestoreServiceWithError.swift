@@ -41,7 +41,7 @@ final class FakeFirestoreServiceWithError: FirestoreServicing {
         throw NSError(domain: "FirestoreError", code: 1)
     }
     
-    func addHistory(action: String, user: String, medicineId: String, details: String) async throws -> HistoryEntry? {
+    func addHistory(collection: String, action: String, user: String, medicineId: String, details: String) async throws -> HistoryEntry? {
         throw NSError(domain: "FirestoreError", code: 1)
     }
     

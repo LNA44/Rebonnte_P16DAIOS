@@ -210,7 +210,7 @@ final class MedicineDetailViewModelTests: XCTestCase {
         let medicineId = "med1"
 
         // When
-        let entry = await viewModel.addHistory(action: "Test", user: user, medicineId: medicineId, details: "")
+        let entry = await viewModel.addHistory(collection: "history", action: "Test", user: user, medicineId: medicineId, details: "")
 
         // Then
         XCTAssertNotNil(entry)
@@ -225,7 +225,7 @@ final class MedicineDetailViewModelTests: XCTestCase {
         let medicineId = "med1"
 
         // When
-        let entry = await viewModel.addHistory(action: "Test", user: user, medicineId: medicineId, details: "")
+        let entry = await viewModel.addHistory(collection: "history", action: "Test", user: user, medicineId: medicineId, details: "")
 
         // Then
         XCTAssertNil(entry)

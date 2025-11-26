@@ -38,7 +38,6 @@ struct AllMedicinesView: View {
                             // Réinitialiser la pagination et la liste
                             dataStore.medicines = []
                             medicineStockVM.lastMedicinesDocument = nil
-                            
                             // Recharger les medicines triées
                             medicineStockVM.fetchNextMedicinesBatch(filterText: medicineStockVM.filterText.isEmpty ? nil : medicineStockVM.filterText)
                         }

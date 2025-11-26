@@ -18,7 +18,8 @@ class FirestoreService: FirestoreServicing {
     
     func fetchMedicinesBatch(collection: String, sortOption: Enumerations.SortOption,filterText: String? = nil, pageSize: Int = 20, lastDocument: DocumentSnapshotType? = nil, completion: @escaping ([Medicine], DocumentSnapshotType?, Error?) -> Void) {
         var query: Query = db.collection(collection)
-        var sortClientSide = false // 🆕 Flag pour tri côté client
+        var sortStockClientSide = false
+        var sortMedicinesClientSide = false
         let hasFilter = filterText != nil && !filterText!.isEmpty
 
         // Filtre + tri côté serveur
@@ -37,10 +38,10 @@ class FirestoreService: FirestoreServicing {
                 print("✅ Filtre par nom + tri par nom appliqués")
                 
             case .stock:
-                sortClientSide = true
+                sortStockClientSide = true
                 print("⚠️ Filtre par nom (serveur) + tri par stock (client)")
-            case .none:
-                query = query.order(by: "name_lowercase", descending: false)
+            case .none: //comme on a un filtre, firebase trie automatiquement sur ce meme champ (name_lowercase)
+                sortMedicinesClientSide = true
                 print("✅ Filtre par nom appliqué")
             }
         } else {
@@ -60,7 +61,7 @@ class FirestoreService: FirestoreServicing {
             }
         }
         
-        // Pagination
+        // Pagination : charger données par petits morceaux
         query = query.limit(to: pageSize)
         if let lastDoc = lastDocument as? DocumentSnapshot {
             query = query.start(afterDocument: lastDoc)
@@ -83,13 +84,18 @@ class FirestoreService: FirestoreServicing {
                 return
             }
             
-            var fetchedMedicines = snapshot.documents.compactMap { doc -> Medicine? in
+            var fetchedMedicines = snapshot.documents.compactMap { doc -> Medicine? in //crée un [Medicine] à partir des données firestore
                 try? doc.data(as: Medicine.self)
             }
             
-            if sortClientSide {
+            if sortStockClientSide {
                 fetchedMedicines.sort { $0.stock > $1.stock }
                 print("✅ Tri par stock effectué côté client (\(fetchedMedicines.count) items)")
+            }
+            
+            if sortMedicinesClientSide {
+                fetchedMedicines.shuffle()
+                print("🔀 Shuffle appliqué pour sortOption = .none (\(fetchedMedicines.count) items)")
             }
             
             completion(fetchedMedicines, snapshot.documents.last, nil)
@@ -129,25 +135,25 @@ class FirestoreService: FirestoreServicing {
         var medicineToSave = medicine
         medicineToSave.id = docId
         medicineToSave.name_lowercase = medicine.name.lowercased()
-            try db.collection(collection).document(docId).setData(from: medicineToSave)
-            print("✅ Medicine ajouté")
-            return medicineToSave
+        try db.collection(collection).document(docId).setData(from: medicineToSave)
+        print("✅ Medicine ajouté")
+        return medicineToSave
     }
     
     func deleteMedicines(collection: String, withIds ids: [String]) async throws -> [String] {
         var deletedIds: [String] = []
-
+        
         for id in ids {
-                try await db.collection(collection).document(id).delete()
-                deletedIds.append(id)
+            try await db.collection(collection).document(id).delete()
+            deletedIds.append(id)
         }
-
+        
         return deletedIds
     }
     
     func updateStock(collection: String, for medicineId: String, newStock: Int) async throws {
-            try await db.collection(collection).document(medicineId).updateData(["stock": newStock])
-        }
+        try await db.collection(collection).document(medicineId).updateData(["stock": newStock])
+    }
     
     func updateMedicine(collection: String,_ medicine: Medicine) async throws {
         guard let id = medicine.id else { return }
@@ -160,7 +166,7 @@ class FirestoreService: FirestoreServicing {
         try db.collection(collection).document(id).setData(from: medicineToUpdate)
     }
     
-    func addHistory(action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry? {
+    func addHistory(collection: String, action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry? {
         let newId = UUID().uuidString
         let historyEntry = HistoryEntry(
             id: newId,

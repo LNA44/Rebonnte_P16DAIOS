@@ -5,8 +5,8 @@ struct AisleListView: View {
     @StateObject var aisleListVM: AisleListViewModel
     @State private var showNewMedicine: Bool? = nil
 
-    init() {
-            _aisleListVM = StateObject(wrappedValue: AisleListViewModel())
+    init(aisleListVM: AisleListViewModel) {
+            _aisleListVM = StateObject(wrappedValue: aisleListVM)
         print("🏗️ INIT AisleListView")
         }
     
@@ -79,7 +79,7 @@ struct AisleListView_Previews: PreviewProvider {
         aisleVM.aisles = ["A1", "A2", "B1", "B2"]
         
         return NavigationStack {
-            AisleListView()
+            AisleListView(aisleListVM: AisleListViewModel())
                 .environmentObject(session)
                 .environmentObject(DataStore())
                 .environmentObject(MedicineStockViewModel(dataStore: DataStore.shared))

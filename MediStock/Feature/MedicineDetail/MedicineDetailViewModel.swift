@@ -120,11 +120,10 @@ class MedicineDetailViewModel: ObservableObject {
     
     func addHistory(action: String,user: String,medicineId: String,details: String) async -> HistoryEntry? {
         print("addHistory appelé dans la ViewModel")
-       // guard let stockVM = medicineStockVM else { return nil }
-
         do {
             // Appel du service
             let historyEntry = try await firestoreService.addHistory(
+                collection: "history",
                 action: action,
                 user: user,
                 medicineId: medicineId,

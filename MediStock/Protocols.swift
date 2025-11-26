@@ -16,7 +16,7 @@ protocol FirestoreServicing {
     func deleteMedicines(collection: String, withIds ids: [String]) async throws -> [String]
     func updateStock(collection: String,for medicineId: String, newStock: Int) async throws
     func updateMedicine(collection: String,_ medicine: Medicine) async throws
-    func addHistory(action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry?
+    func addHistory(collection: String, action: String, user: String,medicineId: String,details: String) async throws -> HistoryEntry?
     func deleteHistory(collection: String, for medicineIds: [String]) async throws
     func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int, lastDocument: DocumentSnapshotType?, completion: @escaping ([HistoryEntry], DocumentSnapshotType?, Error?) -> Void)
     func createUser(collection: String, user: AppUser) async throws

@@ -1,12 +1,11 @@
 import SwiftUI
 
 struct MainTabView: View {
-    /*@ObservedObject var aisleListVM: AisleListViewModel
-    @ObservedObject var medicineDetailVM: MedicineDetailViewModel*/
+   @EnvironmentObject var session: SessionViewModel
 
     var body: some View {
         TabView {
-            AisleListView()
+            AisleListView(aisleListVM: AisleListViewModel(sessionVM: session))
                 .tabItem {
                     Image(systemName: "list.dash")
                     Text("Aisles")

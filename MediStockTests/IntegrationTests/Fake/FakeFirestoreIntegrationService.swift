@@ -101,7 +101,7 @@ class FakeFirestoreIntegrationService: FirestoreServicing {
     }
 
     // MARK: - addHistory
-    func addHistory(action: String, user: String, medicineId: String, details: String) async throws -> HistoryEntry? {
+    func addHistory(collection: String, action: String, user: String, medicineId: String, details: String) async throws -> HistoryEntry? {
         let entry = HistoryEntry(id: UUID().uuidString, medicineId: medicineId, user: user, action: action, details: details, timestamp: Date())
         histories.append(entry)
         return entry
