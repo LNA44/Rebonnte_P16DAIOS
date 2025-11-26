@@ -1,7 +1,9 @@
 name: IOS Build and Test
 
 on:
-push:
+push:  # déclenche à chaque push
+# branches:  # si tu veux limiter à certaines branches, décommente et ajoute-les
+#   - main
 
 jobs:
 build-and-test:
@@ -21,8 +23,8 @@ steps:
   - name: Build and Test
     uses: sersoft-gmbh/xcodebuild-action@v3.2.0
     with:
-      project: MediStock.xcodeproj
-      scheme: MediStock
+      project: EPCollaboratif.xcodeproj
+      scheme: EPCollaboratif
       destination: 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
       action: test
       result-bundle-path: 'TestResults/TestResults.xcresult'
@@ -44,5 +46,16 @@ steps:
   - name: Publish Test Results
     uses: EnricoMi/publish-unit-test-result-action/macos@v2
     if: success() || failure()
- 
+    with:
+      check_name: iOS Test Results
+      files: junit.xml
+
+  - name: Upload Artifacts
+    uses: actions/upload-artifact@v4
+    if: success() || failure()
+    with:
+      name: test-results
+      path: |
+        TestResults/TestResults.xcresult
+        junit.xml
 ```
