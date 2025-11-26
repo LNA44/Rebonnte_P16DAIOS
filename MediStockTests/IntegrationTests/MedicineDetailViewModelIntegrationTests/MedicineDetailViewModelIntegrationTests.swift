@@ -620,10 +620,10 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         let user = "user123"
         
         // When - Opérations concurrentes
-        async let result1 = sut.addMedicine(medicine1, user: user)
-        async let result2 = sut.addMedicine(medicine2, user: user)
+        let result1 = await sut.addMedicine(medicine1, user: user)
+        let result2 = await sut.addMedicine(medicine2, user: user)
         
-        let (med1, med2) = await (result1, result2)
+        let (med1, med2) = (result1, result2)
         
         // Then
         XCTAssertNotNil(med1.id)
