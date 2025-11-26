@@ -1,33 +1,33 @@
 name: IOS Build and Test
 
 on:
-push:
+  push:
 
 jobs:
-build-and-test:
-runs-on: macos-latest
+  build-and-test:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+      - name: Clean previous test results
+        run: rm -rf TestResults
 
-  - name: Clean previous test results
-    run: rm -rf TestResults
+      - name: List available simulators
+        run: xcrun simctl list devices
 
-  - name: List available simulators
-    run: xcrun simctl list devices
+      - name: Build and Test
+        uses: sersoft-gmbh/xcodebuild-action@v3.2.0
+        with:
+          project: EPCollaboratif.xcodeproj
+          scheme: EPCollaboratif
+          destination: 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
+          action: test
+          result-bundle-path: 'TestResults/TestResults.xcresult'
 
-  - name: Build and Test
-    uses: sersoft-gmbh/xcodebuild-action@v3.2.0
-    with:
-      project: EPCollaboratif.xcodeproj
-      scheme: EPCollaboratif
-      destination: 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
-      action: test
-      result-bundle-path: 'TestResults/TestResults.xcresult'
-
-  - name: Install xcresultparser
-    if: ${{ always() }}
-    run: |
-      brew tap a7ex/homebrew-formulae
-      brew install xcresultparser
+      - name: Install xcresultparser
+        if: ${{ always() }}
+        run: |
+          brew tap a7ex/homebrew-formulae
+          brew install xcresultparser
