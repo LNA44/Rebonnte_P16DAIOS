@@ -114,13 +114,13 @@ extension MedicineDetailView {
                         isEditingStock = true
                         if localMedicine.stock >= 1 {
                             let newStock = await medicineDetailVM.decreaseStock(localMedicine, user: session.session?.uid ?? "")
-                            DispatchQueue.main.async {
+                            //DispatchQueue.main.async {
                                 //self.medicine.stock = newStock
                                 originalStock = newStock  
                                 stockText = "\(newStock)"
                                 print("localmedicine.stock \(newStock)")
                                 self.localMedicine.stock = newStock
-                            }
+                            //}
                         }
                         if localMedicine.stock < 1 {
                             return
@@ -185,12 +185,12 @@ extension MedicineDetailView {
                         guard !isNew else { return }
                         isEditingStock = true
                         let newStock = await medicineDetailVM.increaseStock(localMedicine, user: session.session?.uid ?? "")
-                        DispatchQueue.main.async {
+                        //DispatchQueue.main.async {
                             print("localmedicine.stock \(newStock)")
                             self.localMedicine.stock = newStock
                             originalStock = newStock
                             stockText = "\(newStock)"
-                        }
+                        //}
                         isEditingStock = false
                     }
                 }) {
