@@ -20,8 +20,8 @@ jobs:
       - name: Build and Test
         uses: sersoft-gmbh/xcodebuild-action@v3.2.0
         with:
-          project: EPCollaboratif.xcodeproj
-          scheme: EPCollaboratif
+          project: MediStock.xcodeproj
+          scheme: MediStock
           destination: 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
           action: test
           result-bundle-path: 'TestResults/TestResults.xcresult'
