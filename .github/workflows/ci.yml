@@ -6,10 +6,15 @@ on:
 jobs:
   build-and-test:
     runs-on: macos-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Create GoogleService-Info.plist
+        run: |
+          mkdir -p MediStock/Ressources/Config
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > MediStock/Ressources/Config/GoogleService-Info.plist
 
       - name: Clean previous test results
         run: rm -rf TestResults
@@ -22,12 +27,29 @@ jobs:
         with:
           project: MediStock.xcodeproj
           scheme: MediStock
-          destination: 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
+          destination: platform=iOS Simulator,name=iPhone 16
           action: test
-          result-bundle-path: 'TestResults/TestResults.xcresult'
+          result-bundle-path: TestResults/TestResults.xcresult
 
       - name: Install xcresultparser
-        if: ${{ always() }}
+        if: always()
         run: |
           brew tap a7ex/homebrew-formulae
           brew install xcresultparser
+
+      - name: Parse test results
+        if: always()
+        run: |
+          if [ -d "TestResults/TestResults.xcresult" ]; then
+            xcresultparser --output-format md "TestResults/TestResults.xcresult" > TestResults/test-results.md
+            cat TestResults/test-results.md
+          else
+            echo "No test results found"
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/
