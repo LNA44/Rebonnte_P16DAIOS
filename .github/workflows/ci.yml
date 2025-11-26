@@ -20,38 +20,14 @@ steps:
   - name: Build and Test
     uses: sersoft-gmbh/xcodebuild-action@v3.2.0
     with:
-      project: MediStock.xcodeproj
-      scheme: MediStock
+      project: EPCollaboratif.xcodeproj
+      scheme: EPCollaboratif
       destination: 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
       action: test
       result-bundle-path: 'TestResults/TestResults.xcresult'
 
   - name: Install xcresultparser
-    if: success() || failure()
+    if: ${{ always() }}
     run: |
       brew tap a7ex/homebrew-formulae
       brew install xcresultparser
-
-  - name: Convert xcresult to JUnit
-    if: success() || failure()
-    run: |
-      xcresultparser TestResults/TestResults.xcresult -o junit > junit.xml
-      echo "JUnit XML file created:"
-      ls -lh junit.xml
-      head -20 junit.xml
-
-  - name: Publish Test Results
-    uses: EnricoMi/publish-unit-test-result-action/macos@v2
-    if: success() || failure()
-    with:
-      check_name: iOS Test Results
-      files: junit.xml
-
-  - name: Upload Artifacts
-    uses: actions/upload-artifact@v4
-    if: success() || failure()
-    with:
-      name: test-results
-      path: |
-        TestResults/TestResults.xcresult
-        junit.xml
