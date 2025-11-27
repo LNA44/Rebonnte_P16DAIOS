@@ -9,7 +9,6 @@ class SessionViewModel: ObservableObject {
     let authService: AuthServicing
     let firestoreService: FirestoreServicing
     
-    //MARK: -Initialization
     init(
         authService: AuthServicing = AuthService.shared,
         firestoreService: FirestoreServicing = FirestoreService.shared
@@ -25,11 +24,9 @@ class SessionViewModel: ObservableObject {
             Task { @MainActor [weak self] in
                 if let userInfo = userInfo {
                     self?.session = AppUser(uid: userInfo.uid, email: userInfo.email)
-                    print("✅ Utilisateur connecté : \(userInfo.email ?? "sans email")")
                 } else {
                     self?.session = nil
                     self?.unbind()
-                    print("👤 Utilisateur déconnexion")
                 }
             }
         }
@@ -41,7 +38,6 @@ class SessionViewModel: ObservableObject {
     
     func unbind() {
         guard handle != nil else { return }
-        // VM appelle la fonction du service pour supprimer le listener
         authService.removeListener(handle: handle)
         handle = nil
     }

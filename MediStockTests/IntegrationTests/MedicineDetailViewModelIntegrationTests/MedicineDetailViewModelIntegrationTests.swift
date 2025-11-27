@@ -108,16 +108,10 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         
         // Then
         XCTAssertEqual(newStock, 6, "Stock should increase by one")
-        
-        // Vérifier Firestore
         let updatedInFirestore = fakeFirestoreService.medicines.first { $0.id == "med1" }
         XCTAssertEqual(updatedInFirestore?.stock, 6)
-        
-        // Vérifier DataStore local
         let updatedLocal = dataStore.medicines.first { $0.id == "med1" }
         XCTAssertEqual(updatedLocal?.stock, 6)
-        
-        // Vérifier l'historique
         XCTAssertEqual(fakeFirestoreService.histories.count, 1)
         XCTAssertTrue(fakeFirestoreService.histories.first?.action.contains("Increased") ?? false)
         
@@ -138,19 +132,12 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         
         // Then
         XCTAssertEqual(newStock, 9, "Stock should decrease by one")
-        
-        // Vérifier Firestore
         let updatedInFirestore = fakeFirestoreService.medicines.first { $0.id == "med2" }
         XCTAssertEqual(updatedInFirestore?.stock, 9)
-        
-        // Vérifier DataStore local
         let updatedLocal = dataStore.medicines.first { $0.id == "med2" }
         XCTAssertEqual(updatedLocal?.stock, 9)
-        
-        // Vérifier l'historique
         XCTAssertEqual(fakeFirestoreService.histories.count, 1)
         XCTAssertTrue(fakeFirestoreService.histories.first?.action.contains("Decreased") ?? false)
-        
         XCTAssertNil(sut.appError)
     }
     
@@ -168,12 +155,9 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         
         // Then
         XCTAssertEqual(newStock, 25, "Stock should be 20+5=25")
-        
-        // Vérifier que l'historique contient les bonnes informations
         XCTAssertEqual(fakeFirestoreService.histories.count, 1)
         let history = fakeFirestoreService.histories.first
         XCTAssertTrue(history?.details.contains("from 20 to 25") ?? false)
-        
         XCTAssertNil(sut.appError)
     }
     
@@ -238,19 +222,13 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         await sut.updateMedicine(medicine, user: user, shouldAddHistory: true)
         
         // Then
-        // Vérifier Firestore
         let updatedInFirestore = fakeFirestoreService.medicines.first { $0.id == "med6" }
         XCTAssertEqual(updatedInFirestore?.name, "Aspirin Updated")
         XCTAssertEqual(updatedInFirestore?.stock, 15)
-        
-        // Vérifier DataStore local
         let updatedLocal = dataStore.medicines.first { $0.id == "med6" }
         XCTAssertEqual(updatedLocal?.name, "Aspirin Updated")
-        
-        // Vérifier l'historique
         XCTAssertEqual(fakeFirestoreService.histories.count, 1)
         XCTAssertTrue(fakeFirestoreService.histories.first?.action.contains("Updated") ?? false)
-        
         XCTAssertNil(sut.appError)
     }
     
@@ -266,11 +244,8 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         await sut.updateMedicine(medicine, user: user, shouldAddHistory: false)
         
         // Then
-        // Vérifier que la mise à jour a eu lieu
         let updatedInFirestore = fakeFirestoreService.medicines.first { $0.id == "med7" }
         XCTAssertEqual(updatedInFirestore?.name, "Paracetamol Updated")
-        
-        // Vérifier qu'aucun historique n'a été créé
         XCTAssertEqual(fakeFirestoreService.histories.count, 0)
         XCTAssertEqual(dataStore.history.count, 0)
         
@@ -334,13 +309,8 @@ final class MedicineDetailViewModelIntegrationTests: XCTestCase {
         XCTAssertEqual(result?.user, user)
         XCTAssertEqual(result?.medicineId, medicineId)
         XCTAssertEqual(result?.details, details)
-        
-        // Vérifier Firestore
         XCTAssertEqual(fakeFirestoreService.histories.count, 1)
-        
-        // Vérifier DataStore local
         XCTAssertEqual(dataStore.history.count, 1)
-        
         XCTAssertNil(sut.appError)
     }
     

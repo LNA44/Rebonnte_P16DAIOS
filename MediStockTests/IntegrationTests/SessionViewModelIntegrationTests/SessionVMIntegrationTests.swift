@@ -56,7 +56,7 @@ final class SessionViewModelIntegrationTests: XCTestCase {
     }
     
     func test_listen_whenUserDisconnected_shouldClearSession() async {
-        // Given - D'abord connecter un utilisateur
+        // Given - Connecter un utilisateur
         sut.listen()
         fakeAuthService.simulateAuthStateChange(user: ("user123", "test@example.com"))
         try? await Task.sleep(nanoseconds: 100_000_000)
@@ -76,7 +76,7 @@ final class SessionViewModelIntegrationTests: XCTestCase {
         // Given
         sut.listen()
 
-        // When - Première connexion
+        // When - Connexion
         let user1 = (uid: "user1", email: "user1@test.com")
         fakeAuthService.simulateAuthStateChange(user: user1)
         try? await Task.sleep(nanoseconds: 100_000_000)
@@ -92,7 +92,7 @@ final class SessionViewModelIntegrationTests: XCTestCase {
         XCTAssertNil(sut.session)
         XCTAssertNil(sut.handle, "Listen should be deleted after logout")
 
-        // When - ✅ Relancer l'écoute pour une nouvelle session
+        // When - Relancer l'écoute pour une nouvelle session
         sut.listen()
         let user2 = (uid: "user2", email: "user2@test.com")
         fakeAuthService.simulateAuthStateChange(user: user2)
@@ -164,7 +164,7 @@ final class SessionViewModelIntegrationTests: XCTestCase {
         sut.unbind()
         sut.unbind()
         
-        // Then - Ne devrait pas crasher
+        // Then
         XCTAssertNil(sut.handle)
     }
     
@@ -188,10 +188,10 @@ final class SessionViewModelIntegrationTests: XCTestCase {
         fakeAuthService.simulateAuthStateChange(user: nil)
         try? await Task.sleep(nanoseconds: 100_000_000)
         
-        // Then - Session supprimée
+        // Then
         XCTAssertNil(sut.session)
         
-        // When - Cleanup
+        // When 
         sut.unbind()
         
         // Then - Handle supprimé

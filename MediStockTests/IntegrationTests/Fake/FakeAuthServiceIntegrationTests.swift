@@ -56,7 +56,7 @@ final class FakeAuthIntegrationService: AuthServicing {
         currentListener = nil
     }
     
-    // MARK: - ✅ Helper pour simuler les changements d'état
+    // MARK: - Helper pour simuler les changements d'état
     func simulateAuthStateChange(user: (uid: String, email: String)?) {
         if let user = user {
             let authUserInfo = AuthUserInfo(uid: user.uid, email: user.email)

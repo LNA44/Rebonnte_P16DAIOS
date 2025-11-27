@@ -22,46 +22,35 @@ class FirestoreService: FirestoreServicing {
         var sortMedicinesClientSide = false
         let hasFilter = filterText != nil && !filterText!.isEmpty
 
-        // Filtre + tri côté serveur
         if hasFilter {
             let filterLower = filterText!.lowercased()
             
-            // Filtre par name_lowercase
+            // Filtre
             query = query
                 .whereField("name_lowercase", isGreaterThanOrEqualTo: filterLower)
                 .whereField("name_lowercase", isLessThanOrEqualTo: filterLower + "\u{f8ff}")
             
-            // Ajouter le tri selon l'option
+            // Tri
             switch sortOption {
             case .name:
                 query = query.order(by: "name_lowercase", descending: false)
-                print("✅ Filtre par nom + tri par nom appliqués")
-                
             case .stock:
                 sortStockClientSide = true
-                print("⚠️ Filtre par nom (serveur) + tri par stock (client)")
-            case .none: //comme on a un filtre, firebase trie automatiquement sur ce meme champ (name_lowercase)
+            case .none:
                 sortMedicinesClientSide = true
-                print("✅ Filtre par nom appliqué")
             }
         } else {
-            
-            // Aucun filtre → tri normal
             switch sortOption {
             case .name:
-                print("📝 Tri par NOM")
                 query = query.order(by: "name_lowercase")
-
             case .stock:
-                print("📦 Tri par STOCK")
                 query = query.order(by: "stock", descending: true)
-
             case .none:
-                print("⚪ Aucun tri")
+                break
             }
         }
         
-        // Pagination : charger données par petits morceaux
+        // Pagination
         query = query.limit(to: pageSize)
         if let lastDoc = lastDocument as? DocumentSnapshot {
             query = query.start(afterDocument: lastDoc)
@@ -69,7 +58,6 @@ class FirestoreService: FirestoreServicing {
 
         query.getDocuments { snapshot, error in
             if let error = error {
-                print("Error fetching medicines batch: \(error)")
                 completion([], nil, error)
                 return
             }
@@ -90,12 +78,10 @@ class FirestoreService: FirestoreServicing {
             
             if sortStockClientSide {
                 fetchedMedicines.sort { $0.stock > $1.stock }
-                print("✅ Tri par stock effectué côté client (\(fetchedMedicines.count) items)")
             }
             
             if sortMedicinesClientSide {
                 fetchedMedicines.shuffle()
-                print("🔀 Shuffle appliqué pour sortOption = .none (\(fetchedMedicines.count) items)")
             }
             
             completion(fetchedMedicines, snapshot.documents.last, nil)
@@ -103,11 +89,9 @@ class FirestoreService: FirestoreServicing {
     }
  
     func fetchAisles(collection: String, onUpdate: @escaping ([String], Error?) -> Void) -> ListenerRegistration {
-        print("fetchAisles appelé")
         
         let listener = db.collection(collection).addSnapshotListener { (querySnapshot, error) in
             if let error = error {
-                print("Error getting documents: \(error)")
                 onUpdate([], error)
             } else {
                 DispatchQueue.global(qos: .userInitiated).async {
@@ -129,14 +113,12 @@ class FirestoreService: FirestoreServicing {
     }
     
     func addMedicine(collection: String, _ medicine: Medicine, user: String) async throws -> Medicine {
-        print("add medicine appelé")
 
         let docId = medicine.id ?? UUID().uuidString
         var medicineToSave = medicine
         medicineToSave.id = docId
         medicineToSave.name_lowercase = medicine.name.lowercased()
         try db.collection(collection).document(docId).setData(from: medicineToSave)
-        print("✅ Medicine ajouté")
         return medicineToSave
     }
     
@@ -157,12 +139,8 @@ class FirestoreService: FirestoreServicing {
     
     func updateMedicine(collection: String,_ medicine: Medicine) async throws {
         guard let id = medicine.id else { return }
-        // 1️⃣ Crée une copie modifiable
         var medicineToUpdate = medicine
-        
-        // 2️⃣ Mets à jour name_lowercase
         medicineToUpdate.name_lowercase = medicine.name.lowercased()
-        
         try db.collection(collection).document(id).setData(from: medicineToUpdate)
     }
     
@@ -175,10 +153,7 @@ class FirestoreService: FirestoreServicing {
             action: action,
             details: details
         )
-            print("💾 [addHistory] Envoi vers Firestore...")
             try db.collection("history").document(newId).setData(from: historyEntry)
-
-            print("✅ History ajouté avec succès")
             return historyEntry
     }
     
@@ -193,19 +168,13 @@ class FirestoreService: FirestoreServicing {
                 .whereField("medicineId", in: chunk)
                 .getDocuments()
             
-            // Utiliser un batch pour optimiser les suppressions
-            let batch = db.batch()
+            let batch = db.batch() // Batch -> suppression groupée
             
             for document in querySnapshot.documents {
                 batch.deleteDocument(document.reference)
             }
-            
             try await batch.commit()
-            
-            print("✅ Batch supprimé : \(querySnapshot.documents.count) entrées d'historique")
         }
-        
-        print("✅ Historique total supprimé pour \(medicineIds.count) médicament(s)")
     }
     
     func fetchHistoryBatch(collection: String,for medicineId: String, pageSize: Int = 20, lastDocument: DocumentSnapshotType? = nil, completion: @escaping ([HistoryEntry], DocumentSnapshotType?, Error?) -> Void) {
@@ -247,7 +216,6 @@ class FirestoreService: FirestoreServicing {
     func createUser(collection: String, user: AppUser) async throws {
         let docRef = db.collection(collection).document(user.uid)
             try docRef.setData(from: user)
-            print("Utilisateur créé avec succès dans firestore !")
     }
     
     func getEmail(collection: String, uid: String) async throws -> String? {

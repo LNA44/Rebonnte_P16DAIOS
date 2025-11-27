@@ -15,5 +15,4 @@ struct Enumerations {
         
         var id: String { self.rawValue }
     }
-    
 }

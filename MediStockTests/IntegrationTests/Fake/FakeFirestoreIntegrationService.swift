@@ -38,7 +38,6 @@ class FakeFirestoreIntegrationService: FirestoreServicing {
         // Simule un "listener" Firestore
         onUpdate(aisles, nil)
         
-        // Faux ListenerRegistration
         return FakeListenerRegistration()
     }
 

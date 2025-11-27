@@ -17,7 +17,6 @@ class MedicineDetailViewModel: ObservableObject {
     @Published var emailsCache: [String: String] = [:] // uid -> email
     @Published var appError: AppError?
     
-    //MARK: -Initialization
     init(
         authService: AuthServicing = AuthService.shared,
         firestoreService: FirestoreServicing = FirestoreService.shared,
@@ -26,23 +25,18 @@ class MedicineDetailViewModel: ObservableObject {
         self.authService = authService
         self.firestoreService = firestoreService
         self.dataStore = dataStore
-        print("🏗️ INIT MedicineDetailViewModel")
     }
  
     func addMedicine(_ medicine: Medicine, user: String) async -> Medicine {
-        print("add medicine appelé dans la ViewModel")
-
         do {
-            // Appel du service
             let savedMedicine = try await firestoreService.addMedicine(collection: "medicines", medicine, user: user)
 
-            // Appel asynchrone de addHistory
-                _ = await addHistory(
-                    action: "Medicine created",
-                    user: user,
-                    medicineId: savedMedicine.id ?? "",
-                    details: ""
-                )
+            _ = await addHistory(
+                action: "Medicine created",
+                user: user,
+                medicineId: savedMedicine.id ?? "",
+                details: ""
+            )
             self.appError = nil
             return savedMedicine
         } catch {
@@ -52,32 +46,26 @@ class MedicineDetailViewModel: ObservableObject {
     }
     
     func increaseStock(_ medicine: Medicine, user: String) async -> Int {
-        print("increaseStock appelé")
         let newStock = await updateStock(medicine, by: 1, user: user)
         return newStock
     }
 
     func decreaseStock(_ medicine: Medicine, user: String) async -> Int {
-        print("decreaseStock appelé")
         let newStock = await updateStock(medicine, by: -1, user: user)
         return newStock
     }
-    //OK
+
     func updateStock(_ medicine: Medicine, by amount: Int, user: String) async -> Int {
-        print("updateStock appelé")
         guard let id = medicine.id else { return 0 }
         
         let currentStock = dataStore.medicines.first(where: { $0.id == id })?.stock ?? medicine.stock
         let newStock = currentStock + amount
         
         do {
-            // 1️⃣ Mise à jour dans Firestore via le service
             try await firestoreService.updateStock(collection: "medicines", for: id, newStock: newStock)
             
-            // 2️⃣ Mise à jour locale
             dataStore.updateMedicineStock(id: id, newStock: newStock)
             
-            // 3️⃣ Ajout à l'historique
             _ = await addHistory(
                 action: "\(amount > 0 ? "Increased" : "Decreased") stock of \(medicine.name) by \(amount)",
                 user: user,
@@ -91,19 +79,15 @@ class MedicineDetailViewModel: ObservableObject {
             return currentStock
         }
     }
-    //OK
+    
     func updateMedicine(_ medicine: Medicine, user: String, shouldAddHistory: Bool = true) async {
-        print("update medicine appelé")
         guard let id = medicine.id else { return }
         
         do {
-            // 1️⃣ Mise à jour Firestore
             try await firestoreService.updateMedicine(collection: "medicines", medicine)
             
-            // 2️⃣ Mise à jour locale
             dataStore.updateMedicine(medicine)
             
-            // 3️⃣ Ajout à l'historique si demandé
             if shouldAddHistory {
                 _ = await addHistory(
                     action: "Updated \(medicine.name)",
@@ -119,9 +103,7 @@ class MedicineDetailViewModel: ObservableObject {
     }
     
     func addHistory(action: String,user: String,medicineId: String,details: String) async -> HistoryEntry? {
-        print("addHistory appelé dans la ViewModel")
         do {
-            // Appel du service
             let historyEntry = try await firestoreService.addHistory(
                 collection: "history",
                 action: action,
@@ -129,11 +111,7 @@ class MedicineDetailViewModel: ObservableObject {
                 medicineId: medicineId,
                 details: details
             )
-            
             if let historyEntry = historyEntry {
-                print("✅ History créé pour medicine \(medicineId)")
-                
-                // Mise à jour locale de l'historique
                 dataStore.addHistoryEntry(historyEntry)
             }
             self.appError = nil

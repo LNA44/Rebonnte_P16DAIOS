@@ -165,8 +165,6 @@ final class SessionViewModelTests: XCTestCase {
         XCTAssertNotNil(firstHandle)
         XCTAssertNotNil(secondHandle)
         XCTAssertNotNil(thirdHandle)
-        // Note: Dans l'implémentation actuelle, chaque appel crée un nouveau listener
-        // Si vous voulez éviter ça, ajoutez unbind() au début de listen()
     }
     
     // MARK: - UpdateSession Tests
@@ -300,7 +298,7 @@ final class SessionViewModelTests: XCTestCase {
         
         // Then
         XCTAssertNil(sut.handle)
-        XCTAssertEqual(authListener.removeCallCount, 1) // ✅ Fonctionne
+        XCTAssertEqual(authListener.removeCallCount, 1)
     }
 
     
@@ -349,7 +347,7 @@ final class SessionViewModelTests: XCTestCase {
         sut.$session
             .dropFirst()
             .sink { _ in
-                expectation.fulfill() // Ne devrait pas être appelé
+                expectation.fulfill()
             }
             .store(in: &cancellables)
         
@@ -419,9 +417,9 @@ final class SessionViewModelTests: XCTestCase {
         let callback = mockAuthService.listenerCallback
         
         // When
-        sut = nil // Libérer le ViewModel
+        sut = nil
         
-        // Then - Le callback avec weak self ne devrait pas crasher
+        // Then
         XCTAssertNoThrow(callback?(AuthUserInfo(uid: "test", email: "test@test.com")))
     }
     

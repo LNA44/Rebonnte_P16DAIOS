@@ -4,14 +4,13 @@ struct MedicineListView: View {
     @EnvironmentObject var dataStore: DataStore
     @EnvironmentObject var medicineStockVM: MedicineStockViewModel
     var aisle: String
-    @State private var isInitialLoadDone = false  // ✅ Flag
+    @State private var isInitialLoadDone = false
     private var filteredMedicines: [Medicine] {
-            dataStore.medicines.filter { $0.aisle == aisle }
+        dataStore.medicines.filter { $0.aisle == aisle }
     }
     
     init(aisle: String) {
         self.aisle = aisle
-        print("🏗️ INIT MedicineListView pour \(aisle)")
     }
     
     var body: some View {
@@ -36,7 +35,6 @@ struct MedicineListView: View {
             .onDelete { indexSet in
                 Task {
                     await medicineStockVM.deleteMedicines(at: indexSet)
-                    //await medicineStockVM.deleteHistory(for: medicinesId)
                 }
             }
         }
@@ -44,15 +42,6 @@ struct MedicineListView: View {
             MedicineDetailView(medicine: medicine, isNew: false)
         }
         .navigationBarTitle(aisle)
-        /*.onAppear {
-         print("👁️ APPEAR MedicineListView - \(aisle)")
-         // ✅ Charger seulement la première fois ET si vide
-         if !hasAppeared && filteredMedicines.isEmpty {
-         print("🔄 Premier chargement pour \(aisle)")
-         medicineStockVM.fetchNextMedicinesBatch()
-         hasAppeared = true
-         }
-         }*/
         .task { 
             guard !isInitialLoadDone else { return }
             medicineStockVM.fetchNextMedicinesBatch()

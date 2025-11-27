@@ -11,12 +11,10 @@ import FirebaseFirestore
 
 final class FakeSessionViewModel: SessionViewModel {
     init() {
-        // On passe des fakes pour auth et firestore
         let fakeAuth = FakeAuthIntegrationService()
         let fakeFirestore = FakeFirestoreIntegrationService()
         super.init(authService: fakeAuth, firestoreService: fakeFirestore)
         
-        // On simule un utilisateur connecté
         self.session = AppUser(uid: "123", email: "fake@test.com")
     }
 }

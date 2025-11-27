@@ -13,7 +13,6 @@ class LoginViewModel: ObservableObject {
     private let sessionVM: SessionViewModel
     @Published var appError: AppError?
     
-    //MARK: -Initialization
     init(
         authService: AuthServicing = AuthService.shared,
         firestoreService: FirestoreServicing = FirestoreService.shared,
@@ -22,7 +21,6 @@ class LoginViewModel: ObservableObject {
         self.authService = authService
         self.firestoreService = firestoreService
         self.sessionVM = sessionVM
-        print("🏗️ INIT LoginListViewModel")
     }
     
     func signUp(email: String, password: String, completion: @escaping () -> Void) {
@@ -51,7 +49,6 @@ class LoginViewModel: ObservableObject {
                         self.appError = AppError.fromAuth(error)
                     }
                 }
-                
                 completion()
             }
         }
@@ -59,7 +56,8 @@ class LoginViewModel: ObservableObject {
     
     func signIn(email: String, password: String, completion: @escaping () -> Void) {
         authService.signIn(email: email, password: password) { [weak self] (user, error) in
-            Task { //ajouté car closure pas forcément sur thread principal
+            
+            Task {
                 if let user = user {
                     guard let self = self else { return }
                     await MainActor.run {

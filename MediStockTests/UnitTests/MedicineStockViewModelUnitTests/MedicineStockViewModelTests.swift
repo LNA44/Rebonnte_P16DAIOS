@@ -40,7 +40,7 @@ final class MedicineStockViewModelTests: XCTestCase {
         super.tearDown()
     }
     
-    // MARK: - Initialization Tests (2 tests)
+    // MARK: - Initialization Tests
     
     func test_init_shouldSetDefaultValues() {
         // Then
@@ -59,7 +59,7 @@ final class MedicineStockViewModelTests: XCTestCase {
         XCTAssertEqual(mockDataStore.history.count, 0) 
     }
     
-    // MARK: - fetchNextMedicinesBatch Tests (12 tests)
+    // MARK: - fetchNextMedicinesBatch Tests
     
     func test_fetchNextMedicinesBatch_withSuccess_shouldAddMedicinesToDataStore() {
         // Given
@@ -175,7 +175,7 @@ final class MedicineStockViewModelTests: XCTestCase {
     
     func test_fetchNextMedicinesBatch_withSortOption_shouldPassToService() {
         // Given
-        sut.sortOption = .stock // ✅ CORRIGÉ
+        sut.sortOption = .stock
         mockFirestoreService.fetchMedicinesBatchResult = ([], nil, nil)
         
         // When
@@ -187,7 +187,7 @@ final class MedicineStockViewModelTests: XCTestCase {
 
     func test_changeSortOption_affectsNextFetch() {
         // Given
-        sut.sortOption = .stock // ✅ CORRIGÉ
+        sut.sortOption = .stock
         mockFirestoreService.fetchMedicinesBatchResult = ([], nil, nil)
         
         // When
@@ -197,7 +197,7 @@ final class MedicineStockViewModelTests: XCTestCase {
         XCTAssertEqual(mockFirestoreService.lastFetchMedicinesSortOption, .stock)
         
         // When - Change sort
-        sut.sortOption = .name // ✅ CORRIGÉ
+        sut.sortOption = .name
         sut.fetchNextMedicinesBatch()
         
         // Then
@@ -258,7 +258,7 @@ final class MedicineStockViewModelTests: XCTestCase {
         XCTAssertEqual(mockFirestoreService.lastFetchMedicinesLastDocument?.id, "doc456")
     }
     
-    // MARK: - deleteMedicines Tests (8 tests)
+    // MARK: - deleteMedicines Tests
     
     func test_deleteMedicines_withSuccess_shouldReturnDeletedIds() async {
         // Given
@@ -457,7 +457,7 @@ final class MedicineStockViewModelTests: XCTestCase {
         var receivedValue: String?
         
         sut.$filterText
-            .dropFirst() // Skip initial value
+            .dropFirst() // Passer la valeur initiale
             .sink { value in
                 receivedValue = value
                 expectation.fulfill()

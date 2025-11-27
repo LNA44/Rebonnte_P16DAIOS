@@ -11,8 +11,7 @@ struct LoginView: View {
     
     init() {
         _loginVM = StateObject(wrappedValue: LoginViewModel(sessionVM: SessionViewModel.shared))
-        print("🏗️ INIT LoginListView")
-       }
+    }
 
     var body: some View {
         VStack {

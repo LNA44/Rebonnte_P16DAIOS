@@ -6,9 +6,8 @@ struct AisleListView: View {
     @State private var showNewMedicine: Bool? = nil
 
     init(aisleListVM: AisleListViewModel) {
-            _aisleListVM = StateObject(wrappedValue: aisleListVM)
-        print("🏗️ INIT AisleListView")
-        }
+        _aisleListVM = StateObject(wrappedValue: aisleListVM)
+    }
     
     var body: some View {
         NavigationStack {
@@ -35,27 +34,27 @@ struct AisleListView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                                    Button(action: {
-                                        showNewMedicine = true
-                                    }) {
-                                        Image(systemName: "plus")
-                                            .accessibilityLabel("Add new medicine")
-                                            .accessibilityHint("Tap to add a new medicine")
-                                    }
-                                }
+                    Button(action: {
+                        showNewMedicine = true
+                    }) {
+                        Image(systemName: "plus")
+                            .accessibilityLabel("Add new medicine")
+                            .accessibilityHint("Tap to add a new medicine")
+                    }
+                }
             }
             .navigationDestination(for: String.self) { aisle in
                 MedicineListView(
                     aisle: aisle
                 )
             }
-
+            
             .navigationDestination(item: $showNewMedicine) { _ in
-                            MedicineDetailView(
-                                medicine: Medicine(name: "", stock: 0, aisle: ""),
-                                isNew: true
-                            )
-                        }
+                MedicineDetailView(
+                    medicine: Medicine(name: "", stock: 0, aisle: ""),
+                    isNew: true
+                )
+            }
         }
         .onAppear {
             aisleListVM.fetchAisles()

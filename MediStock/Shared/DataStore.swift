@@ -19,7 +19,6 @@ class DataStore: ObservableObject {
     func updateMedicineStock(id: String, newStock: Int) {
         if let index = medicines.firstIndex(where: { $0.id == id }) {
             medicines[index].stock = newStock
-            print("✅ Stock mis à jour localement: \(medicines[index].name) → \(newStock)")
         }
     }
     
@@ -27,14 +26,12 @@ class DataStore: ObservableObject {
     func updateMedicine(_ medicine: Medicine) {
         if let index = medicines.firstIndex(where: { $0.id == medicine.id }) {
             medicines[index] = medicine
-            print("✅ Medicine mis à jour localement: \(medicine.name)")
         }
     }
     
     func addHistoryEntry(_ entry: HistoryEntry) {
         if !history.contains(where: { $0.id == entry.id }) {
             history.append(entry)
-            print("✅ History ajouté localement: \(entry.action)")
         }
     }
     
@@ -45,7 +42,6 @@ class DataStore: ObservableObject {
                 history.append(entry)
             }
         }
-        print("✅ \(newEntries.count) history entries ajoutés localement")
     }
     
     func addMedicinesToLocal(_ newMedicines: [Medicine]) {

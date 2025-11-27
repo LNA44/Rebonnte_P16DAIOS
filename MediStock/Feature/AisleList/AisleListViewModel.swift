@@ -20,19 +20,13 @@ class AisleListViewModel: ObservableObject {
         self.sessionVM = sessionVM
         self.authService = authService
         self.firestoreService = firestoreService
-        print("🏗️ INIT AisleListViewModel")
     }
     
     deinit {
-        // ✅ Retire tous les listeners a la suppression du VM
-        print("🗑️ DEINIT AisleListViewModel - \(ObjectIdentifier(self))")
         aislesListener?.remove()
-        
-        print("🧹 Tous les listeners nettoyés")
     }
     
     func fetchAisles() {
-        // Retirer l'ancien listener si existant
         aislesListener?.remove()
         
         aislesListener = firestoreService.fetchAisles(collection: "medicines") { [weak self] aisles, error in

@@ -9,7 +9,6 @@ struct AllMedicinesView: View {
     var body: some View {
         NavigationStack {
                 VStack {
-                    // Filtrage et Tri
                     HStack {
                         TextField("Filter by name", text: $medicineStockVM.filterText)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -35,16 +34,13 @@ struct AllMedicinesView: View {
                         .accessibilityLabel("Sort options")
                         .accessibilityHint("Select how to sort the list of medicines")
                         .onChange(of: medicineStockVM.sortOption) {_, newSort in
-                            // Réinitialiser la pagination et la liste
                             dataStore.medicines = []
                             medicineStockVM.lastMedicinesDocument = nil
-                            // Recharger les medicines triées
                             medicineStockVM.fetchNextMedicinesBatch(filterText: medicineStockVM.filterText.isEmpty ? nil : medicineStockVM.filterText)
                         }
                     }
                     .padding(.top, 10)
                     
-                    // Liste des Médicaments
                     List {
                         ForEach(dataStore.medicines, id: \.id) { medicine in
                             NavigationLink(value: medicine) {
@@ -75,7 +71,6 @@ struct AllMedicinesView: View {
                     .navigationBarTitle("All Medicines")
                     .toolbar {
                         ToolbarItem(placement: .navigationBarTrailing) {
-                            // ✅ Button au lieu de NavigationLink
                             Button(action: {
                                 showNewMedicine = true
                             }) {
