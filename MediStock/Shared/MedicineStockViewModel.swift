@@ -26,9 +26,9 @@ class MedicineStockViewModel: ObservableObject {
                 self.appError = AppError.fromFirestore(error)
                 return
             }
-                self.dataStore.addMedicinesToLocal(newMedicines)
-                self.lastMedicinesDocument = lastDoc
-                self.appError = nil
+            self.dataStore.addMedicinesToLocal(newMedicines)
+            self.lastMedicinesDocument = lastDoc
+            self.appError = nil
         }
     }
 

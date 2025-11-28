@@ -113,7 +113,6 @@ class FirestoreService: FirestoreServicing {
     }
     
     func addMedicine(collection: String, _ medicine: Medicine, user: String) async throws -> Medicine {
-
         let docId = medicine.id ?? UUID().uuidString
         var medicineToSave = medicine
         medicineToSave.id = docId
@@ -153,8 +152,8 @@ class FirestoreService: FirestoreServicing {
             action: action,
             details: details
         )
-            try db.collection("history").document(newId).setData(from: historyEntry)
-            return historyEntry
+        try db.collection("history").document(newId).setData(from: historyEntry)
+        return historyEntry
     }
     
     func deleteHistory(collection: String, for medicineIds: [String]) async throws {

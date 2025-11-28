@@ -6,6 +6,7 @@ struct MedicineDetailView: View {
     @EnvironmentObject var dataStore: DataStore
     @State var medicine: Medicine
     @State var isNew: Bool = false
+    @State private var isRevertingAisle = false
     @State private var hasSavedAisle = false
     @State private var isEditingStock = false
     @State private var stockText: String = ""
@@ -189,10 +190,15 @@ extension MedicineDetailView {
                 .disabled(localMedicine.name.isEmpty)
                 .accessibilityLabel("Aisle")
                 .accessibilityHint("Enter the aisle where this medicine is stored")
-                .onChange(of: localMedicine.aisle) {_, newAisle in
+                .onChange(of: localMedicine.aisle) { oldAisle, newAisle in
+                    if isRevertingAisle {
+                        isRevertingAisle = false
+                        return
+                    }
+
                     if newAisle.allSatisfy({ $0.isNumber }) {
                         lastValidAisle = newAisle
-                        
+
                         if !newAisle.isEmpty && !isNew {
                             Task {
                                 await medicineDetailVM.addHistory(
@@ -203,7 +209,8 @@ extension MedicineDetailView {
                                 )
                             }
                         }
-                    } else { //contient au moins une lettre
+                    } else {
+                        isRevertingAisle = true
                         localMedicine.aisle = lastValidAisle
                     }
                 }
